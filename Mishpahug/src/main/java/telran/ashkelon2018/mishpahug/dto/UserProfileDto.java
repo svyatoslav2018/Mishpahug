@@ -18,12 +18,12 @@ public class UserProfileDto {
 	String firstName;
 	String lastName;
 	int phoneNumber;
-	String confession;
+	Set<String> userConfession;
 	LocalDate dateOfBirth;
-	String maritalStatus;
-	String foodPreference;
-	String gender;
-	String languages;
+	Set<String> maritalStatus;
+	Set<String> foodPreference;
+	Set<String> gender;
+	Set<String> languages;
 	String aboutYourself;
 
 	// Set<String> roles;
