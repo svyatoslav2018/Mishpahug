@@ -1,3 +1,4 @@
+
 package telran.ashkelon2018.mishpahug.service;
 
 import telran.ashkelon2018.mishpahug.dto.StaticFieldsDto;
@@ -13,3 +14,4 @@ public interface AccountService {
 	UserProfileDto getStaticFields(StaticFieldsDto staticFieldsDto);
 	
 }
+

@@ -13,18 +13,22 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Builder
 @EqualsAndHashCode(of = { "email" })
+
 @Document(collection = "Mishpahug_users")
+
 
 public class UserAccount {
 	@Id
 	String email;
 	String password;
+
 	
 	String firstName;
 	String lastName;
