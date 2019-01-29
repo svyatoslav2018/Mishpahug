@@ -1,5 +1,6 @@
 package telran.ashkelon2018.mishpahug.service;
 
+import telran.ashkelon2018.mishpahug.dto.StaticFieldsDto;
 import telran.ashkelon2018.mishpahug.dto.UserProfileDto;
 
 public interface AccountService {
@@ -8,5 +9,7 @@ public interface AccountService {
 	UserProfileDto editUser(UserProfileDto userProfileDto, String token);
 	
 	UserProfileDto login(String token);
+
+	UserProfileDto getStaticFields(StaticFieldsDto staticFieldsDto);
 	
 }
