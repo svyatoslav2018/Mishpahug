@@ -19,7 +19,7 @@ import lombok.Setter;
 @Setter
 @Builder
 @EqualsAndHashCode(of = { "email" })
-@Document(collection = "mishpahug_users")
+@Document(collection = "Mishpahug_users")
 
 public class UserAccount {
 	@Id

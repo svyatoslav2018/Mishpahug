@@ -9,7 +9,6 @@ import telran.ashkelon2018.mishpahug.configuration.AccountUserCredentials;
 import telran.ashkelon2018.mishpahug.dao.UserAccountRepository;
 import telran.ashkelon2018.mishpahug.domain.UserAccount;
 import telran.ashkelon2018.mishpahug.dto.UserProfileDto;
-import telran.ashkelon2018.mishpahug.dto.UserRegDto;
 import telran.ashkelon2018.mishpahug.exceptions.UserConflictException;
 import telran.ashkelon2018.mishpahug.exceptions.UserNotFoundException;
 
@@ -23,7 +22,7 @@ public class AccountServiceImpl implements AccountService {
 	AccountConfiguration accountConfiguration;
 
 	@Override
-	public UserProfileDto addUser(UserRegDto userRegDto, String token) {
+	public UserProfileDto addUser(String token) {
 		AccountUserCredentials credentials = accountConfiguration.tokenDecode(token);
 		if (userRepository.existsById(credentials.getEmail())) {
 			throw new UserConflictException();// create our exception in UserConflictException
