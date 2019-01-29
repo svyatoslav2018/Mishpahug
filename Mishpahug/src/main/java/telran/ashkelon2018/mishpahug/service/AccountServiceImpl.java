@@ -4,14 +4,17 @@ import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import lombok.Builder;
 import telran.ashkelon2018.mishpahug.configuration.AccountConfiguration;
 import telran.ashkelon2018.mishpahug.configuration.AccountUserCredentials;
 import telran.ashkelon2018.mishpahug.dao.UserAccountRepository;
 import telran.ashkelon2018.mishpahug.domain.UserAccount;
+import telran.ashkelon2018.mishpahug.dto.StaticFieldsDto;
 import telran.ashkelon2018.mishpahug.dto.UserProfileDto;
 import telran.ashkelon2018.mishpahug.exceptions.UserConflictException;
 import telran.ashkelon2018.mishpahug.exceptions.UserNotFoundException;
 
+@Builder
 @Service
 public class AccountServiceImpl implements AccountService {
 
@@ -103,6 +106,14 @@ public class AccountServiceImpl implements AccountService {
 		AccountUserCredentials credentials = accountConfiguration.tokenDecode(token);
 		UserAccount userAccount = userRepository.findById(credentials.getEmail()).get();
 		return convertToUserProfileDto(userAccount);
+	}
+
+	@Override
+	public UserProfileDto getStaticFields(StaticFieldsDto staticFieldsDto) {
+
+		return UserProfileDto.builder()
+				
+				.build();
 	}
 
 }
