@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Singular;
+
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,33 +20,29 @@ import lombok.Singular;
 @Setter
 @Builder
 @EqualsAndHashCode(of = { "email" })
-//@Document(collection = "forum_users")
+
+@Document(collection = "Mishpahug_users")
+
+
 public class UserAccount {
 	@Id
 	String email;
 	String password;
+
+	
 	String firstName;
 	String lastName;
-	int phoneNumber;
+	String phoneNumber;
 	String userConfession;
 	LocalDate dateOfBirth;
 	String maritalStatus;
-	String foodPreference;
+	Set<String> foodPreference;
 	String gender;
-	String languages;
+	Set<String> languages;
 	String aboutYourself;
-	
-	@Singular
-	Set<String> roles;	
-
-	public void addRole(String role) {
-		roles.add(role);
-
-	}
-
-//	public void removeRole(String role) {
-//		roles.remove(role);
-//
-//	}
+	String[] pictureLink;//avatar and banner
 
 }
+
+}
+

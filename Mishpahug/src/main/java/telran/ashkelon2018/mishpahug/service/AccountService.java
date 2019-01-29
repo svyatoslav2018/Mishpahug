@@ -1,14 +1,11 @@
 package telran.ashkelon2018.mishpahug.service;
 
-import java.util.Set;
+import telran.ashkelon2018.mishpahug.dto.UserProfileDto;
 
 public interface AccountService {
-	
-    UserProfileDto addUser(UserRegDto userRegDto, String token);
-	
-	UserProfileDto editUser(UserRegDto userRegDto, String login);
-	
-	UserProfileDto getUser(String login);
-	
+	UserProfileDto addUser(String token);
 
-}
+	UserProfileDto editUser(UserProfileDto userProfileDto, String token);
+	
+	UserProfileDto login(String token);
+	}

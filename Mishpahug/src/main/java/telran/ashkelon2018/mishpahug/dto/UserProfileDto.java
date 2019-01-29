@@ -17,14 +17,14 @@ import lombok.Setter;
 public class UserProfileDto {
 	String firstName;
 	String lastName;
-	int phoneNumber;
-	Set<String> userConfession;
+	String phoneNumber;
+	String userConfession;
 	LocalDate dateOfBirth;
-	Set<String> maritalStatus;
+	String maritalStatus;
 	Set<String> foodPreference;
-	Set<String> gender;
+	String gender;
 	Set<String> languages;
 	String aboutYourself;
+	String[] pictureLink;//avatar and banner
 
-	// Set<String> roles;
 }
