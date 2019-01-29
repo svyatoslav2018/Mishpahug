@@ -8,5 +8,4 @@ public interface AccountService {
 	UserProfileDto editUser(UserProfileDto userProfileDto, String token);
 	
 	UserProfileDto login(String token);
-	
-}
+	}

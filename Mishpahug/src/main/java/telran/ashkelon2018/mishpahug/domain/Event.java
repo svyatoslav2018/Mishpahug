@@ -47,3 +47,43 @@ public class Event {//not finished!!!
 	}
 
 }
+
+public class Event {
+		//String id;
+		@Setter String title;
+		@Setter String holiday;
+		String address;
+		String eventConfession;
+		String typeOfKitchen;
+		String aboutEvent;
+		@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+		LocalDateTime dateFrom;
+		@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+		LocalDateTime dateTo;
+		
+		
+		
+		Set<LocalDateTime> datesFrom;
+		Set<LocalDateTime> datesTo;
+		Set<String> holidays;
+		Set<String> eventConfessions;
+		Set<String>
+		
+			
+		public Post( String title, String content, String author, Set<String> tags) {
+			this.title = title;
+			this.content = content;
+			this.author = author;
+			this.tags = tags;
+			dateCreated = LocalDateTime.now();
+			comments = new HashSet<>();
+		}
+		
+		public void addLike() {
+			likes++;
+		}
+		
+		
+	
+}
+
