@@ -43,6 +43,3 @@ public class UserAccount {
 	String[] pictureLink;//avatar and banner
 
 }
-
-}
-

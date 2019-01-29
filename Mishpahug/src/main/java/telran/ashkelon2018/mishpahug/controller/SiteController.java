@@ -1,20 +1,7 @@
 package telran.ashkelon2018.mishpahug.controller;
 
-import java.time.LocalDateTime;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import telran.ashkelon2018.mishpahug.domain.Event;
-import telran.ashkelon2018.mishpahug.dto.DatePeriodDto;
-import telran.ashkelon2018.mishpahug.dto.NewEventDto;
-import telran.ashkelon2018.mishpahug.service.SiteService;
 
 @RestController
 @RequestMapping("/mishpahug") // all will be start from account
