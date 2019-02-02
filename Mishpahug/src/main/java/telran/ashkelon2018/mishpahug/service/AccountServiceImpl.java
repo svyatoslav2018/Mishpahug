@@ -1,15 +1,20 @@
 package telran.ashkelon2018.mishpahug.service;
 
 import org.mindrot.jbcrypt.BCrypt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jmx.export.annotation.ManagedAttribute;
+import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.stereotype.Service;
 
 import lombok.Builder;
 import telran.ashkelon2018.mishpahug.configuration.AccountConfiguration;
 import telran.ashkelon2018.mishpahug.configuration.AccountUserCredentials;
+import telran.ashkelon2018.mishpahug.dao.StaticFieldsRepository;
 import telran.ashkelon2018.mishpahug.dao.UserAccountRepository;
 import telran.ashkelon2018.mishpahug.domain.UserAccount;
-import telran.ashkelon2018.mishpahug.dto.StaticFieldsDto;
 import telran.ashkelon2018.mishpahug.dto.UserProfileDto;
 import telran.ashkelon2018.mishpahug.exceptions.UserConflictException;
 import telran.ashkelon2018.mishpahug.exceptions.UserNotFoundException;
@@ -17,12 +22,15 @@ import telran.ashkelon2018.mishpahug.exceptions.UserNotFoundException;
 @Builder
 @Service
 public class AccountServiceImpl implements AccountService {
-
+	
 	@Autowired
 	UserAccountRepository userRepository;
 
 	@Autowired
 	AccountConfiguration accountConfiguration;
+	
+	@Autowired
+	StaticFieldsRepository staticFieldsRepository;
 
 	@Override
 	public UserProfileDto addUser(String token) {
@@ -30,11 +38,9 @@ public class AccountServiceImpl implements AccountService {
 		if (userRepository.existsById(credentials.getEmail())) {
 			throw new UserConflictException();// create our exception in UserConflictException
 		}
-		String hashPassword = BCrypt.hashpw(credentials.getPassword(), BCrypt.gensalt());// BCrypt.gensalt() method for
-																							// generate passw
-		UserAccount userAccount = UserAccount.builder().email(credentials.getEmail()).password(hashPassword)
-				// .email(userRegDto.getEmail()).password(userRegDto.getPassword())
-				.build();
+		String hashPassword = BCrypt.hashpw(credentials.getPassword(), BCrypt.gensalt());
+		// BCrypt.gensalt() method for generate password
+		UserAccount userAccount = UserAccount.builder().email(credentials.getEmail()).password(hashPassword).build();
 		userRepository.save(userAccount);
 		return convertToUserProfileDto(userAccount);
 	}
@@ -43,20 +49,22 @@ public class AccountServiceImpl implements AccountService {
 		return UserProfileDto.builder()
 				.firstName(userAccount.getFirstName())
 				.lastName(userAccount.getLastName())
-				.phoneNumber(userAccount.getPhoneNumber())
-				.userConfession(userAccount.getUserConfession())
 				.dateOfBirth(userAccount.getDateOfBirth())
-				.maritalStatus(userAccount.getMaritalStatus())
-				.foodPreference(userAccount.getFoodPreference())
 				.gender(userAccount.getGender())
-				.languages(userAccount.getLanguages())
-				.aboutYourself(userAccount.getAboutYourself())
+				.maritalStatus(userAccount.getMaritalStatus())
+				.confession(userAccount.getConfession())
 				.pictureLink(userAccount.getPictureLink())
+				.phoneNumber(userAccount.getPhoneNumber())
+				.foodPreferences(userAccount.getFoodPreferences())
+				.languages(userAccount.getLanguages())
+				.description(userAccount.getDescription())
+				.rate(userAccount.getRate())
+				.numberOfVoters(userAccount.getNumberOfVoters())
 				.build();
 	}
 
 	@Override
-	public UserProfileDto editUser(UserProfileDto userProfileDto, String token) {
+	public UserProfileDto editUserProfile(UserProfileDto userProfileDto, String token) {
 		AccountUserCredentials credentials = accountConfiguration.tokenDecode(token);
 		UserAccount userAccount = userRepository.findById(credentials.getEmail()).get();
 		if (credentials.getEmail() == userAccount.getEmail()) {
@@ -70,8 +78,8 @@ public class AccountServiceImpl implements AccountService {
 			if (userProfileDto.getPhoneNumber() != null) {
 				userAccount.setPhoneNumber(userProfileDto.getPhoneNumber());
 			}
-			if (userProfileDto.getUserConfession() != null) {
-				userAccount.setUserConfession(userProfileDto.getUserConfession());
+			if (userProfileDto.getConfession() != null) {
+				userAccount.setConfession(userProfileDto.getConfession());
 			}
 			if (userProfileDto.getDateOfBirth() != null) {
 				userAccount.setDateOfBirth(userProfileDto.getDateOfBirth());
@@ -79,8 +87,8 @@ public class AccountServiceImpl implements AccountService {
 			if (userProfileDto.getMaritalStatus() != null) {
 				userAccount.setMaritalStatus(userProfileDto.getMaritalStatus());
 			}
-			if (userProfileDto.getFoodPreference() != null) {
-				userAccount.setFoodPreference(userProfileDto.getFoodPreference());
+			if (userProfileDto.getFoodPreferences() != null) {
+				userAccount.setFoodPreferences(userProfileDto.getFoodPreferences());
 			}
 			if (userProfileDto.getGender() != null) {
 				userAccount.setGender(userProfileDto.getGender());
@@ -88,8 +96,8 @@ public class AccountServiceImpl implements AccountService {
 			if (userProfileDto.getLanguages() != null) {
 				userAccount.setLanguages(userProfileDto.getLanguages());
 			}
-			if (userProfileDto.getAboutYourself() != null) {
-				userAccount.setAboutYourself(userProfileDto.getAboutYourself());
+			if (userProfileDto.getDescription() != null) {
+				userAccount.setDescription(userProfileDto.getDescription());
 			}
 			if (userProfileDto.getPictureLink() != null) {
 				userAccount.setPictureLink(userProfileDto.getPictureLink());
@@ -108,12 +116,24 @@ public class AccountServiceImpl implements AccountService {
 		return convertToUserProfileDto(userAccount);
 	}
 
-	@Override
-	public UserProfileDto getStaticFields(StaticFieldsDto staticFieldsDto) {
+//	@Override
+//	public StaticFieldsDto getStaticFields(StaticFieldsDto staticFieldsDto) {
+//		StaticFields staticFields = staticFieldsRepository.findById(credentials.getEmail()).get();
+//
+//		return StaticFieldsDto.builder()
+//				.confession(staticFields.getConfession())
+//				.gender(staticFields.getGender())
+//				.maritalStatus(staticFields.getMaritalStatus())
+//				.foodPreferences(staticFields.getFoodPreferences())			
+//				.languages(staticFields.getLanguages())
+//				.holiday(staticFields.getHoliday())
+//				.build();
+//	}
 
-		return UserProfileDto.builder()
-				
-				.build();
+	@Override
+	public UserProfileDto getUserProfile(UserProfileDto userProfileDto, String token) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

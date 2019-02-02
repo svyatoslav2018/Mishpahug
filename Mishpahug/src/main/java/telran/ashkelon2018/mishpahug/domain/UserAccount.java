@@ -1,7 +1,7 @@
 package telran.ashkelon2018.mishpahug.domain;
 
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.Map;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -15,27 +15,27 @@ import lombok.Setter;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
 @Setter
-@Builder
+@Getter
 @EqualsAndHashCode(of = { "email" })
 @Document(collection = "Mishpahug_users")
-
+@Builder
 public class UserAccount {
 	@Id
 	String email;
 	String password;
-	
 	String firstName;
 	String lastName;
-	String phoneNumber;
-	String userConfession;
 	LocalDate dateOfBirth;
-	String maritalStatus;
-	Set<String> foodPreference;
-	String gender;
-	Set<String> languages;
-	String aboutYourself;
-	String[] pictureLink;//avatar and banner
+	Map<Integer, String> gender;
+	Map<Integer, String> maritalStatus;
+	Map<Integer, String> confession;
+	String[] pictureLink;// avatar and banner
+	String phoneNumber;
+	Map<Integer, String> foodPreferences;
+	Map<Integer, String> languages;
+	String description;
+	Double rate;
+	Integer numberOfVoters;
 
 }

@@ -13,32 +13,43 @@ import telran.ashkelon2018.mishpahug.dto.UserProfileDto;
 import telran.ashkelon2018.mishpahug.service.AccountService;
 
 @RestController
-@RequestMapping("/user") // all will be start from account
+@RequestMapping("/user") // all will be start from user
 public class AccountManagementController {
 	@Autowired
 	AccountService accountService;
 
-	//Authorized requests
+	// Authorized requests
 
 	@PostMapping("/registration")
-	public UserProfileDto register( @RequestHeader("Authorization") String token) {
+	public UserProfileDto register(@RequestHeader("Authorization") String token) {
 		return accountService.addUser(token);
 	}
 
 	@PostMapping("/profile")
-	public UserProfileDto update(@RequestBody UserProfileDto userProfileDto, @RequestBody String token) {
-		return accountService.editUser(userProfileDto, token);
+	public UserProfileDto updateUserProfile(
+			@RequestHeader("Content-Type: application/json") UserProfileDto userProfileDto,
+			@RequestHeader("Authorization") String token) {
+		return accountService.editUserProfile(userProfileDto, token);
 	}
-	
+
+	@GetMapping("/profile")
+	public UserProfileDto getUser(@RequestHeader("Content-Type: application/json") UserProfileDto userProfileDto,
+			@RequestHeader("Authorization") String token) {
+		return accountService.getUserProfile(userProfileDto, token);
+	}
+
 	@PostMapping("/login")
-	public UserProfileDto loginUser(@RequestHeader("Authorization") String token) {
+	public UserProfileDto loginUser(@RequestHeader("Content-Type: application/json") UserProfileDto userProfileDto,
+			@RequestHeader("Authorization") String token) {
 		return accountService.login(token);
 	}
-	
-	//Unauthorized requests
-	
-	@GetMapping("/staticfields")
-	public UserProfileDto staticFields(@RequestBody StaticFieldsDto staticFieldsDto) {
-		return accountService.getStaticFields(staticFieldsDto);
-	}
+
+	// Unauthorized requests
+
+//	@GetMapping("/staticfields")
+//	public UserProfileDto staticFields(
+//			@RequestHeader("Content-Type: application/json") StaticFieldsDto staticFieldsDto) {
+//		return accountService.getStaticFields(staticFieldsDto);
+//
+//	}
 }
