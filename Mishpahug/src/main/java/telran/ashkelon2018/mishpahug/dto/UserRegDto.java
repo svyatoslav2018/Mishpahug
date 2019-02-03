@@ -7,6 +7,6 @@ import lombok.Getter;
 @Getter
 public class UserRegDto {
 	@Id
-	String email;//login
+	String email;// login
 	String password;
 }

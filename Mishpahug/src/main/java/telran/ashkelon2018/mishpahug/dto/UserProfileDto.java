@@ -1,7 +1,7 @@
 package telran.ashkelon2018.mishpahug.dto;
 
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,14 +17,16 @@ import lombok.Setter;
 public class UserProfileDto {
 	String firstName;
 	String lastName;
-	String phoneNumber;
-	String userConfession;
-	LocalDate dateOfBirth;
-	String maritalStatus;
-	Set<String> foodPreference;
+	String dateOfBirth;
 	String gender;
-	Set<String> languages;
-	String aboutYourself;
-	String[] pictureLink;//avatar and banner
+	String maritalStatus;
+	String confession;
+	String[] pictureLink;// avatar and banner
+	String phoneNumber;
+	Map<String, String> foodPreferences;
+	Map<String, String> languages;
+	String description;
+	Double rate;
+	Integer numberOfVoters;
 
 }
