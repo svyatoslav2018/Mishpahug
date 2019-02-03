@@ -31,8 +31,7 @@ public class AccountManagementController {
 	@CrossOrigin(origins = "http://localhost:8080", allowedHeaders = "*")
 	@PostMapping("/profile")
 	public UserProfileDto updateUserProfile(@RequestBody UserProfileDto userProfileDto,Principal principal) {
-		//@RequestHeader("Authorization") String token
-		return accountService.editUserProfile(userProfileDto,principal);
+		return accountService.editUserProfile(userProfileDto,principal.getName());
 	}
 
 	@CrossOrigin(origins = "http://localhost:8080", allowedHeaders = "*")

@@ -66,12 +66,11 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public UserProfileDto editUserProfile(UserProfileDto userProfileDto,Principal principal) {//, String token
+	public UserProfileDto editUserProfile(UserProfileDto userProfileDto,String email) {//, String token
 		//AccountUserCredentials credentials = accountConfiguration.tokenDecode(token);
-		//UserAccount userAccount = userRepository.findById(credentials.getEmail()).get();
-		System.out.println(principal.getName());
+		UserAccount userAccount = userRepository.findById(email).get();
+		//System.out.println(principal.getName());
 
-		UserAccount userAccount = userRepository.findById(principal.getName()).get();
 		if(userProfileDto.getFirstName()!= null && userProfileDto.getLastName() != null  
 //				&& userProfileDto.getPhoneNumber() != null && userProfileDto.getConfession() != null
 //        && userProfileDto.getDateOfBirth() != null && userProfileDto.getMaritalStatus() != null && userProfileDto.getFoodPreferences() != null &&userProfileDto.getGender() != null
