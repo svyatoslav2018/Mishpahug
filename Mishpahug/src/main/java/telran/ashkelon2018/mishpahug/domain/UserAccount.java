@@ -1,3 +1,4 @@
+
 package telran.ashkelon2018.mishpahug.domain;
 
 import java.time.LocalDate;
@@ -39,3 +40,4 @@ public class UserAccount {
 	Integer numberOfVoters;
 
 }
+

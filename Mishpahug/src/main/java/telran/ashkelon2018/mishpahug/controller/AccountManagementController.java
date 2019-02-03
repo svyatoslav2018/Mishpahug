@@ -26,30 +26,29 @@ public class AccountManagementController {
 	}
 
 	@PostMapping("/profile")
-	public UserProfileDto updateUserProfile(
-			@RequestHeader("Content-Type: application/json") UserProfileDto userProfileDto,
+	public UserProfileDto updateUserProfile(@RequestBody UserProfileDto userProfileDto,
 			@RequestHeader("Authorization") String token) {
 		return accountService.editUserProfile(userProfileDto, token);
 	}
 
 	@GetMapping("/profile")
-	public UserProfileDto getUser(@RequestHeader("Content-Type: application/json") UserProfileDto userProfileDto,
+	public UserProfileDto getUser(@RequestBody UserProfileDto userProfileDto,
 			@RequestHeader("Authorization") String token) {
 		return accountService.getUserProfile(userProfileDto, token);
 	}
 
 	@PostMapping("/login")
-	public UserProfileDto loginUser(@RequestHeader("Content-Type: application/json") UserProfileDto userProfileDto,
-			@RequestHeader("Authorization") String token) {
+	public UserProfileDto loginUser(@RequestHeader("Authorization") String token) {
 		return accountService.login(token);
 	}
 
 	// Unauthorized requests
 
-//	@GetMapping("/staticfields")
-//	public UserProfileDto staticFields(
-//			@RequestHeader("Content-Type: application/json") StaticFieldsDto staticFieldsDto) {
-//		return accountService.getStaticFields(staticFieldsDto);
-//
-//	}
+	// @GetMapping("/staticfields")
+	// public UserProfileDto staticFields(
+	// @RequestHeader("Content-Type: application/json") StaticFieldsDto
+	// staticFieldsDto) {
+	// return accountService.getStaticFields(staticFieldsDto);
+	//
+	// }
 }
