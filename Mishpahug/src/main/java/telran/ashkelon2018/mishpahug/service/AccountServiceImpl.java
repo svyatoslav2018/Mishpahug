@@ -12,7 +12,7 @@ import telran.ashkelon2018.mishpahug.configuration.AccountUserCredentials;
 import telran.ashkelon2018.mishpahug.dao.StaticFieldsRepository;
 import telran.ashkelon2018.mishpahug.dao.UserAccountRepository;
 import telran.ashkelon2018.mishpahug.domain.UserAccount;
-
+import telran.ashkelon2018.mishpahug.dto.StaticFieldsDto;
 import telran.ashkelon2018.mishpahug.dto.UserProfileDto;
 import telran.ashkelon2018.mishpahug.dto.UserRegDto;
 import telran.ashkelon2018.mishpahug.exceptions.UserConflictException;
@@ -140,15 +140,6 @@ public class AccountServiceImpl implements AccountService {
 		return convertToUserProfileDto(userAccount);
 	}
 
-<<<<<<< HEAD
-//	@Override
-//	public UserProfileDto getStaticFields(StaticFieldsDto staticFieldsDto) {
-//
-//		return UserProfileDto.builder()
-//				
-//				.build();
-//	}
-=======
 	@Override
 	public StaticFieldsDto getStaticFields(StaticFieldsDto staticFieldsDto) {
 //		StaticFields staticFields = staticFieldsRepository.findById(credentials.getEmail()).get();
@@ -161,7 +152,6 @@ public class AccountServiceImpl implements AccountService {
 				.holiday(staticFieldsDto.getHoliday())
 				.build();
 	}
->>>>>>> branch 'master' of https://github.com/svyatoslav2018/Mishpahug_Backend.git
 
 	@Override
 	public UserProfileDto getUserProfile(UserProfileDto userProfileDto, String token) {
