@@ -17,14 +17,14 @@ import lombok.Setter;
 public class UserProfileDto {
 	String firstName;
 	String lastName;
-	LocalDate dateOfBirth;
-	Map<Integer, String> gender;
-	Map<Integer, String> maritalStatus;
-	Map<Integer, String> confession;
+	String dateOfBirth;
+	String gender;
+	String maritalStatus;
+	String confession;
 	String[] pictureLink;// avatar and banner
 	String phoneNumber;
-	Map<Integer, String> foodPreferences;
-	Map<Integer, String> languages;
+	Map<String, String> foodPreferences;
+	Map<String, String> languages;
 	String description;
 	Double rate;
 	Integer numberOfVoters;

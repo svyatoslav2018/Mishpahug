@@ -1,6 +1,9 @@
 package telran.ashkelon2018.mishpahug.controller;
 
+import java.security.Principal;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,24 +22,27 @@ public class AccountManagementController {
 	AccountService accountService;
 
 	// Authorized requests
-
+	@CrossOrigin(origins = "http://localhost:8080", allowedHeaders = "*")
 	@PostMapping("/registration")
 	public UserProfileDto register(@RequestHeader("Authorization") String token) {
 		return accountService.addUser(token);
 	}
 
+	@CrossOrigin(origins = "http://localhost:8080", allowedHeaders = "*")
 	@PostMapping("/profile")
-	public UserProfileDto updateUserProfile(@RequestBody UserProfileDto userProfileDto,
-			@RequestHeader("Authorization") String token) {
-		return accountService.editUserProfile(userProfileDto, token);
+	public UserProfileDto updateUserProfile(@RequestBody UserProfileDto userProfileDto,Principal principal) {
+		//@RequestHeader("Authorization") String token
+		return accountService.editUserProfile(userProfileDto,principal);
 	}
 
+	@CrossOrigin(origins = "http://localhost:8080", allowedHeaders = "*")
 	@GetMapping("/profile")
 	public UserProfileDto getUser(@RequestBody UserProfileDto userProfileDto,
 			@RequestHeader("Authorization") String token) {
 		return accountService.getUserProfile(userProfileDto, token);
 	}
 
+	@CrossOrigin(origins = "http://localhost:8080", allowedHeaders = "*")
 	@PostMapping("/login")
 	public UserProfileDto loginUser(@RequestHeader("Authorization") String token) {
 		return accountService.login(token);
@@ -44,11 +50,9 @@ public class AccountManagementController {
 
 	// Unauthorized requests
 
-	// @GetMapping("/staticfields")
-	// public UserProfileDto staticFields(
-	// @RequestHeader("Content-Type: application/json") StaticFieldsDto
-	// staticFieldsDto) {
-	// return accountService.getStaticFields(staticFieldsDto);
-	//
-	// }
+	@GetMapping("/staticfields")
+	public StaticFieldsDto staticFields(@RequestBody StaticFieldsDto staticFieldsDto) {
+		return accountService.getStaticFields(staticFieldsDto);
+
+	}
 }
