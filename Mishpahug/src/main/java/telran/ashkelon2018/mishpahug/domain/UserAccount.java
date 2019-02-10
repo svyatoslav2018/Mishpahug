@@ -2,6 +2,7 @@
 package telran.ashkelon2018.mishpahug.domain;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.springframework.data.annotation.Id;
@@ -33,8 +34,8 @@ public class UserAccount {
 	String confession;
 	String[] pictureLink;// avatar and banner
 	String phoneNumber;
-	Map<String, String> foodPreferences;
-	Map<String, String> languages;
+	String[] foodPreferences;
+	String[] languages;
 	String description;
 	Double rate;
 	Integer numberOfVoters;
