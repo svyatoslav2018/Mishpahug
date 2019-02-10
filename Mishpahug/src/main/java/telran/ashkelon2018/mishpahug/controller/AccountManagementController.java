@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import telran.ashkelon2018.mishpahug.dto.StaticFieldsDto;
 import telran.ashkelon2018.mishpahug.dto.UserProfileDto;
 import telran.ashkelon2018.mishpahug.service.AccountService;
-
+@CrossOrigin(origins = "http://localhost:8080", allowedHeaders = "*")
 @RestController
 @RequestMapping("/user") // all will be start from user
 public class AccountManagementController {
@@ -30,11 +30,11 @@ public class AccountManagementController {
 
 	@CrossOrigin(origins = "http://localhost:8080", allowedHeaders = "*")
 	@PostMapping("/profile")
-	public UserProfileDto updateUserProfile(@RequestBody UserProfileDto userProfileDto,Principal principal) {
-		return accountService.editUserProfile(userProfileDto,principal.getName());
-	}
+//	public UserProfileDto updateUserProfile(@RequestBody UserProfileDto userProfileDto,Principal principal) {
+//		return accountService.editUserProfile(userProfileDto,principal.getName());
+//	}
 
-	@CrossOrigin(origins = "http://localhost:8080", allowedHeaders = "*")
+	//@CrossOrigin(origins = "http://localhost:8080", allowedHeaders = "*")
 	@GetMapping("/profile")
 	public UserProfileDto getUser(@RequestBody UserProfileDto userProfileDto,
 			@RequestHeader("Authorization") String token) {
