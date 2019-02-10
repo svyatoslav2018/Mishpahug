@@ -3,10 +3,9 @@ package telran.ashkelon2018.mishpahug.configuration;
 import java.util.Base64;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jmx.export.annotation.ManagedResource;
 
 @Configuration
-@ManagedResource
+
 public class AccountConfiguration {
 	
 	public AccountUserCredentials tokenDecode(String token) {
@@ -22,3 +21,4 @@ public class AccountConfiguration {
 
 	}
 }
+
