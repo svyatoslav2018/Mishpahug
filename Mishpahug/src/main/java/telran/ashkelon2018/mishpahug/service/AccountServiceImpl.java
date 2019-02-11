@@ -51,82 +51,44 @@ public class AccountServiceImpl implements AccountService {
 		return UserProfileDto.builder()
 				.firstName(userAccount.getFirstName())
 				.lastName(userAccount.getLastName())
-//				.dateOfBirth(userAccount.getDateOfBirth())
-//				.gender(userAccount.getGender())
-//				.maritalStatus(userAccount.getMaritalStatus())
-//				.confession(userAccount.getConfession())
-//				.pictureLink(userAccount.getPictureLink())
-//				.phoneNumber(userAccount.getPhoneNumber())
-//				.foodPreferences(userAccount.getFoodPreferences())
-//				.languages(userAccount.getLanguages())
-//				.description(userAccount.getDescription())
-//				.rate(userAccount.getRate())
-//				.numberOfVoters(userAccount.getNumberOfVoters())
+				.dateOfBirth(userAccount.getDateOfBirth())
+				.gender(userAccount.getGender())
+				.maritalStatus(userAccount.getMaritalStatus())
+				.confession(userAccount.getConfession())
+				.pictureLink(userAccount.getPictureLink())
+				.phoneNumber(userAccount.getPhoneNumber())
+				.foodPreferences(userAccount.getFoodPreferences())
+				.languages(userAccount.getLanguages())
+				.description(userAccount.getDescription())
+				.rate(userAccount.getRate())
+				.numberOfVoters(userAccount.getNumberOfVoters())
 				.build();
 	}
 
 	@Override
 	public UserProfileDto editUserProfile(UserProfileDto userProfileDto,String email) {//, String token
 		//AccountUserCredentials credentials = accountConfiguration.tokenDecode(token);
+		System.out.println("editUserProfile -- " +email);
 		UserAccount userAccount = userRepository.findById(email).get();
 		//System.out.println(principal.getName());
 
 		if(userProfileDto.getFirstName()!= null && userProfileDto.getLastName() != null  
-//				&& userProfileDto.getPhoneNumber() != null && userProfileDto.getConfession() != null
-//        && userProfileDto.getDateOfBirth() != null && userProfileDto.getMaritalStatus() != null && userProfileDto.getFoodPreferences() != null &&userProfileDto.getGender() != null
-//        && userProfileDto.getLanguages() != null && userProfileDto.getDescription() != null
-        ) {
+				&& userProfileDto.getPhoneNumber() != null && userProfileDto.getConfession() != null
+				&& userProfileDto.getDateOfBirth() != null && userProfileDto.getMaritalStatus() != null 
+				&& userProfileDto.getFoodPreferences() != null &&userProfileDto.getGender() != null
+				&& userProfileDto.getLanguages() != null && userProfileDto.getDescription() != null
+        ) { System.out.println("editUserProfile -- " + userProfileDto);
 			userAccount.setFirstName(userProfileDto.getFirstName());
 			userAccount.setLastName(userProfileDto.getLastName());
-//			userAccount.setPhoneNumber(userProfileDto.getPhoneNumber());
-//			userAccount.setConfession(userProfileDto.getConfession());
-//			userAccount.setDateOfBirth(userProfileDto.getDateOfBirth());
-//			userAccount.setMaritalStatus(userProfileDto.getMaritalStatus());
-//			userAccount.setFoodPreferences(userProfileDto.getFoodPreferences());
-//			userAccount.setGender(userProfileDto.getGender());
-
-//		if (credentials.getEmail() == userAccount.getEmail()) {
-//
-//			if (userProfileDto.getFirstName() != null) {
-//				userAccount.setFirstName(userProfileDto.getFirstName());
-//			}
-//			if (userProfileDto.getLastName() != null) {
-//				userAccount.setLastName(userProfileDto.getLastName());
-//			}
-//			if (userProfileDto.getPhoneNumber() != null) {
-//				userAccount.setPhoneNumber(userProfileDto.getPhoneNumber());
-//			}
-//			if (userProfileDto.getConfession() != null) {
-//				userAccount.setConfession(userProfileDto.getConfession());
-//			}
-//			if (userProfileDto.getDateOfBirth() != null) {
-//				userAccount.setDateOfBirth(userProfileDto.getDateOfBirth());
-//			}
-//			if (userProfileDto.getMaritalStatus() != null) {
-//				userAccount.setMaritalStatus(userProfileDto.getMaritalStatus());
-//			}
-//			if (userProfileDto.getFoodPreferences() != null) {
-//				userAccount.setFoodPreferences(userProfileDto.getFoodPreferences());
-//			}
-//			if (userProfileDto.getGender() != null) {
-//				userAccount.setGender(userProfileDto.getGender());
-//			}
-//			if (userProfileDto.getLanguages() != null) {
-//				userAccount.setLanguages(userProfileDto.getLanguages());
-//			}
-//			if (userProfileDto.getDescription() != null) {
-//				userAccount.setDescription(userProfileDto.getDescription());
-//			}
-//			if (userProfileDto.getPictureLink() != null) {
-//				userAccount.setPictureLink(userProfileDto.getPictureLink());
-//			}
-//			if (userProfileDto.getRate() != null) {
-//				userAccount.setRate(userProfileDto.getRate());
-//			}
-//			if (userProfileDto.getNumberOfVoters() != null) {
-//				userAccount.setNumberOfVoters(userProfileDto.getNumberOfVoters());
-//			}
-//			userRepository.save(userAccount);
+			userAccount.setPhoneNumber(userProfileDto.getPhoneNumber());
+			userAccount.setConfession(userProfileDto.getConfession());
+			userAccount.setDateOfBirth(userProfileDto.getDateOfBirth());
+			userAccount.setMaritalStatus(userProfileDto.getMaritalStatus());
+			userAccount.setFoodPreferences(userProfileDto.getFoodPreferences());
+			userAccount.setGender(userProfileDto.getGender());
+			userAccount.setLanguages(userProfileDto.getLanguages());
+			userAccount.setDescription(userProfileDto.getDescription());
+			userRepository.save(userAccount);
 		} else {
 			throw new UserNotFoundException();
 		}
