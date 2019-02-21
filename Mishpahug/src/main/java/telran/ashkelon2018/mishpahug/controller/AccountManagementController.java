@@ -16,8 +16,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import telran.ashkelon2018.mishpahug.configuration.AccountConfiguration;
 import telran.ashkelon2018.mishpahug.configuration.AccountUserCredentials;
+import telran.ashkelon2018.mishpahug.configuration.SessionConfiguration;
 import telran.ashkelon2018.mishpahug.dto.StaticFieldsDto;
 import telran.ashkelon2018.mishpahug.dto.UserProfileDto;
+import telran.ashkelon2018.mishpahug.exceptions.UserConflictException;
 import telran.ashkelon2018.mishpahug.service.AccountService;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -30,55 +32,30 @@ public class AccountManagementController {
 	@Autowired
 	AccountConfiguration accountConfiguration;
 
+	@Autowired
+	SessionConfiguration sessionConfiguration;
 	// Authorized requests
 
 	@PostMapping("/registration")
-	public UserProfileDto register(@RequestHeader(value = "Authorization") String token) {
-		System.out.println("Token= " + token);
-
+	public UserProfileDto register(@RequestHeader("Authorization") String token) {
+		// System.out.println("Token= " + token);
 		// * add a token to the http session in order to check it on other endpoints *//
-		RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
-		ServletRequestAttributes attributes = (ServletRequestAttributes) requestAttributes;
-		HttpSession httpSession = attributes.getRequest().getSession(true);
-		System.out.println("UserRegSessionId: " + httpSession.getId());
-		httpSession.setAttribute("U_TOKEN", token);
+		sessionConfiguration.setAttributeToken(token);
 		return accountService.addUser(token);
 	}
 
 	@PostMapping("/profile")
-	// @RequestMapping(value="/profile", method = RequestMethod.POST)
-	// @PostMapping(value = "/profile", consumes = "application/json;charset=UTF-8")
 	public UserProfileDto updateUserProfile(@RequestBody UserProfileDto userProfileDto) {
-		System.out.println("userProfileDto.getFirstName= " + userProfileDto.getFirstName());
-		String sessionLlogin = sessionUserName();
-		System.out.println(sessionLlogin + " --- " + userProfileDto);
-		// System.out.println("principal.getName= " + principal.getName());
+		// System.out.println("userProfileDto.getFirstName= " +
+		// userProfileDto.getFirstName());
+		String sessionLlogin = sessionConfiguration.sessionUserName();
+		// System.out.println(sessionLlogin + " --- " + userProfileDto);
 		return accountService.editUserProfile(userProfileDto, sessionLlogin);
 	}
 
-	private String sessionUserName() {
-		// * get token from the http session *//
-		RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
-		ServletRequestAttributes attributes = (ServletRequestAttributes) requestAttributes;
-		// HttpServletRequest request = attributes.getRequest();
-		// Principal principal = request.getUserPrincipal();
-		// System.out.println("principal.getName= " + principal.getName());
-		HttpSession httpSession = attributes.getRequest().getSession(true);
-		System.out.println("ProfRegSessionId: " + httpSession.getId());
-		Object sessionAttribute = httpSession.getAttribute("U_TOKEN");
-		if (sessionAttribute == null) {
-			return null;
-		}
-		// String sessionToken = sessionAttribute.toString();
-		AccountUserCredentials sessionUser = accountConfiguration.tokenDecode(sessionAttribute.toString());
-		System.out.println("User= " + sessionUser.getEmail());
-		return sessionUser.getEmail();
-	}
-
 	@GetMapping("/profile")
-	public UserProfileDto getUser(@RequestBody UserProfileDto userProfileDto,
-			@RequestHeader("Authorization") String token) {
-		return accountService.getUserProfile(userProfileDto, token);
+	public UserProfileDto getUser(@RequestHeader("Authorization") String token) {
+		return accountService.getUserProfile(token);
 	}
 
 	@PostMapping("/login")

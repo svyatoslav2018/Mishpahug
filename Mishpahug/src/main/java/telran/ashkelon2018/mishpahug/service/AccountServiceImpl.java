@@ -7,13 +7,13 @@ import org.springframework.stereotype.Service;
 import lombok.Builder;
 import telran.ashkelon2018.mishpahug.configuration.AccountConfiguration;
 import telran.ashkelon2018.mishpahug.configuration.AccountUserCredentials;
+import telran.ashkelon2018.mishpahug.configuration.SessionConfiguration;
 import telran.ashkelon2018.mishpahug.dao.StaticFieldsRepository;
 import telran.ashkelon2018.mishpahug.dao.UserAccountRepository;
 import telran.ashkelon2018.mishpahug.domain.UserAccount;
 import telran.ashkelon2018.mishpahug.dto.StaticFieldsDto;
 import telran.ashkelon2018.mishpahug.dto.UserProfileDto;
 import telran.ashkelon2018.mishpahug.exceptions.UserConflictException;
-import telran.ashkelon2018.mishpahug.exceptions.UserNotFoundException;
 import telran.ashkelon2018.mishpahug.exceptions.WrongLoginOrPasswordException;
 
 @Builder
@@ -29,17 +29,29 @@ public class AccountServiceImpl implements AccountService {
 	@Autowired
 	StaticFieldsRepository staticFieldsRepository;
 
+	@Autowired
+	SessionConfiguration sessionConfiguration;
+
 	@Override
 	public UserProfileDto addUser(String token) {
+		// EmailValidator emailValidator = new EmailValidator();
+		// PasswordValidator passwordValidator = new PasswordValidator();
 		AccountUserCredentials credentials = accountConfiguration.tokenDecode(token);
+
+		// if (!(emailValidator.validate(credentials.getEmail()))
+		// || !(passwordValidator.validate(credentials.getPassword()))) {
+		// throw new UnqualifiedLoginOrPassword();// 422 Invalid data. Email or password
+		// does not meet the requirements
+		// }
+
 		if (userRepository.existsById(credentials.getEmail())) {
-			throw new UserConflictException();
+			throw new UserConflictException();// 409 User exists
 		}
+
 		String hashPassword = BCrypt.hashpw(credentials.getPassword(), BCrypt.gensalt());
-		// BCrypt.gensalt() method for generate password
+
 		UserAccount userAccount = UserAccount.builder().email(credentials.getEmail()).password(hashPassword).build();
-		// Error 422??
-		// if()
+
 		userRepository.save(userAccount);
 
 		return convertToUserProfileDto(userAccount);
@@ -56,34 +68,17 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public UserProfileDto editUserProfile(UserProfileDto userProfileDto, String email) {// , String token
+	public UserProfileDto editUserProfile(UserProfileDto userProfileDto, String sessionLlogin) {
 		// AccountUserCredentials credentials = accountConfiguration.tokenDecode(token);
-		System.out.println("editUserProfile -- " + email);
-		UserAccount userAccount = userRepository.findById(email).get();
-		// System.out.println(principal.getName());
+		// System.out.println("editUserProfile -- " + sessionConfiguration.getEmail());
+		UserAccount userAccount = userRepository.findById(sessionLlogin).get();
+		System.out.println(sessionLlogin);
+		System.out.println(userAccount.getEmail());
 
-		if (userProfileDto.getFirstName() != null && userProfileDto.getLastName() != null
-				&& userProfileDto.getPhoneNumber() != null && userProfileDto.getConfession() != null
-				&& userProfileDto.getDateOfBirth() != null && userProfileDto.getMaritalStatus() != null
-				&& userProfileDto.getFoodPreferences() != null && userProfileDto.getGender() != null
-				&& userProfileDto.getLanguages() != null && userProfileDto.getDescription() != null) {
-			System.out.println("editUserProfile -- " + userProfileDto);
-			userAccount.setFirstName(userProfileDto.getFirstName());
-			userAccount.setLastName(userProfileDto.getLastName());
-			userAccount.setPhoneNumber(userProfileDto.getPhoneNumber());
-			userAccount.setConfession(userProfileDto.getConfession());
-			userAccount.setDateOfBirth(userProfileDto.getDateOfBirth());
-			userAccount.setMaritalStatus(userProfileDto.getMaritalStatus());
-			userAccount.setFoodPreferences(userProfileDto.getFoodPreferences());
-			userAccount.setGender(userProfileDto.getGender());
-			userAccount.setLanguages(userProfileDto.getLanguages());
-			userAccount.setDescription(userProfileDto.getDescription());
-			userRepository.save(userAccount);
-		} else {
-			// UserProfileFilled=false;
-			throw new UserNotFoundException();
+		if (!sessionLlogin.equals(userAccount.getEmail())) {
+			throw new WrongLoginOrPasswordException();// 401 unauthorized
 		}
-
+		userRepository.save(userAccount);
 		return convertToUserProfileDto(userAccount);
 	}
 
@@ -91,16 +86,30 @@ public class AccountServiceImpl implements AccountService {
 	public UserProfileDto login(String token) {
 		AccountUserCredentials credentials = accountConfiguration.tokenDecode(token);
 		UserAccount userAccount = userRepository.findById(credentials.getEmail()).get();
-		if (credentials.getEmail() != userAccount.getEmail()
-				|| credentials.getPassword() != userAccount.getPassword()) {
-			throw new WrongLoginOrPasswordException();
+		if ((!credentials.getEmail().equals(userAccount.getEmail()))
+				|| (!credentials.getPassword().equals(userAccount.getPassword()))) {
+			throw new WrongLoginOrPasswordException();// 401 unauthorized
 		}
 		if (userAccount.getFirstName() == null || userAccount.getLastName() == null
 				|| userAccount.getPhoneNumber() == null || userAccount.getConfession() == null
 				|| userAccount.getDateOfBirth() == null || userAccount.getMaritalStatus() == null
 				|| userAccount.getFoodPreferences() == null || userAccount.getGender() == null
 				|| userAccount.getLanguages() == null || userAccount.getDescription() == null) {
-			throw new UserConflictException();//empty profile exception
+			throw new UserConflictException();// 409 empty profile exception
+		}
+		return convertToUserProfileDto(userAccount);
+	}
+
+	@Override
+	public UserProfileDto getUserProfile(String token) {
+		AccountUserCredentials credentials = accountConfiguration.tokenDecode(token);
+		UserAccount userAccount = userRepository.findById(credentials.getEmail()).get();
+		if (userAccount.getFirstName() == null || userAccount.getLastName() == null
+				|| userAccount.getPhoneNumber() == null || userAccount.getConfession() == null
+				|| userAccount.getDateOfBirth() == null || userAccount.getMaritalStatus() == null
+				|| userAccount.getFoodPreferences() == null || userAccount.getGender() == null
+				|| userAccount.getLanguages() == null || userAccount.getDescription() == null) {
+			throw new UserConflictException();// 409 empty profile exception
 		}
 		return convertToUserProfileDto(userAccount);
 	}
@@ -109,17 +118,10 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public StaticFieldsDto getStaticFields(StaticFieldsDto staticFieldsDto) {
-		// StaticFields staticFields =
-		// staticFieldsRepository.findById(credentials.getEmail()).get();
+
 		return StaticFieldsDto.builder().confession(staticFieldsDto.getConfession()).gender(staticFieldsDto.getGender())
 				.maritalStatus(staticFieldsDto.getMaritalStatus()).foodPreferences(staticFieldsDto.getFoodPreferences())
 				.languages(staticFieldsDto.getLanguages()).holliday(staticFieldsDto.getHolliday()).build();
-	}
-
-	@Override
-	public UserProfileDto getUserProfile(UserProfileDto userProfileDto, String token) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }
