@@ -1,5 +1,7 @@
 package telran.ashkelon2018.mishpahug.service;
 
+import java.util.Base64;
+
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import telran.ashkelon2018.mishpahug.domain.UserAccount;
 import telran.ashkelon2018.mishpahug.dto.StaticFieldsDto;
 import telran.ashkelon2018.mishpahug.dto.UserProfileDto;
 import telran.ashkelon2018.mishpahug.exceptions.UserConflictException;
+import telran.ashkelon2018.mishpahug.exceptions.UserNotFoundException;
 import telran.ashkelon2018.mishpahug.exceptions.WrongLoginOrPasswordException;
 
 @Builder
@@ -38,22 +41,22 @@ public class AccountServiceImpl implements AccountService {
 		// PasswordValidator passwordValidator = new PasswordValidator();
 		AccountUserCredentials credentials = accountConfiguration.tokenDecode(token);
 
-		// if (!(emailValidator.validate(credentials.getEmail()))
+		// if (!(emailValidator.validate(credentials.getLogin()))
 		// || !(passwordValidator.validate(credentials.getPassword()))) {
 		// throw new UnqualifiedLoginOrPassword();// 422 Invalid data. Email or password
 		// does not meet the requirements
 		// }
 
-		if (userRepository.existsById(credentials.getEmail())) {
+		if (userRepository.existsById(credentials.getLogin())) {
 			throw new UserConflictException();// 409 User exists
 		}
 
 		String hashPassword = BCrypt.hashpw(credentials.getPassword(), BCrypt.gensalt());
-
-		UserAccount userAccount = UserAccount.builder().email(credentials.getEmail()).password(hashPassword).build();
-
+//		String loginLowerCase=credentials.getLogin().toLowerCase();
+//		String loginLowerCaseNoDot=loginLowerCase.replaceAll("\\.", "");
+	//	System.out.println(loginLowerCase);
+		UserAccount userAccount = UserAccount.builder().login(credentials.getLogin()).password(hashPassword).build();
 		userRepository.save(userAccount);
-
 		return convertToUserProfileDto(userAccount);
 	}
 
@@ -69,15 +72,25 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public UserProfileDto editUserProfile(UserProfileDto userProfileDto, String sessionLlogin) {
-		// AccountUserCredentials credentials = accountConfiguration.tokenDecode(token);
-		// System.out.println("editUserProfile -- " + sessionConfiguration.getEmail());
-		UserAccount userAccount = userRepository.findById(sessionLlogin).get();
-		System.out.println(sessionLlogin);
-		System.out.println(userAccount.getEmail());
 
-		if (!sessionLlogin.equals(userAccount.getEmail())) {
+		UserAccount userAccount = userRepository.findById(sessionLlogin).get();
+
+		if (!sessionLlogin.equals(userAccount.getLogin())) {
 			throw new WrongLoginOrPasswordException();// 401 unauthorized
 		}
+
+		userAccount.setFirstName(userProfileDto.getFirstName());
+		userAccount.setLastName(userProfileDto.getLastName());
+		userAccount.setPhoneNumber(userProfileDto.getPhoneNumber());
+		userAccount.setConfession(userProfileDto.getConfession());
+		userAccount.setDateOfBirth(userProfileDto.getDateOfBirth());
+		userAccount.setMaritalStatus(userProfileDto.getMaritalStatus());
+		userAccount.setFoodPreferences(userProfileDto.getFoodPreferences());
+		userAccount.setGender(userProfileDto.getGender());
+		userAccount.setLanguages(userProfileDto.getLanguages());
+		userAccount.setDescription(userProfileDto.getDescription());
+		userAccount.setPictureLink(userProfileDto.getPictureLink());
+
 		userRepository.save(userAccount);
 		return convertToUserProfileDto(userAccount);
 	}
@@ -85,11 +98,16 @@ public class AccountServiceImpl implements AccountService {
 	@Override
 	public UserProfileDto login(String token) {
 		AccountUserCredentials credentials = accountConfiguration.tokenDecode(token);
-		UserAccount userAccount = userRepository.findById(credentials.getEmail()).get();
-		if ((!credentials.getEmail().equals(userAccount.getEmail()))
-				|| (!credentials.getPassword().equals(userAccount.getPassword()))) {
+		UserAccount userAccount = userRepository.findById(credentials.getLogin()).orElseThrow(UserNotFoundException::new);//.get()
+		System.out.println("userAccount "+userAccount);
+		String candidatPassword = credentials.getPassword();
+		System.out.println("candidatPassword " + candidatPassword);
+		
+		if (!credentials.getLogin().equals(userAccount.getLogin())
+				|| !BCrypt.checkpw(candidatPassword, userAccount.getPassword())) {
 			throw new WrongLoginOrPasswordException();// 401 unauthorized
 		}
+
 		if (userAccount.getFirstName() == null || userAccount.getLastName() == null
 				|| userAccount.getPhoneNumber() == null || userAccount.getConfession() == null
 				|| userAccount.getDateOfBirth() == null || userAccount.getMaritalStatus() == null
@@ -101,9 +119,9 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public UserProfileDto getUserProfile(String token) {
-		AccountUserCredentials credentials = accountConfiguration.tokenDecode(token);
-		UserAccount userAccount = userRepository.findById(credentials.getEmail()).get();
+	public UserProfileDto getUserProfile(String sessionLlogin) {
+		UserAccount userAccount = userRepository.findById(sessionLlogin).get();
+
 		if (userAccount.getFirstName() == null || userAccount.getLastName() == null
 				|| userAccount.getPhoneNumber() == null || userAccount.getConfession() == null
 				|| userAccount.getDateOfBirth() == null || userAccount.getMaritalStatus() == null
