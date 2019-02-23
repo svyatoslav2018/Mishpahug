@@ -1,7 +1,5 @@
 package telran.ashkelon2018.mishpahug.controller;
 
-import javax.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,19 +8,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import telran.ashkelon2018.mishpahug.configuration.AccountConfiguration;
-import telran.ashkelon2018.mishpahug.configuration.AccountUserCredentials;
 import telran.ashkelon2018.mishpahug.configuration.SessionConfiguration;
 import telran.ashkelon2018.mishpahug.dto.StaticFieldsDto;
 import telran.ashkelon2018.mishpahug.dto.UserProfileDto;
-import telran.ashkelon2018.mishpahug.exceptions.UserConflictException;
 import telran.ashkelon2018.mishpahug.service.AccountService;
 
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+//@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/user") // all will be start from user
 public class AccountManagementController {
@@ -35,7 +28,7 @@ public class AccountManagementController {
 	@Autowired
 	SessionConfiguration sessionConfiguration;
 	// Authorized requests
-
+	@CrossOrigin(origins = "*",allowedHeaders = "*")
 	@PostMapping("/registration")
 	public UserProfileDto register(@RequestHeader("Authorization") String token) {
 		// System.out.println("Token= " + token);
@@ -43,7 +36,8 @@ public class AccountManagementController {
 		sessionConfiguration.setAttributeToken(token);
 		return accountService.addUser(token);
 	}
-
+	
+	@CrossOrigin(origins = "*",allowedHeaders = "*")
 	@PostMapping("/profile")
 	public UserProfileDto updateUserProfile(@RequestBody UserProfileDto userProfileDto) {
 		// System.out.println("userProfileDto.getFirstName= " +
@@ -53,13 +47,19 @@ public class AccountManagementController {
 		return accountService.editUserProfile(userProfileDto, sessionLlogin);
 	}
 
+	@CrossOrigin(origins = "*",allowedHeaders = "*")
 	@GetMapping("/profile")
-	public UserProfileDto getUser(@RequestHeader("Authorization") String token) {
-		return accountService.getUserProfile(token);
+	public UserProfileDto getProfile() {
+		String sessionLlogin = sessionConfiguration.sessionUserName();
+		return accountService.getUserProfile(sessionLlogin);
 	}
 
+	@CrossOrigin(origins = "*",allowedHeaders = "*")
 	@PostMapping("/login")
 	public UserProfileDto loginUser(@RequestHeader("Authorization") String token) {
+		System.out.println(token);
+
+		sessionConfiguration.setAttributeToken(token);
 		return accountService.login(token);
 	}
 
