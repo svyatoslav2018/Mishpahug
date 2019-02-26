@@ -31,11 +31,11 @@ public class SiteServiceImpl implements SiteService{
 				newEvent.getDuration(),newEvent.getFoodPreference(),newEvent.getDescription());
 	}
 
-	@Override
-	public Event getEvent(String login, LocalDate date, LocalTime time) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	public Event getEvent(String login, LocalDate date, LocalTime time) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 
 	@Override
 	public Event removeEvent(String status, String login, LocalDate date, LocalTime time) {
