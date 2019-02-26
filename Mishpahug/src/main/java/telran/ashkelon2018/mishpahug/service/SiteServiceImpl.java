@@ -1,35 +1,95 @@
 package telran.ashkelon2018.mishpahug.service;
-//
-//import java.time.LocalDate;
-//import java.util.List;
-//
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.stereotype.Service;
-//
-//import telran.ashkelon2018.forum.dao.ForumRepository;
-//import telran.ashkelon2018.forum.domain.Comment;
-//import telran.ashkelon2018.forum.domain.Post;
-//import telran.ashkelon2018.forum.dto.DatePeriodDto;
-//import telran.ashkelon2018.forum.dto.NewCommentDto;
-//import telran.ashkelon2018.forum.dto.NewPostDto;
-//import telran.ashkelon2018.forum.dto.PostUpdateDto;
-//
-//@Service
-public class SiteServiceImpl {//implements SiteService 
-//
-//	@Autowired
-//	ForumRepository repository;
-//
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import telran.ashkelon2018.mishpahug.dao.SiteRepository;
+import telran.ashkelon2018.mishpahug.domain.Event;
+import telran.ashkelon2018.mishpahug.dto.DatePeriodDto;
+import telran.ashkelon2018.mishpahug.dto.NewEventDto;
+
+@Service
+public class SiteServiceImpl implements SiteService{
+
+	@Autowired
+	SiteRepository siteRepository;
+
+	@Override
+	public Event addNewEvent(NewEventDto newEvent,String token) {
+		Event event = convertToEvent(newEvent);
+		return siteRepository.save(event);
+	}
+
+	private Event convertToEvent(NewEventDto newEvent) {
+		return new Event(newEvent.getTitle(), newEvent.getHoliday(), newEvent.getAddress(),
+				newEvent.getEventConfession(),newEvent.getDate(),newEvent.getTime(),
+				newEvent.getDuration(),newEvent.getFoodPreference(),newEvent.getDescription());
+	}
+
 //	@Override
-//	public Post addNewPost(NewPostDto newPost) {
-//		Post post = convertToPost(newPost);
-//		return repository.save(post);
+//	public Event getEvent(String login, LocalDate date, LocalTime time) {
+//		// TODO Auto-generated method stub
+//		return null;
 //	}
-//
-//	private Post convertToPost(NewPostDto newPost) {
-//		return new Post(newPost.getTitle(), newPost.getContent(), newPost.getAuthor(), newPost.getTags());
-//	}
-//
+
+	@Override
+	public Event removeEvent(String status, String login, LocalDate date, LocalTime time) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean addRating(String login, LocalDate date, LocalTime time) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Iterable<Event> findAllEvents(String status) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Iterable<Event> findEventsByCity(String city) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Iterable<Event> findEventsByDates(LocalDate dateFrom, LocalDate dateTo) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Iterable<Event> findEventsByHoliday(String holiday) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Iterable<Event> findEventsByConfession(String confession) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Iterable<Event> findEventsByFoodPref(String foodPreference) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	
+
+
+	
+
 //	@Override
 //	public Post getPost(String id) {
 //		return repository.findById(id).orElse(null);
@@ -89,6 +149,6 @@ public class SiteServiceImpl {//implements SiteService
 //	@Override
 //	public Iterable<Post> findPostsByDates(DatePeriodDto period) {
 //		return repository.findByDateCreatedBetween(LocalDate.parse(period.getFrom()), LocalDate.parse(period.getTo()));
-//	}
-//
-}
+	}
+
+

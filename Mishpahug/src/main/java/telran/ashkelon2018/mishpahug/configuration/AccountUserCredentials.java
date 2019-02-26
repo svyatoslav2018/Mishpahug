@@ -10,6 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AccountUserCredentials {
-	String email;
+	String login;
 	String password;
+
 }
