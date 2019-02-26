@@ -39,10 +39,10 @@ public class SiteController {
 		return service.addNewEvent(newEvent, token);
 	}
 
-	@GetMapping("/event/{eventId}") // id=login+dateCreated
-	public Event getEvent(@PathVariable String login, @PathVariable LocalDateTime dateCreated) {
-		return service.getEvent(login, dateCreated);
-	}
+//	@GetMapping("/event/{eventId}") // id=login+dateCreated
+//	public Event getEvent(@PathVariable String login, @PathVariable LocalDateTime dateCreated) {
+//		return service.getEvent(login, dateCreated);
+//	}
 
 	// i think delete must be automaticaly after getting status "done"+some days
 	// @DeleteMapping("/event/{login,dateCreated}") // id=login,dateCreated
@@ -52,20 +52,20 @@ public class SiteController {
 	// return service.removeEvent(login, dateCreated, token);
 	// }
 
-	@PutMapping("/event/{login,dateCreated}/rate")
-	public boolean addRating(@PathVariable String login, @PathVariable LocalDateTime dateCreated) {
-		return service.addRating(login, dateCreated);
-	}
+//	@PutMapping("/event/{login,dateCreated}/rate")
+//	public boolean addRating(@PathVariable String login, @PathVariable LocalDateTime dateCreated) {
+//		return service.addRating(login, dateCreated);
+//	}
 
 	@PostMapping("/events/city") // how get city from address
 	public Iterable<Event> getEventsByCity(@PathVariable String city) {
 		return service.findEventsByCity(city);
 	}
 
-	@PostMapping("/events/period")
-	public Iterable<Event> getEventsBetweenDates(@RequestBody DatePeriodDto periodDto) {
-		return service.findEventsByDates(periodDto);
-	}
+//	@PostMapping("/events/period")
+//	public Iterable<Event> getEventsBetweenDates(@RequestBody DatePeriodDto periodDto) {
+//		return service.findEventsByDates(periodDto);
+//	}
 
 	@PostMapping("/events/holiday")
 	public Iterable<Event> getEventsByHoliday(@PathVariable String holiday) {
