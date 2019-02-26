@@ -62,7 +62,7 @@ public class SiteServiceImpl implements SiteService{
 	}
 
 	@Override
-	public Iterable<Event> findEventsByDates(DatePeriodDto periodDto) {
+	public Iterable<Event> findEventsByDates(LocalDate dateFrom, LocalDate dateTo) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -84,6 +84,8 @@ public class SiteServiceImpl implements SiteService{
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	
 
 
 	
@@ -149,4 +151,4 @@ public class SiteServiceImpl implements SiteService{
 //		return repository.findByDateCreatedBetween(LocalDate.parse(period.getFrom()), LocalDate.parse(period.getTo()));
 	}
 
-}
+
