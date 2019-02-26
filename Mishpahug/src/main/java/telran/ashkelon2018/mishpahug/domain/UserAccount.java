@@ -1,10 +1,6 @@
 
 package telran.ashkelon2018.mishpahug.domain;
 
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Map;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -40,5 +36,7 @@ public class UserAccount {
 	Double rate;
 	Integer numberOfVoters;
 
+	public void addRate() {
+		rate++;
+	}
 }
-

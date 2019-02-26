@@ -1,7 +1,5 @@
 package telran.ashkelon2018.mishpahug.service;
 
-import java.util.Base64;
-
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -61,21 +59,29 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	private UserProfileDto convertToUserProfileDto(UserAccount userAccount) {
-		return UserProfileDto.builder().firstName(userAccount.getFirstName()).lastName(userAccount.getLastName())
-				.dateOfBirth(userAccount.getDateOfBirth()).gender(userAccount.getGender())
-				.maritalStatus(userAccount.getMaritalStatus()).confession(userAccount.getConfession())
-				.pictureLink(userAccount.getPictureLink()).phoneNumber(userAccount.getPhoneNumber())
-				.foodPreferences(userAccount.getFoodPreferences()).languages(userAccount.getLanguages())
-				.description(userAccount.getDescription()).rate(userAccount.getRate())
-				.numberOfVoters(userAccount.getNumberOfVoters()).build();
+		return UserProfileDto.builder()
+				.firstName(userAccount.getFirstName())
+				.lastName(userAccount.getLastName())
+				.dateOfBirth(userAccount.getDateOfBirth())
+				.gender(userAccount.getGender())
+				.maritalStatus(userAccount.getMaritalStatus())
+				.confession(userAccount.getConfession())
+				.pictureLink(userAccount.getPictureLink())
+				.phoneNumber(userAccount.getPhoneNumber())
+				.foodPreferences(userAccount.getFoodPreferences())
+				.languages(userAccount.getLanguages())
+				.description(userAccount.getDescription())
+				.rate(userAccount.getRate())
+				.numberOfVoters(userAccount.getNumberOfVoters())
+				.build();
 	}
 
 	@Override
-	public UserProfileDto editUserProfile(UserProfileDto userProfileDto, String sessionLlogin) {
+	public UserProfileDto editUserProfile(UserProfileDto userProfileDto, String sessionLogin) {
 
-		UserAccount userAccount = userRepository.findById(sessionLlogin).get();
+		UserAccount userAccount = userRepository.findById(sessionLogin).get();
 
-		if (!sessionLlogin.equals(userAccount.getLogin())) {
+		if (!sessionLogin.equals(userAccount.getLogin())) {
 			throw new WrongLoginOrPasswordException();// 401 unauthorized
 		}
 
@@ -99,9 +105,7 @@ public class AccountServiceImpl implements AccountService {
 	public UserProfileDto login(String token) {
 		AccountUserCredentials credentials = accountConfiguration.tokenDecode(token);
 		UserAccount userAccount = userRepository.findById(credentials.getLogin()).orElseThrow(UserNotFoundException::new);//.get()
-		System.out.println("userAccount "+userAccount);
 		String candidatPassword = credentials.getPassword();
-		System.out.println("candidatPassword " + candidatPassword);
 		
 		if (!credentials.getLogin().equals(userAccount.getLogin())
 				|| !BCrypt.checkpw(candidatPassword, userAccount.getPassword())) {
@@ -119,8 +123,8 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public UserProfileDto getUserProfile(String sessionLlogin) {
-		UserAccount userAccount = userRepository.findById(sessionLlogin).get();
+	public UserProfileDto getUserProfile(String sessionLogin) {
+		UserAccount userAccount = userRepository.findById(sessionLogin).get();
 
 		if (userAccount.getFirstName() == null || userAccount.getLastName() == null
 				|| userAccount.getPhoneNumber() == null || userAccount.getConfession() == null
