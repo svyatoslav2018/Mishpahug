@@ -1,18 +1,25 @@
 package telran.ashkelon2018.mishpahug.dto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Map;
 
+import lombok.Builder;
 import lombok.Getter;
 
+@Builder
 @Getter
 public class NewEventDto {
+	Integer eventId;
+	
 	String title;
 	String holiday;
-	String address;// use google autocomplete validation
-	LocalDateTime dateTimeFrom;// use standart date picker
-	LocalDateTime dateTimeTo;
+	Map<String,String> address;// keys: city, place_id, location(coordinates)
 	String eventConfession;
-	String foodPreference;
-	String aboutEvent;
+	LocalDate date;
+	LocalTime time;
+	Integer duration;//in minutes
+	String[] foodPreference;
+	String description;
 
 }

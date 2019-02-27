@@ -1,7 +1,5 @@
 package telran.ashkelon2018.mishpahug.dto;
 
-import java.util.Map;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,16 +13,16 @@ import lombok.Setter;
 @Builder
 public class StaticFieldsDto {
 
-	Map<Integer, String> confession;
-	
-	Map<Integer, String> gender;
-	
-	Map<Integer, String> maritalStatus;
+	String confession;
 
-	Map<Integer, String> foodPreferences;
+	String gender;
 
-	Map<Integer, String> languages;
+	String maritalStatus;
 
-	Map<Integer, String> holiday;
+	String foodPreferences;
+
+	String languages;
+
+	String holliday;
 
 }

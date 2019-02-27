@@ -9,10 +9,10 @@ import telran.ashkelon2018.mishpahug.domain.Event;
 
 public interface StaticFieldsRepository extends MongoRepository<Event, String> {
 	
-//	Iterable<Event> findByTagsIn(List<String> tags);
-//
-//	Iterable<Event> findByAuthor(String author);
-//
-//	Iterable<Event> findByDateBetween(LocalDate from, LocalDate to);
+	Iterable<Event> findByTagsIn(List<String> tags);
+
+	Iterable<Event> findByAuthor(String author);
+
+	Iterable<Event> findByDateBetween(LocalDate from, LocalDate to);
 
 }
