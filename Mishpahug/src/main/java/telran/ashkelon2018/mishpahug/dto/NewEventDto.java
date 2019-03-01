@@ -2,24 +2,31 @@ package telran.ashkelon2018.mishpahug.dto;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Map;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import telran.ashkelon2018.mishpahug.domain.Address;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @Getter
+@Setter
+@ToString
 public class NewEventDto {
-	Integer eventId;
-	
+
 	String title;
 	String holiday;
-	Map<String,String> address;// keys: city, place_id, location(coordinates)
-	String eventConfession;
+	Address address;
+	String confession;
 	LocalDate date;
 	LocalTime time;
-	Integer duration;//in minutes
-	String[] foodPreference;
+	Integer duration;// in minutes
+	String food;
 	String description;
 
 }
