@@ -1,6 +1,7 @@
 package telran.ashkelon2018.mishpahug.domain;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Map;
 
@@ -41,11 +42,11 @@ public class Event {
 	Address address;
 	String confession;
 
-	@JsonFormat(pattern = "yyyy-MM-dd")
-	LocalDate date;
+//	@JsonFormat(pattern = "yyyy-MM-dd")
+	LocalDateTime datetimecreation;
 
 //@JsonFormat(pattern = "HH:mm'T'aa") // aa set AM PM
-	LocalTime time;
+//	LocalTime time;
 	Integer duration;// in minutes
 	String food;
 	String description;

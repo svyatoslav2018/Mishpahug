@@ -51,7 +51,7 @@ public class SiteServiceImpl implements SiteService {
 				.holiday(newEvent.getHoliday())
 				.address(newEvent.getAddress())
 				.confession(newEvent.getConfession())
-				.date(newEvent.getDate())
+				.datetimecreation(newEvent.getDate()+'T'+newEvent.getTime())
 				.time(newEvent.getTime())
 				.duration(newEvent.getDuration())
 				.food(newEvent.getFood())
