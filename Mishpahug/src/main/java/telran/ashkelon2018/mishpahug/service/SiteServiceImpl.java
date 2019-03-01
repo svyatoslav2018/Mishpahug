@@ -51,12 +51,14 @@ public class SiteServiceImpl implements SiteService {
 				.holiday(newEvent.getHoliday())
 				.address(newEvent.getAddress())
 				.confession(newEvent.getConfession())
-				.datetimecreation(newEvent.getDate()+'T'+newEvent.getTime())
+				.date(newEvent.getDate())
 				.time(newEvent.getTime())
 				.duration(newEvent.getDuration())
 				.food(newEvent.getFood())
 				.description(newEvent.getDescription())
 				.build();
+		System.out.println(newEvent.getDate());
+		System.out.println(newEvent.getTime());
 		System.out.println("newEventToMongo ==> " + event);
 		
 		siteRepository.save(event);
