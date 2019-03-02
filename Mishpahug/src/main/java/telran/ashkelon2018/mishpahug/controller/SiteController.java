@@ -27,7 +27,7 @@ public class SiteController {
 	SessionConfiguration sessionConfiguration;
 
 	@PostMapping("/creation")
-	public String addEvent(@RequestBody NewEventDto newEvent) {
+	public NewEventDto addEvent(@RequestBody NewEventDto newEvent) {
 		String sessionLogin = sessionConfiguration.sessionUserName();
 		
 		return siteService.addNewEvent(newEvent, sessionLogin);

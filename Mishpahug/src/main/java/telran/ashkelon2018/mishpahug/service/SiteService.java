@@ -10,7 +10,7 @@ import telran.ashkelon2018.mishpahug.dto.NewEventDto;
 
 public interface SiteService {
 
-	String addNewEvent(NewEventDto newEvent, String sessionLogin);
+	NewEventDto addNewEvent(NewEventDto newEvent, String sessionLogin);
 
 	//Event getEvent(String login, LocalDate date, LocalTime time);// id = login+date+time
 

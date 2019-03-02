@@ -1,6 +1,7 @@
 package telran.ashkelon2018.mishpahug.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class SiteServiceImpl implements SiteService {
 	UserAccountRepository userRepository;
 
 	@Override
-	public String addNewEvent(NewEventDto newEvent, String sessionLogin) {
+	public NewEventDto addNewEvent(NewEventDto newEvent, String sessionLogin) {
 		UserAccount userAccount = userRepository.findById(sessionLogin).get();
 		if (!sessionLogin.equals(userAccount.getLogin())) {
 			throw new WrongLoginOrPasswordException();// 401 unauthorized
@@ -44,6 +45,7 @@ public class SiteServiceImpl implements SiteService {
 		System.out.println("newEventDto ==> " + newEvent);
 		
 		String eventId=userAccount.getLogin()+"D"+newEvent.getDate().toString().replaceAll("\\-", "")+"T"+newEvent.getTime().toString();
+		 LocalDateTime localDateTimeCreation = LocalDateTime.of(newEvent.getDate(), newEvent.getTime()); 
 		Event event= Event.builder()
 				.eventId(eventId)
 				.owner(userAccount.getLogin())
@@ -51,42 +53,41 @@ public class SiteServiceImpl implements SiteService {
 				.holiday(newEvent.getHoliday())
 				.address(newEvent.getAddress())
 				.confession(newEvent.getConfession())
-				.date(newEvent.getDate())
-				.time(newEvent.getTime())
+				.dateTimeCreation(localDateTimeCreation)
+//				.time(newEvent.getTime())
 				.duration(newEvent.getDuration())
 				.food(newEvent.getFood())
 				.description(newEvent.getDescription())
 				.build();
-		System.out.println(newEvent.getDate());
-		System.out.println(newEvent.getTime());
-		System.out.println("newEventToMongo ==> " + event);
+//		System.out.println(newEvent.getDate());
+//		System.out.println(newEvent.getTime());
+//		System.out.println(localDateTime);
+//		System.out.println("newEventToMongo ==> " + event);
 		
 		siteRepository.save(event);
 		
 		String res = "{'code': 200, 'message':'Event is created'}";
 		
-		return res;
-		//return convertToNewEventDto(event);
+//		return res;
+		return convertToEventDto(event);
 	}
 	
 	
 	
-//	
-//	private NewEventDto convertToNewEventDto(Event event) {
-//		return NewEventDto.builder()
-//				.title(event.getTitle())
-//				.holiday(event.getHoliday())
-//				.city(event.getCity())
-//				.place_id(event.getPlace_id())
-//				.location(event.getLocation())
-//				.confession(event.getConfession())
-//				.date(event.getDate())
-//				.time(event.getTime())
-//				.duration(event.getDuration())
-//				.food(event.getFood())
-//				.description(event.getDescription())
-//				.build();
-//	}
+	
+	private NewEventDto convertToEventDto(Event event) {
+		return NewEventDto.builder()
+				.title(event.getTitle())
+				.holiday(event.getHoliday())
+				.address(event.getAddress())
+				.confession(event.getConfession())
+				.date(event.getDateTimeCreation().toLocalDate())
+				.time(event.getDateTimeCreation().toLocalTime())
+				.duration(event.getDuration())
+				.food(event.getFood())
+				.description(event.getDescription())
+				.build();
+	}
 	
 	
 	

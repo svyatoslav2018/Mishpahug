@@ -43,10 +43,10 @@ public class Event {
 	String confession;
 
 //	@JsonFormat(pattern = "yyyy-MM-dd")
-	LocalDate date;
+	LocalDateTime dateTimeCreation;
 
 //@JsonFormat(pattern = "HH:mm'T'aa") // aa set AM PM
-	LocalTime time;
+//	LocalTime time;
 	Integer duration;// in minutes
 	String food;
 	String description;
