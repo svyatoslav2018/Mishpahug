@@ -63,24 +63,16 @@ public class AccountManagementController {
 	@CrossOrigin(origins = "*", allowedHeaders = "*")
 	@PostMapping("/login")
 	public UserProfileDto loginUser(@RequestHeader("Authorization") String token) {
-
 		System.out.println("Token= " + token);
-
-		// * add a token to the http session in order to check it on other endpoints *//
-		RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
-		ServletRequestAttributes attributes = (ServletRequestAttributes) requestAttributes;
-		HttpSession httpSession = attributes.getRequest().getSession(true);
-//		String hsr = hsr.getHeader(token);
-		System.out.println("UserRegSessionId: "+httpSession.getId());
-		httpSession.setAttribute("U_TOKEN", token);
-		
-
 		sessionConfiguration.setAttributeToken(token);
 		return accountService.login(token);
 	}
 
+		
+	
+	
+	
 	// Unauthorized requests
-
 	@GetMapping("/staticfields")
 	public StaticFieldsDto staticFields(@RequestBody StaticFieldsDto staticFieldsDto) {
 		return accountService.getStaticFields(staticFieldsDto);
