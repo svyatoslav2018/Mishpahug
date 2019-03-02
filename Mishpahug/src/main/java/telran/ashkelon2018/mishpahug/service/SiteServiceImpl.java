@@ -13,7 +13,7 @@ import telran.ashkelon2018.mishpahug.dao.UserAccountRepository;
 import telran.ashkelon2018.mishpahug.domain.Event;
 
 import telran.ashkelon2018.mishpahug.domain.UserAccount;
-
+import telran.ashkelon2018.mishpahug.dto.EventResponseDto;
 import telran.ashkelon2018.mishpahug.dto.NewEventDto;
 import telran.ashkelon2018.mishpahug.exceptions.WrongLoginOrPasswordException;
 
@@ -29,74 +29,61 @@ public class SiteServiceImpl implements SiteService {
 	UserAccountRepository userRepository;
 
 	@Override
-	public NewEventDto addNewEvent(NewEventDto newEvent, String sessionLogin) {
+	public EventResponseDto addNewEvent(NewEventDto newEvent,
+			String sessionLogin) {
 		UserAccount userAccount = userRepository.findById(sessionLogin).get();
 		if (!sessionLogin.equals(userAccount.getLogin())) {
 			throw new WrongLoginOrPasswordException();// 401 unauthorized
 		}
-//		LocalDate date=LocalDate.now();
-//		LocalTime time=LocalTime.now();
-//		Event event=siteRepository.findById(event.getLogin()).get();
-//		if(date==event.getDate()&&time==event.getTime())
-//		{
-//			throw new UserConflictException();//409 busy date
-//		}
-		
+		// LocalDate date=LocalDate.now();
+		// LocalTime time=LocalTime.now();
+		// Event event=siteRepository.findById(event.getLogin()).get();
+		// if(date==event.getDate()&&time==event.getTime())
+		// {
+		// throw new UserConflictException();//409 busy date
+		// }
+
 		System.out.println("newEventDto ==> " + newEvent);
-		
-		String eventId=userAccount.getLogin()+"D"+newEvent.getDate().toString().replaceAll("\\-", "")+"T"+newEvent.getTime().toString();
-		 LocalDateTime localDateTimeCreation = LocalDateTime.of(newEvent.getDate(), newEvent.getTime()); 
-		Event event= Event.builder()
-				.eventId(eventId)
-				.owner(userAccount.getLogin())
-				.title(newEvent.getTitle())
-				.holiday(newEvent.getHoliday())
-				.address(newEvent.getAddress())
+
+		String eventId = userAccount.getLogin() + "D"
+				+ newEvent.getDate().toString().replaceAll("\\-", "") + "T"
+				+ newEvent.getTime().toString();
+		LocalDateTime localDateTimeCreation = LocalDateTime
+				.of(newEvent.getDate(), newEvent.getTime());
+		Event event = Event.builder().eventId(eventId)
+				.owner(userAccount.getLogin()).title(newEvent.getTitle())
+				.holiday(newEvent.getHoliday()).address(newEvent.getAddress())
 				.confession(newEvent.getConfession())
 				.dateTimeCreation(localDateTimeCreation)
-//				.time(newEvent.getTime())
-				.duration(newEvent.getDuration())
-				.food(newEvent.getFood())
-				.description(newEvent.getDescription())
-				.build();
-//		System.out.println(newEvent.getDate());
-//		System.out.println(newEvent.getTime());
-//		System.out.println(localDateTime);
-//		System.out.println("newEventToMongo ==> " + event);
-		
+				// .time(newEvent.getTime())
+				.duration(newEvent.getDuration()).food(newEvent.getFood())
+				.description(newEvent.getDescription()).build();
+		// System.out.println(newEvent.getDate());
+		// System.out.println(newEvent.getTime());
+		// System.out.println(localDateTime);
+		// System.out.println("newEventToMongo ==> " + event);
+
 		siteRepository.save(event);
-		
-		String res = "{'code': 200, 'message':'Event is created'}";
-		
-//		return res;
-		return convertToEventDto(event);
+
+		//String res = "{'code': 200, 'message':'Event is created'}";
+
+		// return res;
+		// return convertToEventDto(event);
+		return convertToEventResponseDto();
 	}
-	
-	
-	
-	
-	private NewEventDto convertToEventDto(Event event) {
-		return NewEventDto.builder()
-				.title(event.getTitle())
-				.holiday(event.getHoliday())
-				.address(event.getAddress())
-				.confession(event.getConfession())
-				.date(event.getDateTimeCreation().toLocalDate())
-				.time(event.getDateTimeCreation().toLocalTime())
-				.duration(event.getDuration())
-				.food(event.getFood())
-				.description(event.getDescription())
+
+	private EventResponseDto convertToEventResponseDto() {
+		return EventResponseDto.builder().code(200).message("Event is created")
 				.build();
 	}
-	
-	
-	
-	
-//	private Event convertToEvent(NewEventDto newEvent) {
-//		return new Event(newEvent.getLogin(), newEvent.getEventId(),newEvent.getTitle(),
-//				newEvent.getHoliday(),newEvent.getAddress(), newEvent.getEventConfession(), newEvent.getDate(),
-//				newEvent.getTime(),newEvent.getDuration(),newEvent.getFood(),newEvent.getDescription());
-//	}
+
+	// private Event convertToEvent(NewEventDto newEvent) {
+	// return new Event(newEvent.getLogin(),
+	// newEvent.getEventId(),newEvent.getTitle(),
+	// newEvent.getHoliday(),newEvent.getAddress(),
+	// newEvent.getEventConfession(), newEvent.getDate(),
+	// newEvent.getTime(),newEvent.getDuration(),newEvent.getFood(),newEvent.getDescription());
+	// }
 
 	// @Override
 	// public Post getPost(String id) {
@@ -137,7 +124,8 @@ public class SiteServiceImpl implements SiteService {
 	// public Post addComment(String id, NewCommentDto newComment) {
 	// Post post = repository.findById(id).orElse(null);
 	// if (post != null) {
-	// Comment comment = new Comment(newComment.getUser(), newComment.getMessage());
+	// Comment comment = new Comment(newComment.getUser(),
+	// newComment.getMessage());
 	// post.addComment(comment);
 	// repository.save(post);
 	// }
@@ -156,6 +144,7 @@ public class SiteServiceImpl implements SiteService {
 	//
 	// @Override
 	// public Iterable<Post> findPostsByDates(DatePeriodDto period) {
-	// return repository.findByDateCreatedBetween(LocalDate.parse(period.getFrom()),
+	// return
+	// repository.findByDateCreatedBetween(LocalDate.parse(period.getFrom()),
 	// LocalDate.parse(period.getTo()));
 }

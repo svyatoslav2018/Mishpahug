@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import telran.ashkelon2018.mishpahug.configuration.SessionConfiguration;
 import telran.ashkelon2018.mishpahug.domain.Event;
+import telran.ashkelon2018.mishpahug.dto.EventResponseDto;
 import telran.ashkelon2018.mishpahug.dto.NewEventDto;
 import telran.ashkelon2018.mishpahug.service.SiteService;
 
@@ -27,7 +28,7 @@ public class SiteController {
 	SessionConfiguration sessionConfiguration;
 
 	@PostMapping("/creation")
-	public NewEventDto addEvent(@RequestBody NewEventDto newEvent) {
+	public EventResponseDto addEvent(@RequestBody NewEventDto newEvent) {
 		String sessionLogin = sessionConfiguration.sessionUserName();
 		
 		return siteService.addNewEvent(newEvent, sessionLogin);
