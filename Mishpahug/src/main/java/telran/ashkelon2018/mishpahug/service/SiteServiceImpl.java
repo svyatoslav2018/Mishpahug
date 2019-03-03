@@ -13,7 +13,7 @@ import telran.ashkelon2018.mishpahug.dao.UserAccountRepository;
 import telran.ashkelon2018.mishpahug.domain.Event;
 
 import telran.ashkelon2018.mishpahug.domain.UserAccount;
-import telran.ashkelon2018.mishpahug.dto.EventResponseDto;
+import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
 import telran.ashkelon2018.mishpahug.dto.NewEventDto;
 import telran.ashkelon2018.mishpahug.exceptions.WrongLoginOrPasswordException;
 
@@ -29,7 +29,7 @@ public class SiteServiceImpl implements SiteService {
 	UserAccountRepository userRepository;
 
 	@Override
-	public EventResponseDto addNewEvent(NewEventDto newEvent,
+	public CodeResponseDto addNewEvent(NewEventDto newEvent,
 			String sessionLogin) {
 		UserAccount userAccount = userRepository.findById(sessionLogin).get();
 		if (!sessionLogin.equals(userAccount.getLogin())) {
@@ -72,8 +72,8 @@ public class SiteServiceImpl implements SiteService {
 		return convertToEventResponseDto();
 	}
 
-	private EventResponseDto convertToEventResponseDto() {
-		return EventResponseDto.builder().code(200).message("Event is created")
+	private CodeResponseDto convertToEventResponseDto() {
+		return CodeResponseDto.builder().code(200).message("Event is created")
 				.build();
 	}
 

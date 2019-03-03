@@ -13,7 +13,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class EventResponseDto {
+public class CodeResponseDto {
 	Integer code;
 	String message;
 }
