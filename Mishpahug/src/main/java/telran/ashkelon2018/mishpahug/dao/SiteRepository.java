@@ -1,13 +1,13 @@
 package telran.ashkelon2018.mishpahug.dao;
 
-import java.time.LocalDate;
-
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import telran.ashkelon2018.mishpahug.domain.Event;
 
 public interface SiteRepository extends MongoRepository<Event, String> {
 
+//List<Event> findByDateFromBetweenAndOwnerIn(LocalDate localDate, LocalDate localDate2, String sessionLogin);
+//
 //	Iterable<Event> findAllEvents(String status);// status "In progress"
 //
 //	Iterable<Event> findEventsByCity(String city);

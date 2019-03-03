@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import telran.ashkelon2018.mishpahug.domain.Address;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,15 +21,12 @@ public class NewEventDto {
 	
 	String title;
 	String holiday;
-	//Map<String,Set<String>> address;// keys: city, place_id, location(coordinates)
-	String city;
-	String place_id;
-	String[] location;
+	Address address;
 	String confession;
 	LocalDate date;
 	LocalTime time;
 	Integer duration;//in minutes
-	String[] food;
+	String food;
 	String description;
 
 }
