@@ -69,13 +69,10 @@ public class SiteServiceImpl implements SiteService {
 
 		// return res;
 		// return convertToEventDto(event);
-		return convertToEventResponseDto();
+		return new CodeResponseDto(200, "Event is created");
+		
 	}
 
-	private CodeResponseDto convertToEventResponseDto() {
-		return CodeResponseDto.builder().code(200).message("Event is created")
-				.build();
-	}
 
 	// private Event convertToEvent(NewEventDto newEvent) {
 	// return new Event(newEvent.getLogin(),
