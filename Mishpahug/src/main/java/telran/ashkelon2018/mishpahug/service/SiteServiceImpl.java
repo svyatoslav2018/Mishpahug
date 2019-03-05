@@ -62,7 +62,7 @@ public class SiteServiceImpl implements SiteService {
 		// System.out.println(newEvent.getTime());
 		// System.out.println(localDateTime);
 		// System.out.println("newEventToMongo ==> " + event);
-System.out.println("Event= " + event);
+
 		siteRepository.save(event);
 
 		//String res = "{'code': 200, 'message':'Event is created'}";
