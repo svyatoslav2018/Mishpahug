@@ -19,6 +19,7 @@ import telran.ashkelon2018.mishpahug.domain.Address;
 @ToString
 public class NewEventDto {
 	
+	String owner;
 	String title;
 	String holiday;
 	Address address;

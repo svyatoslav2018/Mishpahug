@@ -1,13 +1,9 @@
 package telran.ashkelon2018.mishpahug.domain;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,12 +32,9 @@ public class Event {
 	@Setter Address address; 
 	@Setter String confession;
 
+	LocalDateTime localDateTimeEvent;
 
-//	@JsonFormat(pattern = "yyyy-MM-dd")
-//	 LocalDate date;
-//	@JsonFormat(pattern = "HH:mm:ss Z")
-//	LocalTime time;
-	LocalDateTime dateTimeCreation;
+
 	Integer duration;// in minutes
 	@Setter String food;
 	@Setter String description;
