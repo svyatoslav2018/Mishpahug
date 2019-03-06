@@ -1,10 +1,11 @@
 package telran.ashkelon2018.mishpahug.service;
 
+import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
 import telran.ashkelon2018.mishpahug.dto.NewEventDto;
 
 public interface SiteService {
 
-	NewEventDto addNewEvent(NewEventDto newEvent, String sessionLogin);
+	CodeResponseDto addNewEvent(NewEventDto newEvent, String sessionLogin);
 
 	//Event getEvent(String login, LocalDate date, LocalTime time);// id = login+date+time
 

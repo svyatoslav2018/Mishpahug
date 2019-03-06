@@ -41,7 +41,7 @@ public class AccountServiceImpl implements AccountService {
 
 		// if (!(emailValidator.validate(credentials.getLogin()))
 		// || !(passwordValidator.validate(credentials.getPassword()))) {
-		// throw new UnqualifiedLoginOrPassword();// 422 Invalid data. Email or password
+		// throw new UnprocessableEntity();// 422 Invalid data. Email or password
 		// does not meet the requirements
 		// }
 
@@ -52,7 +52,6 @@ public class AccountServiceImpl implements AccountService {
 		String hashPassword = BCrypt.hashpw(credentials.getPassword(), BCrypt.gensalt());
 //		String loginLowerCase=credentials.getLogin().toLowerCase();
 //		String loginLowerCaseNoDot=loginLowerCase.replaceAll("\\.", "");
-	//	System.out.println(loginLowerCase);
 		UserAccount userAccount = UserAccount.builder().login(credentials.getLogin()).password(hashPassword).build();
 		userRepository.save(userAccount);
 		return convertToUserProfileDto(userAccount);

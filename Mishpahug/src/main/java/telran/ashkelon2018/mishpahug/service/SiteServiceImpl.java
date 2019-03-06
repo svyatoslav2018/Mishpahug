@@ -1,7 +1,7 @@
 package telran.ashkelon2018.mishpahug.service;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,12 +11,14 @@ import telran.ashkelon2018.mishpahug.dao.SiteRepository;
 import telran.ashkelon2018.mishpahug.dao.UserAccountRepository;
 import telran.ashkelon2018.mishpahug.domain.Event;
 import telran.ashkelon2018.mishpahug.domain.UserAccount;
+import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
 import telran.ashkelon2018.mishpahug.dto.NewEventDto;
+import telran.ashkelon2018.mishpahug.exceptions.UnprocessableEntityException;
+import telran.ashkelon2018.mishpahug.exceptions.UserConflictException;
 import telran.ashkelon2018.mishpahug.exceptions.WrongLoginOrPasswordException;
 
-@Builder
 @Service
-
+@Builder
 public class SiteServiceImpl implements SiteService {
 
 	@Autowired
@@ -26,59 +28,51 @@ public class SiteServiceImpl implements SiteService {
 	UserAccountRepository userRepository;
 
 	@Override
-	public NewEventDto addNewEvent(NewEventDto newEvent, String sessionLogin) {
+	public CodeResponseDto addNewEvent(NewEventDto newEvent, String sessionLogin) {
 		UserAccount userAccount = userRepository.findById(sessionLogin).get();
 		if (!sessionLogin.equals(userAccount.getLogin())) {
 			throw new WrongLoginOrPasswordException();// 401 unauthorized
 		}
-//		LocalDate date=LocalDate.now();
-//		LocalTime time=LocalTime.now();
-//		Event event=siteRepository.findById(event.getLogin()).get();
-//		if(date==event.getDate()&&time==event.getTime())
-//		{
-//			throw new UserConflictException();//409 busy date
-//		}
-		
-		String eventId=userAccount.getLogin()+newEvent.getDate().toString()+newEvent.getTime().toString();
-		Event event= Event.builder()
-				.eventId(eventId)
-				.owner(userAccount.getLogin())
-				.title(newEvent.getTitle())
-				.holiday(newEvent.getHoliday())
-				.city(newEvent.getCity())
-				.place_id(newEvent.getPlace_id())
-				.location(newEvent.getLocation())
-				.confession(newEvent.getConfession())
-				.date(newEvent.getDate())
-				.time(newEvent.getTime())
-				.duration(newEvent.getDuration())
-				.food(newEvent.getFood())
-				.description(newEvent.getDescription())
-				.build();
+		LocalDateTime dateFrom = newEvent.getDate().atTime(newEvent.getTime());
+		LocalDateTime dateTo = dateFrom.plusHours(newEvent.getDuration());
+		LocalDateTime checkDateFrom = LocalDateTime.of(newEvent.getDate(), newEvent.getTime());
+		LocalDateTime checkDateTo = checkDateFrom.plusMinutes(newEvent.getDuration());
+		boolean checktime1 = LocalDateTime.now().isBefore(dateFrom.minusHours(48));
+		boolean checktime2 = LocalDateTime.now().isAfter(dateFrom.minusMonths(2));
+		boolean checktime3 = false;
+
+		List<Event> list = siteRepository.findByDurationAndOwnerAndLocalDateTimeEvent(newEvent.getDuration(),
+				newEvent.getOwner(), newEvent.getDate());
+		if (list.isEmpty()) {
+			checktime3 = true;
+		}
+		if (!list.isEmpty()) {
+			checktime3 = true;
+			for (Event event : list) {
+				if (!event.getLocalDateTimeEvent().isBefore(dateFrom)
+						&& !dateTo.isBefore(event.getLocalDateTimeEvent())) {
+					checktime3 = false;
+				}
+			}
+		}
+		if (!(checktime1 && checktime2 && checktime3)) {
+			throw new UnprocessableEntityException();// 422 Invalid data
+		}
+
+		String eventId = userAccount.getLogin() + "D" + newEvent.getDate().toString().replaceAll("\\-", "") + "T"
+				+ newEvent.getTime().toString();
+		if (siteRepository.findById(eventId).orElse(null) != null) {
+			throw new UserConflictException();// 409 busy date
+		}
+
+		LocalDateTime localDateTimeEvent = LocalDateTime.of(newEvent.getDate(), newEvent.getTime());
+		Event event = Event.builder().eventId(eventId).owner(userAccount.getLogin()).title(newEvent.getTitle())
+				.holiday(newEvent.getHoliday()).address(newEvent.getAddress()).confession(newEvent.getConfession())
+				.localDateTimeEvent(localDateTimeEvent).duration(newEvent.getDuration()).food(newEvent.getFood())
+				.description(newEvent.getDescription()).build();
 		siteRepository.save(event);
-		return convertToNewEventDto(event);
+		return new CodeResponseDto(200, "Event is created");
 	}
-	private NewEventDto convertToNewEventDto(Event event) {
-		return NewEventDto.builder()
-				.title(event.getTitle())
-				.holiday(event.getHoliday())
-				.city(event.getCity())
-				.place_id(event.getPlace_id())
-				.location(event.getLocation())
-				.confession(event.getConfession())
-				.date(event.getDate())
-				.time(event.getTime())
-				.duration(event.getDuration())
-				.food(event.getFood())
-				.description(event.getDescription())
-				.build();
-	}
-	
-//	private Event convertToEvent(NewEventDto newEvent) {
-//		return new Event(newEvent.getLogin(), newEvent.getEventId(),newEvent.getTitle(),
-//				newEvent.getHoliday(),newEvent.getAddress(), newEvent.getEventConfession(), newEvent.getDate(),
-//				newEvent.getTime(),newEvent.getDuration(),newEvent.getFood(),newEvent.getDescription());
-//	}
 
 	// @Override
 	// public Post getPost(String id) {
