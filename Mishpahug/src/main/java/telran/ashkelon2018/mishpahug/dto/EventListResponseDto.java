@@ -2,6 +2,7 @@ package telran.ashkelon2018.mishpahug.dto;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,8 +18,12 @@ import telran.ashkelon2018.mishpahug.domain.Address;
 @Getter
 @Setter
 @ToString
-public class NewEventDto {
+public class EventListResponseDto {
 	
+	public EventListResponseDto(List<EventDto> collect, Integer page, Integer size) {
+		// TODO Auto-generated constructor stub
+		
+	}
 	String owner;
 	String title;
 	String holiday;
@@ -29,5 +34,6 @@ public class NewEventDto {
 	Integer duration;//in minutes
 	String food;
 	String description;
+	String status;//In progress, Done, Pending, Not done
 
 }

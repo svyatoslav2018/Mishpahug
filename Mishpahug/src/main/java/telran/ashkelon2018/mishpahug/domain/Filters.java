@@ -1,5 +1,7 @@
 package telran.ashkelon2018.mishpahug.domain;
 
+import java.time.LocalDate;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,9 +13,10 @@ import lombok.ToString;
 @ToString
 @Getter
 @Setter
-public class Location {
-	Double lng;
-	Double lat;
-	Double radius;
-
+public class Filters {
+	LocalDate dateFrom;
+	LocalDate dateTo;
+	String holidays;
+	String confession;
+	String food;
 }

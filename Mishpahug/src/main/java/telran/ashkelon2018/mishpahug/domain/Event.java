@@ -1,7 +1,10 @@
 package telran.ashkelon2018.mishpahug.domain;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
+import org.apache.tomcat.jni.Local;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -16,7 +19,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@EqualsAndHashCode(of = { "owner" })
+@EqualsAndHashCode(of = { "eventId" })
 @ToString
 @Document(collection = "Events")
 @Builder
@@ -31,12 +34,13 @@ public class Event {
 	@Setter String holiday;
 	@Setter Address address; 
 	@Setter String confession;
-
-	LocalDateTime localDateTimeEvent;
-
-
+	LocalDate date;
+	LocalTime time;
+	//LocalDateTime localDateTimeEvent;
 	Integer duration;// in minutes
 	@Setter String food;
 	@Setter String description;
+	@Setter String eventStatus;
+	PageSize pageSize;
 	
 }
