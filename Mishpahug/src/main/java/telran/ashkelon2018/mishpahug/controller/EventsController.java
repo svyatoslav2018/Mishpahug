@@ -6,16 +6,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import telran.ashkelon2018.mishpahug.configuration.SessionConfiguration;
 import telran.ashkelon2018.mishpahug.domain.Event;
 import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
 import telran.ashkelon2018.mishpahug.dto.EventDto;
+import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
 import telran.ashkelon2018.mishpahug.dto.PageSizeDto;
 import telran.ashkelon2018.mishpahug.service.EventsService;
 
-@CrossOrigin(origins = "http://localhost:63342/_Mishpahug_for_GIT/index.html", allowedHeaders = "*")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/event") // all will be start from event
 
@@ -82,12 +84,12 @@ public class EventsController {
 	// }
 
 	// without authentication
-	@PostMapping("/event/allprogresslist?page={Integer}&size={Integer}")
-	public Iterable<Event> findAllEventsInProgress(@PathVariable String status, 
-			@RequestBody EventDto eventDto, @RequestBody PageSizeDto pageSizeDto) {
+	@PostMapping("/allprogresslist") // ?page={Integer}&size={Integer}
+	public Iterable<Event> findAllEventsInProgress(@RequestBody EventListRequestDto eventsListFilterDto
+			 ) {//@RequestParam Integer page,@RequestParam Integer size,@RequestBody EventListRequestDto eventsListFilterDto
 		String sessionLogin = sessionConfiguration.sessionUserName();
-		Integer page = pageSizeDto.getPage();
-		Integer size = pageSizeDto.getSize();
-		return eventsService.findEventsInProgressUnAuth(status, eventDto, page, size, sessionLogin);
+//		Integer page = pageSizeDto.getPage();
+//		Integer size = pageSizeDto.getSize();
+		return eventsService.findEventsInProgress(eventsListFilterDto, sessionLogin);//, page, size, sessionLogin
 	}
 }

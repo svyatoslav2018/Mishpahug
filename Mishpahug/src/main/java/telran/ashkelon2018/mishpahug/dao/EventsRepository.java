@@ -9,9 +9,9 @@ import telran.ashkelon2018.mishpahug.domain.Event;
 
 public interface EventsRepository extends MongoRepository<Event, String> {
 
-	List<Event> findByDurationAndOwnerAndLocalDateTimeEvent(Integer duration, String owner, LocalDate date);
+	List<Event> findByDurationAndOwnerAndDateAndTime(Integer duration, String owner, LocalDate date);
 
-	Iterable<Event> findByStatus(String status);// status "In progress"
+	Iterable<Event> findByEventStatus(String eventStatus);// status "In progress"
 	
 	// Iterable<Event> findEventsByCity(String city);
 	//

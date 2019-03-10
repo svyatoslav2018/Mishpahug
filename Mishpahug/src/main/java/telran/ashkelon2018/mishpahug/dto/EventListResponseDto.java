@@ -1,10 +1,8 @@
 package telran.ashkelon2018.mishpahug.dto;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-
-import org.springframework.data.annotation.Id;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,10 +18,12 @@ import telran.ashkelon2018.mishpahug.domain.Address;
 @Getter
 @Setter
 @ToString
-public class EventDto {
+public class EventListResponseDto {
 	
-	@Id
-	String eventId;
+	public EventListResponseDto(List<EventDto> collect, Integer page, Integer size) {
+		// TODO Auto-generated constructor stub
+		
+	}
 	String owner;
 	String title;
 	String holiday;
@@ -31,11 +31,9 @@ public class EventDto {
 	String confession;
 	LocalDate date;
 	LocalTime time;
-	//LocalDateTime localDateTimeEvent;
 	Integer duration;//in minutes
 	String food;
 	String description;
-	String eventStatus;//In progress, Done, Pending, Not done
-	
+	String status;//In progress, Done, Pending, Not done
 
 }
