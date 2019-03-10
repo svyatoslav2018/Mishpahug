@@ -1,11 +1,15 @@
 package telran.ashkelon2018.mishpahug.service;
 
+import telran.ashkelon2018.mishpahug.domain.Event;
 import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
-import telran.ashkelon2018.mishpahug.dto.NewEventDto;
+import telran.ashkelon2018.mishpahug.dto.EventDto;
 
-public interface SiteService {
+public interface EventsService {
 
-	CodeResponseDto addNewEvent(NewEventDto newEvent, String sessionLogin);
+	CodeResponseDto addNewEvent(EventDto newEvent, String sessionLogin);
+
+	Iterable<Event> findEventsInProgressUnAuth(String status, EventDto eventDto, Integer page, Integer size,
+			String sessionLogin);
 
 	//Event getEvent(String login, LocalDate date, LocalTime time);// id = login+date+time
 

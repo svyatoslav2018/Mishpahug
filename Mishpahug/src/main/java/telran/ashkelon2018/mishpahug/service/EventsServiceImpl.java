@@ -7,28 +7,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import lombok.Builder;
-import telran.ashkelon2018.mishpahug.dao.SiteRepository;
+import telran.ashkelon2018.mishpahug.configuration.EventConfiguration;
+import telran.ashkelon2018.mishpahug.dao.EventsRepository;
 import telran.ashkelon2018.mishpahug.dao.UserAccountRepository;
 import telran.ashkelon2018.mishpahug.domain.Event;
 import telran.ashkelon2018.mishpahug.domain.UserAccount;
 import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
-import telran.ashkelon2018.mishpahug.dto.NewEventDto;
-import telran.ashkelon2018.mishpahug.exceptions.UnprocessableEntityException;
+import telran.ashkelon2018.mishpahug.dto.EventDto;
 import telran.ashkelon2018.mishpahug.exceptions.UserConflictException;
 import telran.ashkelon2018.mishpahug.exceptions.WrongLoginOrPasswordException;
 
-@Service
 @Builder
-public class SiteServiceImpl implements SiteService {
+@Service
+public class EventsServiceImpl implements EventsService {
 
 	@Autowired
-	SiteRepository siteRepository;
+	EventsRepository eventsRepository;
 
 	@Autowired
 	UserAccountRepository userRepository;
 
+	@Autowired
+	EventConfiguration eventConfiguration;
+
 	@Override
-	public CodeResponseDto addNewEvent(NewEventDto newEvent, String sessionLogin) {
+	public CodeResponseDto addNewEvent(EventDto newEvent, String sessionLogin) {
 		UserAccount userAccount = userRepository.findById(sessionLogin).get();
 		if (!sessionLogin.equals(userAccount.getLogin())) {
 			throw new WrongLoginOrPasswordException();// 401 unauthorized
@@ -41,7 +44,7 @@ public class SiteServiceImpl implements SiteService {
 		boolean checktime2 = LocalDateTime.now().isAfter(dateFrom.minusMonths(2));
 		boolean checktime3 = false;
 
-		List<Event> list = siteRepository.findByDurationAndOwnerAndLocalDateTimeEvent(newEvent.getDuration(),
+		List<Event> list = eventsRepository.findByDurationAndOwnerAndLocalDateTimeEvent(newEvent.getDuration(),
 				newEvent.getOwner(), newEvent.getDate());
 		if (list.isEmpty()) {
 			checktime3 = true;
@@ -56,12 +59,13 @@ public class SiteServiceImpl implements SiteService {
 			}
 		}
 		if (!(checktime1 && checktime2 && checktime3)) {
-			throw new UnprocessableEntityException();// 422 Invalid data
+			//throw new UnprocessableEntityException();// 422 Invalid data
+			return new CodeResponseDto(422, "Invalid data");
 		}
 
 		String eventId = userAccount.getLogin() + "D" + newEvent.getDate().toString().replaceAll("\\-", "") + "T"
 				+ newEvent.getTime().toString();
-		if (siteRepository.findById(eventId).orElse(null) != null) {
+		if (eventsRepository.findById(eventId).orElse(null) != null) {
 			throw new UserConflictException();// 409 busy date
 		}
 
@@ -69,9 +73,26 @@ public class SiteServiceImpl implements SiteService {
 		Event event = Event.builder().eventId(eventId).owner(userAccount.getLogin()).title(newEvent.getTitle())
 				.holiday(newEvent.getHoliday()).address(newEvent.getAddress()).confession(newEvent.getConfession())
 				.localDateTimeEvent(localDateTimeEvent).duration(newEvent.getDuration()).food(newEvent.getFood())
-				.description(newEvent.getDescription()).build();
-		siteRepository.save(event);
+				.description(newEvent.getDescription())
+				//.status(newEvent.getStatus())
+				.build();
+		//event.setStatus(eventConfiguration.INPROGRESS);
+		eventsRepository.save(event);
 		return new CodeResponseDto(200, "Event is created");
+	}
+
+	@Override
+	public Iterable<Event> findEventsInProgressUnAuth(String status, EventDto eventDto, Integer page, Integer size,
+			String sessionLogin) {
+		
+		if (sessionLogin != null) {
+			return null;
+		}
+		if(!status.equals(eventConfiguration.INPROGRESS)){
+			return null;
+		}
+
+		return eventsRepository.findByStatus(status);
 	}
 
 	// @Override

@@ -17,7 +17,7 @@ import telran.ashkelon2018.mishpahug.domain.Address;
 @Getter
 @Setter
 @ToString
-public class NewEventDto {
+public class EventDto {
 	
 	String owner;
 	String title;
@@ -29,5 +29,6 @@ public class NewEventDto {
 	Integer duration;//in minutes
 	String food;
 	String description;
+	String status;//In progress, Done, Pending, Not done
 
 }

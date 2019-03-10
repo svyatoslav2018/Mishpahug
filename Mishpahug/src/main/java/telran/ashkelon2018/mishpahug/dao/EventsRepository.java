@@ -7,12 +7,12 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import telran.ashkelon2018.mishpahug.domain.Event;
 
-public interface SiteRepository extends MongoRepository<Event, String> {
+public interface EventsRepository extends MongoRepository<Event, String> {
 
 	List<Event> findByDurationAndOwnerAndLocalDateTimeEvent(Integer duration, String owner, LocalDate date);
 
-	// Iterable<Event> findAllEvents(String status);// status "In progress"
-	//
+	Iterable<Event> findByStatus(String status);// status "In progress"
+	
 	// Iterable<Event> findEventsByCity(String city);
 	//
 	// Iterable<Event> findByDateBetween(LocalDate dateFrom, LocalDate dateTo);

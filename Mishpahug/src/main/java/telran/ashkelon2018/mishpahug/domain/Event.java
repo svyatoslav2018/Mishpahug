@@ -31,12 +31,10 @@ public class Event {
 	@Setter String holiday;
 	@Setter Address address; 
 	@Setter String confession;
-
 	LocalDateTime localDateTimeEvent;
-
-
 	Integer duration;// in minutes
 	@Setter String food;
 	@Setter String description;
+	@Setter String status;
 	
 }
