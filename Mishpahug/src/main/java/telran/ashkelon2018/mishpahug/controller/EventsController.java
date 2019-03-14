@@ -2,19 +2,17 @@ package telran.ashkelon2018.mishpahug.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import telran.ashkelon2018.mishpahug.configuration.SessionConfiguration;
 import telran.ashkelon2018.mishpahug.domain.Event;
+import telran.ashkelon2018.mishpahug.dto.AddEventDto;
 import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
-import telran.ashkelon2018.mishpahug.dto.EventDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
-import telran.ashkelon2018.mishpahug.dto.PageSizeDto;
+import telran.ashkelon2018.mishpahug.dto.EventListResponseDto;
 import telran.ashkelon2018.mishpahug.service.EventsService;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -30,7 +28,7 @@ public class EventsController {
 	SessionConfiguration sessionConfiguration;
 
 	@PostMapping("/creation")
-	public CodeResponseDto addEvent(@RequestBody EventDto newEvent) {
+	public CodeResponseDto addEvent(@RequestBody AddEventDto newEvent) {
 		String sessionLogin = sessionConfiguration.sessionUserName();
 		return eventsService.addNewEvent(newEvent, sessionLogin);
 	}
@@ -85,11 +83,9 @@ public class EventsController {
 
 	// without authentication
 	@PostMapping("/allprogresslist") // ?page={Integer}&size={Integer}
-	public Iterable<Event> findAllEventsInProgress(@RequestBody EventListRequestDto eventsListFilterDto
-			 ) {//@RequestParam Integer page,@RequestParam Integer size,@RequestBody EventListRequestDto eventsListFilterDto
+	public EventListResponseDto findAllEventsInProgress(//@RequestParam Integer page, @RequestParam Integer size,
+			@RequestBody EventListRequestDto eventListRequestDto) {
 		String sessionLogin = sessionConfiguration.sessionUserName();
-//		Integer page = pageSizeDto.getPage();
-//		Integer size = pageSizeDto.getSize();
-		return eventsService.findEventsInProgress(eventsListFilterDto, sessionLogin);//, page, size, sessionLogin
+		return eventsService.findEventsInProgress( eventListRequestDto, sessionLogin);// page, size,
 	}
 }

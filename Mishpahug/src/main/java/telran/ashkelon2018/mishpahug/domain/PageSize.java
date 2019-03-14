@@ -23,6 +23,6 @@ public class PageSize {
 	Integer numberOfElements;
 	Boolean first;
 	Boolean last;
-	Sort sort;
+	EventsSort sort;
 
 }

@@ -12,5 +12,7 @@ import lombok.ToString;
 public class Address {
 	String city;
 	String place_id;
-	Location location;
+	public Address(String city){
+		this.city=city;
+	}
 }
