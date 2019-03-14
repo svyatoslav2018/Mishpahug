@@ -1,10 +1,7 @@
 package telran.ashkelon2018.mishpahug.dto;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-
-import org.springframework.data.annotation.Id;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,9 +17,8 @@ import telran.ashkelon2018.mishpahug.domain.Address;
 @Getter
 @Setter
 @ToString
-public class EventDto {
+public class AddEventDto {
 	
-	@Id
 	String eventId;
 	String owner;
 	String title;

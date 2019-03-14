@@ -19,21 +19,25 @@ import telran.ashkelon2018.mishpahug.domain.Address;
 @Setter
 @ToString
 public class EventListResponseDto {
-	
-	public EventListResponseDto(List<EventDto> collect, Integer page, Integer size) {
-		// TODO Auto-generated constructor stub
-		
-	}
-	String owner;
+	String eventId;
 	String title;
 	String holiday;
-	Address address;
 	String confession;
 	LocalDate date;
 	LocalTime time;
-	Integer duration;//in minutes
+	Integer duration;// in minutes
+	Address address;
 	String food;
 	String description;
-	String status;//In progress, Done, Pending, Not done
+
+	Integer page;
+	Integer size;
+	List<AddEventDto> collect;
+
+	public EventListResponseDto(List<AddEventDto> collect, Integer page, Integer size) {// , Integer page, Integer size
+		this.collect = collect;
+		 this.page=page;
+		 this.size=size;
+	}
 
 }
