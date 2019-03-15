@@ -3,12 +3,9 @@ package telran.ashkelon2018.mishpahug.domain;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Map;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,9 +18,8 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@EqualsAndHashCode(of = { "owner" })
+@EqualsAndHashCode(of = { "eventId" })
 @ToString
-@Setter
 @Document(collection = "Events")
 @Builder
 
@@ -31,6 +27,7 @@ public class Event {
 
 	@Id
 	String eventId;
+<<<<<<< HEAD
 	String owner; // String owner;
 	//Integer age;// age of the owner of event=localDateNow-dateOfBirth
 	String title;
@@ -47,9 +44,28 @@ public class Event {
 
 //@JsonFormat(pattern = "HH:mm'T'aa") // aa set AM PM
 //	LocalTime time;
+=======
+	String owner;
+	@Setter String title;
+	@Setter String holiday;
+	@Setter Address address; 
+	@Setter Location location;
+	@Setter String confession;
+	LocalDate date;
+	LocalTime time;
+	//LocalDateTime localDateTimeEvent;
+>>>>>>> branch 'master' of https://github.com/svyatoslav2018/Mishpahug_Backend.git
 	Integer duration;// in minutes
+<<<<<<< HEAD
 	String food;
 	String description;
 
 
+=======
+	@Setter String food;
+	@Setter String description;
+	@Setter String eventStatus;
+	PageSize pageSize;
+	
+>>>>>>> branch 'master' of https://github.com/svyatoslav2018/Mishpahug_Backend.git
 }
