@@ -1,17 +1,6 @@
+
 package telran.ashkelon2018.mishpahug.domain;
 
-<<<<<<< HEAD
-import lombok.Getter;
-import lombok.ToString;
-
-@Getter
-@ToString
-public class Address {
-	String city;
-	String place_id;
-	Location location;
-}
-=======
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,4 +17,3 @@ public class Address {
 		this.city=city;
 	}
 }
->>>>>>> branch 'master' of https://github.com/svyatoslav2018/Mishpahug_Backend.git
