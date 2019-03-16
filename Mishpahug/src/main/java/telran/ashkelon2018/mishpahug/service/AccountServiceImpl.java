@@ -77,9 +77,10 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public UserProfileDto editUserProfile(UserProfileDto userProfileDto, String sessionLogin) {
+System.out.println("editUserProfile,sessionLogin "+ sessionLogin);
 
 		UserAccount userAccount = userRepository.findById(sessionLogin).get();
-
+		System.out.println("userAccount "+ userAccount);
 		if (!sessionLogin.equals(userAccount.getLogin())) {
 			throw new WrongLoginOrPasswordException();// 401 unauthorized
 		}

@@ -86,6 +86,7 @@ public class EventsController {
 	public EventListResponseDto findAllEventsInProgress(//@RequestParam Integer page, @RequestParam Integer size,
 			@RequestBody EventListRequestDto eventListRequestDto) {
 		String sessionLogin = sessionConfiguration.sessionUserName();
+		System.out.println("findAllEventsInProgress, sessionLogin " + sessionLogin);
 		return eventsService.findEventsInProgress( eventListRequestDto, sessionLogin);// page, size,
 	}
 }

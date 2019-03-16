@@ -92,7 +92,7 @@ public class EventsServiceImpl implements EventsService {
 				.food(newEvent.getFood()).description(newEvent.getDescription()).eventStatus(newEvent.getEventStatus())
 				.build();
 
-		event.setEventStatus(eventConfiguration.INPROGRESS);
+		event.setEventStatus(EventConfiguration.INPROGRESS);
 		eventsRepository.save(event);
 		return new CodeResponseDto(200, "Event is created");
 	}
@@ -114,7 +114,7 @@ public class EventsServiceImpl implements EventsService {
 	@Override
 	public EventListResponseDto findEventsInProgress(EventListRequestDto body, String sessionLogin) {
 		// Integer page, Integer size,
-		String eventStatus = eventConfiguration.INPROGRESS;
+		String eventStatus = EventConfiguration.INPROGRESS;
 		// Point point = new
 		// Point(body.getLocation().getLat(),body.getLocation().getLng());
 		// Distance distance = new Distance(body.getLocation().getRadius());

@@ -17,8 +17,10 @@ public class SessionConfiguration {
 		// * get token from the http session *//
 		RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
 		ServletRequestAttributes attributes = (ServletRequestAttributes) requestAttributes;
+		System.out.println("!!!!!!!!! sessionUserName, getSessionId " + attributes.getSessionId());
 		HttpSession httpSession = attributes.getRequest().getSession(true);
 		Object sessionAttribute = httpSession.getAttribute("U_TOKEN");
+		System.out.println("!!!!!!!!! sessionUserName, sessionAttribute U_TOKEN " + sessionAttribute);
 		if (sessionAttribute == null) {
 			return null;
 		}
@@ -32,6 +34,7 @@ public class SessionConfiguration {
 		ServletRequestAttributes attributes = (ServletRequestAttributes) requestAttributes;
 		HttpSession httpSession = attributes.getRequest().getSession(true);
 		System.out.println("UserRegSessionId: " + httpSession.getId());
+		System.out.println("U_TOKEN: " + token);
 		httpSession.setAttribute("U_TOKEN", token);
 	}
 
