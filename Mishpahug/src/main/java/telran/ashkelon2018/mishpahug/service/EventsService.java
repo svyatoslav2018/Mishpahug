@@ -12,8 +12,10 @@ public interface EventsService {
 	// Iterable<Event> findEventsInProgress(EventListRequestDto
 	// eventsListFilterDto,String sessionLogin);
 
-	EventListResponseDto findEventsInProgress( EventListRequestDto eventListRequestDto,
-			String sessionLogin);//Integer page, Integer size,
+	
+	EventListResponseDto findEventsInProgress( EventListRequestDto eventListRequestDto);
+//	EventListResponseDto findEventsInProgress( EventListRequestDto eventListRequestDto,
+//			String sessionLogin);//Integer page, Integer size,
 
 	// Event getEvent(String login, LocalDate date, LocalTime time);// id =
 	// login+date+time

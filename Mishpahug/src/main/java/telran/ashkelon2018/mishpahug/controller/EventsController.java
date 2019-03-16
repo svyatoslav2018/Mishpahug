@@ -87,6 +87,7 @@ public class EventsController {
 			@RequestBody EventListRequestDto eventListRequestDto) {
 		String sessionLogin = sessionConfiguration.sessionUserName();
 		System.out.println("findAllEventsInProgress, sessionLogin " + sessionLogin);
-		return eventsService.findEventsInProgress( eventListRequestDto, sessionLogin);// page, size,
+//		return eventsService.findEventsInProgress(eventListRequestDto, sessionLogin);// page, size,
+		return eventsService.findEventsInProgress(eventListRequestDto);
 	}
 }

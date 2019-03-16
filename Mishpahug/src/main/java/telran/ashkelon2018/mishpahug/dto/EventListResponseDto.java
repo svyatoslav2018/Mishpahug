@@ -19,25 +19,26 @@ import telran.ashkelon2018.mishpahug.domain.Address;
 @Setter
 @ToString
 public class EventListResponseDto {
-	String eventId;
-	String title;
-	String holiday;
-	String confession;
-	LocalDate date;
-	LocalTime time;
-	Integer duration;// in minutes
-	Address address;
-	String food;
-	String description;
-
+//	String eventId;
+//	String title;
+//	String holiday;
+//	String confession;
+//	LocalDate date;
+//	LocalTime time;
+//	Integer duration;// in minutes
+//	Address address;
+//	String food;
+//	String description;
+//	
+	List<AddEventDto> collect;
 	Integer page;
 	Integer size;
-	List<AddEventDto> collect;
+	
 
-	public EventListResponseDto(List<AddEventDto> collect, Integer page, Integer size) {// , Integer page, Integer size
-		this.collect = collect;
-		 this.page=page;
-		 this.size=size;
-	}
+//	public EventListResponseDto(List<AddEventDto> collect, Integer page, Integer size) {// , Integer page, Integer size
+//		this.collect = collect;
+//		 this.page=page;
+//		 this.size=size;
+//	}
 
 }

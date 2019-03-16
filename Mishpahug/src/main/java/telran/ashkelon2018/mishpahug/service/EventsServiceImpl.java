@@ -112,7 +112,7 @@ public class EventsServiceImpl implements EventsService {
 	// }
 
 	@Override
-	public EventListResponseDto findEventsInProgress(EventListRequestDto body, String sessionLogin) {
+	public EventListResponseDto findEventsInProgress(EventListRequestDto body) {
 		// Integer page, Integer size,
 		String eventStatus = EventConfiguration.INPROGRESS;
 		// Point point = new
