@@ -15,7 +15,7 @@ import telran.ashkelon2018.mishpahug.dto.StaticFieldsDto;
 import telran.ashkelon2018.mishpahug.dto.UserProfileDto;
 import telran.ashkelon2018.mishpahug.service.AccountService;
 
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@CrossOrigin
 @RestController
 @RequestMapping("/user") // all will be start from user
 public class AccountManagementController {
