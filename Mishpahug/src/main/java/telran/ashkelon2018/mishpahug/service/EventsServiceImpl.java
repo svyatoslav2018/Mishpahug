@@ -48,8 +48,7 @@ public class EventsServiceImpl implements EventsService {
 		if (!sessionLogin.equals(userAccount.getLogin())) {
 			throw new WrongLoginOrPasswordException();// 401 unauthorized
 		}
-		LocalDateTime dateFrom = newEvent.getDate().atTime(newEvent.getTime());// LocalDateTime.of(newEvent.getDate(),
-																				// newEvent.getTime());//
+		LocalDateTime dateFrom = newEvent.getDate().atTime(newEvent.getTime());
 		LocalDateTime dateTo = dateFrom.plusHours(newEvent.getDuration());
 		LocalDateTime checkDateFrom = LocalDateTime.of(newEvent.getDate(), newEvent.getTime());
 		LocalDateTime checkDateTo = checkDateFrom.plusMinutes(newEvent.getDuration());
@@ -83,11 +82,9 @@ public class EventsServiceImpl implements EventsService {
 			throw new UserConflictException();// 409 busy date
 		}
 
-		// LocalDateTime localDateTimeEvent = LocalDateTime.of(newEvent.getDate(),
-		// newEvent.getTime());
+		
 		Event event = Event.builder().eventId(eventId).owner(userAccount.getLogin()).title(newEvent.getTitle())
 				.holiday(newEvent.getHoliday()).address(newEvent.getAddress()).confession(newEvent.getConfession())
-				// .localDateTimeEvent(localDateTimeEvent)
 				.date(newEvent.getDate()).time(newEvent.getTime()).duration(newEvent.getDuration())
 				.food(newEvent.getFood()).description(newEvent.getDescription()).eventStatus(newEvent.getEventStatus())
 				.build();
@@ -97,40 +94,21 @@ public class EventsServiceImpl implements EventsService {
 		return new CodeResponseDto(200, "Event is created");
 	}
 
-	// @Override
-	// public EventListResponseDto findEventsInProgress(EventListRequestDto
-	// eventsListFilterDto, String sessionLogin) {
-	// // Integer page, Integer size,
-	// // Event event=new Event();
-	// // if (!(event.getEventStatus().equals(eventConfiguration.INPROGRESS))) {
-	// // return null;
-	// // }
-	// String status = eventConfiguration.INPROGRESS;
-	//// System.out.println(eventsListFilterDto);
-	//// System.out.println(eventsRepository.findByEventStatus(status));
-	// return eventsRepository.findByEventStatus(status);
-	// }
-
 	@Override
-	public EventListResponseDto findEventsInProgress(EventListRequestDto body, String sessionLogin) {
-		// Integer page, Integer size,
+	public EventListResponseDto findEventsInProgress(Integer page, Integer size, EventListRequestDto body) {
 		String eventStatus = eventConfiguration.INPROGRESS;
 		// Point point = new
 		// Point(body.getLocation().getLat(),body.getLocation().getLng());
 		// Distance distance = new Distance(body.getLocation().getRadius());
 		Filters filters = body.getFilters();
-		Integer page = 0;
-		Integer size = 1;
 		Pageable pageable = PageRequest.of(page, size, new Sort(Sort.Direction.DESC, "dateFrom"));
 		Page<Event> listOfEvents = eventsRepository.findByEventStatus(eventStatus, pageable);
 		// eventsRepository.findByLocationNear(point, distance, eventStatus,pageable);
-		System.out.println("!!!!!" + listOfEvents);
 		List<AddEventDto> content = new ArrayList<>();
-
 		listOfEvents.forEach(e -> content.add(eventToEventDtoConverter(e)));
-		for (AddEventDto i : content) {
-			System.out.println(i);
-		}
+//		for (AddEventDto i : content) {
+//			System.out.println(i);
+//		}
 		LocalDate dateFrom = filters.getDateFrom();
 		if (dateFrom != null) {
 			if (dateFrom.isBefore(LocalDate.now())) {
@@ -166,10 +144,9 @@ public class EventsServiceImpl implements EventsService {
 	private AddEventDto eventToEventDtoConverter(Event e) {
 
 		return AddEventDto.builder().eventId(e.getEventId()).title(e.getTitle()).holiday(e.getHoliday())
-				.confession(e.getConfession()).date(e.getDate()).time(e.getTime())
-				// .localDateTimeEvent(e.getLocalDateTimeEvent())
-				.duration(e.getDuration()).address(e.getAddress()).food(e.getFood()).description(e.getDescription())
-				.owner(e.getOwner()).build();
+				.confession(e.getConfession()).date(e.getDate()).time(e.getTime()).duration(e.getDuration())
+				.address(e.getAddress()).food(e.getFood()).description(e.getDescription()).owner(e.getOwner())
+				.eventStatus(e.getEventStatus()).build();
 	}
 
 	// @Override

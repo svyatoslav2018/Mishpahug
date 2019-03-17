@@ -1,7 +1,5 @@
 package telran.ashkelon2018.mishpahug.dto;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -10,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import telran.ashkelon2018.mishpahug.domain.Address;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,23 +16,14 @@ import telran.ashkelon2018.mishpahug.domain.Address;
 @Setter
 @ToString
 public class EventListResponseDto {
-	String eventId;
-	String title;
-	String holiday;
-	String confession;
-	LocalDate date;
-	LocalTime time;
-	Integer duration;// in minutes
-	Address address;
-	String food;
-	String description;
+	
 
 	Integer page;
 	Integer size;
-	List<AddEventDto> collect;
+	List<AddEventDto> content;
 
-	public EventListResponseDto(List<AddEventDto> collect, Integer page, Integer size) {// , Integer page, Integer size
-		this.collect = collect;
+	public EventListResponseDto(List<AddEventDto> content, Integer page, Integer size) {// , Integer page, Integer size
+		this.content = content;
 		 this.page=page;
 		 this.size=size;
 	}
