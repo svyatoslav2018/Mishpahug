@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import telran.ashkelon2018.mishpahug.configuration.SessionConfiguration;
@@ -83,10 +84,11 @@ public class EventsController {
 	// }
 
 	// without authentication
-	@PostMapping("/allprogresslist") // ?page={Integer}&size={Integer}
-	public EventListResponseDto findAllEventsInProgress(//@RequestParam Integer page, @RequestParam Integer size,
+	@PostMapping("/allprogresslist") 
+	public EventListResponseDto findAllEventsInProgress(@RequestParam Integer page, @RequestParam Integer size,
 			@RequestBody EventListRequestDto eventListRequestDto) {
-//		String sessionLogin = sessionConfiguration.sessionUserName();
-		return eventsService.findEventsInProgress( eventListRequestDto);// page, size,
+
+		return eventsService.findEventsInProgress( page, size,eventListRequestDto);// 
+
 	}
 }
