@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import telran.ashkelon2018.mishpahug.domain.Address;
+import telran.ashkelon2018.mishpahug.domain.EventOwner;
 import telran.ashkelon2018.mishpahug.domain.UserAccount;
 
 @NoArgsConstructor
@@ -20,21 +21,21 @@ import telran.ashkelon2018.mishpahug.domain.UserAccount;
 @Getter
 @Setter
 @ToString
-public class AddEventDto {
+public class FullEvent2Resp {
 	
 	String eventId;
-	String owner;
 	String title;
 	String holiday;
-	Address address;
 	String confession;
 	LocalDate date;
 	LocalTime time;
 	//LocalDateTime localDateTimeEvent;
 	Integer duration;//in minutes
+	Address address;
 	String food;
 	String description;
-	String eventStatus;//In progress, Done, Pending, Not done
+	EventOwner owner;
+//	String eventStatus;//In progress, Done, Pending, Not done
 	
 
 }
