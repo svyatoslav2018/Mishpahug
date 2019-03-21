@@ -1,4 +1,4 @@
-package telran.ashkelon2018.mishpahug.dto;
+package telran.ashkelon2018.mishpahug.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @Builder
-public class OwnerDto {
+public class EventOwner {
 
 	String fullName;
 	String confession;
