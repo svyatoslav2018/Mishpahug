@@ -1,0 +1,41 @@
+package telran.ashkelon2018.mishpahug.dto;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+
+import org.springframework.data.mongodb.core.mapping.DBRef;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import telran.ashkelon2018.mishpahug.domain.Address;
+import telran.ashkelon2018.mishpahug.domain.EventOwner;
+import telran.ashkelon2018.mishpahug.domain.UserAccount;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Getter
+@Setter
+@ToString
+public class FullEvent2Resp {
+	
+	String eventId;
+	String title;
+	String holiday;
+	String confession;
+	LocalDate date;
+	LocalTime time;
+	//LocalDateTime localDateTimeEvent;
+	Integer duration;//in minutes
+	Address address;
+	String food;
+	String description;
+	EventOwner owner;
+//	String eventStatus;//In progress, Done, Pending, Not done
+	
+
+}
