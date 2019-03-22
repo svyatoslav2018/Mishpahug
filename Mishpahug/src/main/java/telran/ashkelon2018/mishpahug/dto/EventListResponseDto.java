@@ -20,12 +20,13 @@ import lombok.ToString;
 @ToString
 
 public class EventListResponseDto {
+
 	List<FullEvent2Resp> content;
 	long totalElements;
 	int totalPages;
 	int size;
-	int number;
-	int numberOfElements;
+	int number;// number of page
+	int numberOfElements;// real quantity of elements on the page
 	boolean first;
 	boolean last;
 	Sort sort;
@@ -53,9 +54,21 @@ public class EventListResponseDto {
 // public class EventListResponseDto {
 	
 
+
 // 	Integer page;
 // 	Integer size;
 // 	List<AddEventDto> content;
+
+// 	public EventListResponseDto(List<AddEventDto> content, Integer page, Integer size) {
+// 		this.content = content;
+// 		this.size = size;
+// 		this.totalElements = content.size();
+// 		this.totalPages = content.size() % size > 0 ? (content.size() / size) + 1 : content.size() / size;
+// 		this.numberOfElements = (number >= this.totalPages ? true : false) ? content.size() % size : size;
+// 		this.first = number == 0 ? true : false;
+// 		this.last = number >= this.totalPages ? true : false;
+// 		this.sort = new Sort(Sort.Direction.DESC, "dateFrom");
+// 	}
 
 // 	public EventListResponseDto(List<AddEventDto> content, Integer page, Integer size) {// , Integer page, Integer size
 // 		this.content = content;
@@ -64,4 +77,5 @@ public class EventListResponseDto {
 // 	}
 
 //}
+
 
