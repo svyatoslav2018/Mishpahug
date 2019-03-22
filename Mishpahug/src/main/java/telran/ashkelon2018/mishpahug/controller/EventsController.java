@@ -16,7 +16,7 @@ import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
 import telran.ashkelon2018.mishpahug.dto.EventListResponseDto;
 import telran.ashkelon2018.mishpahug.service.EventsService;
 
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@CrossOrigin
 @RestController
 @RequestMapping("/event") // all will be start from event
 
@@ -31,6 +31,7 @@ public class EventsController {
 	@PostMapping("/creation")
 	public CodeResponseDto addEvent(@RequestBody AddEventDto newEvent) {
 		String sessionLogin = sessionConfiguration.sessionUserName();
+		
 		return eventsService.addNewEvent(newEvent, sessionLogin);
 	}
 
@@ -86,6 +87,8 @@ public class EventsController {
 	@PostMapping("/allprogresslist") 
 	public EventListResponseDto findAllEventsInProgress(@RequestParam Integer page, @RequestParam Integer size,
 			@RequestBody EventListRequestDto eventListRequestDto) {
+
 		return eventsService.findEventsInProgress( page, size,eventListRequestDto);// 
+
 	}
 }

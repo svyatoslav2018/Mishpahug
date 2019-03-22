@@ -1,5 +1,6 @@
 package telran.ashkelon2018.mishpahug.domain;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,5 +16,6 @@ public class Location {
 	Double lng;
 	Double lat;
 	Double radius;
+
 
 }
