@@ -1,6 +1,7 @@
 package telran.ashkelon2018.mishpahug.domain;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import org.springframework.data.annotation.Id;
@@ -23,7 +24,6 @@ import lombok.ToString;
 @Builder
 
 public class Event {
-
 	@Id
 	String eventId;
 	String owner;
@@ -34,11 +34,11 @@ public class Event {
 	@Setter String confession;
 	LocalDate date;
 	LocalTime time;
-	//LocalDateTime localDateTimeEvent;
 	Integer duration;// in minutes
 	@Setter String food;
 	@Setter String description;
 	@Setter String eventStatus;
 	PageSize pageSize;
 	
+
 }
