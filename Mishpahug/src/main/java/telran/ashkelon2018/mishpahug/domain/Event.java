@@ -34,7 +34,6 @@ public class Event {
 	@Setter String confession;
 	LocalDate date;
 	LocalTime time;
-	//LocalDateTime localDateTimeEvent;
 	Integer duration;// in minutes
 	@Setter String food;
 	@Setter String description;
