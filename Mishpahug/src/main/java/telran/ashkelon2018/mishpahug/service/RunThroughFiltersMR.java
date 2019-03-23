@@ -15,7 +15,7 @@ import telran.ashkelon2018.mishpahug.domain.Filters;
 import telran.ashkelon2018.mishpahug.exceptions.UnprocessableEntityException;
 
 @Service
-public class RunThroughFilters {
+public class RunThroughFiltersMR {
 	@Autowired
 	EventsRepository eventsRepository;
 	@Getter
@@ -51,7 +51,7 @@ public class RunThroughFilters {
 				&& filters.getDateTo() != null) {
 			System.out.println("date filter: ");
 			standartFilter = true;
-			return eventsRepository.findByEventStatusAndDateIn(eventStatus,
+			return eventsRepository.findByEventStatusAndDateBetween(eventStatus,
 					filters.getDateFrom(), filters.getDateTo(), pageable);
 		}
 		if (filters.getHolidays() != null && filters.getConfession() != null

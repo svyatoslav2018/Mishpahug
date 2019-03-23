@@ -29,6 +29,7 @@ public class EventListResponseDto {
 	boolean first;
 	boolean last;
 	Sort sort;
+	
 }
 
 
