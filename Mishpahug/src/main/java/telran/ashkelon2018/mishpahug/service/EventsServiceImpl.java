@@ -11,9 +11,14 @@ import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
 import lombok.Builder;
@@ -46,7 +51,10 @@ public class EventsServiceImpl implements EventsService {
 	EventConfiguration eventConfiguration;
 
 	@Autowired
-	RunThroughFilters runThroughFilters;
+	RunThroughFiltersMT runThroughFilters;
+	
+	@Autowired
+	MongoTemplate mongoTemplate;
 
 	@Override
 	public CodeResponseDto addNewEvent(AddEventDto newEvent,
@@ -127,23 +135,16 @@ public class EventsServiceImpl implements EventsService {
 	}
 
 	@Override
-
-	public EventListResponseDto findEventsInProgress(Integer page, Integer size, EventListRequestDto body) {
-  		System.out.println("FILTER.body:: " + body);
-
-		String eventStatus = eventConfiguration.INPROGRESS;
-
+	public EventListResponseDto findEventsInProgress(EventListRequestDto body, int page, int size) {
+		
+		// Integer page, Integer size,
 		// Point point = new
 		// Point(body.getLocation().getLat(),body.getLocation().getLng());
 		// Distance distance = new Distance(body.getLocation().getRadius());
-		Filters filters = body.getFilters();
-
-		Integer page = 0;
-		Integer size = 100;
+	
 		Pageable pageable = PageRequest.of(page, size,
-				new Sort(Sort.Direction.DESC, "dateFrom"));
-		Page<Event> listOfEvents = runThroughFilters.madeListWithFilter(filters,
-				pageable);
+				new Sort(Sort.Direction.ASC, "date"));
+	Page<Event> listOfEvents = runThroughFilters.madeListWithFilter(body, pageable);
 
 		System.out.println("!!!!! listOfEvents " + listOfEvents);
 		long totalElements = listOfEvents.getTotalElements();
@@ -182,42 +183,11 @@ public class EventsServiceImpl implements EventsService {
 
 		Stream<FullEvent2Resp> stream = content.stream();
 
-		boolean standartFilter = runThroughFilters.standartFilter;
-		System.out
-				.println("EventsServiceImpl.standartFilter " + standartFilter);
-		if (!standartFilter) {
-			if (filters.getDateFrom() != null) {
-				System.out.println(filters.getDateFrom());
-				stream = stream.filter(
-						e -> e.getDate().isAfter(filters.getDateFrom()));
-			}
-			if (filters.getDateTo() != null) {
-				System.out.println(filters.getDateTo());
-				stream = stream
-						.filter(e -> e.getDate().isBefore(filters.getDateTo()));
-			}
-			if (filters.getHolidays() != null) {
-				System.out.println(filters.getHolidays());
-				stream = stream.filter(e -> e.getHoliday()
-						.equalsIgnoreCase(filters.getHolidays()));
-			}
-			if (filters.getConfession() != null) {
-				System.out.println(filters.getConfession());
-				stream = stream.filter(e -> e.getConfession()
-						.equalsIgnoreCase(filters.getConfession()));
-			}
-			if (filters.getFood() != null) {
-				System.out.println(filters.getFood());
-				stream = stream
-						.filter(e -> e.getFood().contains(filters.getFood()));
-			}
-		}
-
-		return new EventListResponseDto(stream.collect(Collectors.toList()),
-				totalElements, totalPages, size, number, numberOfElements,
-				first, last, sort);
+		return new EventListResponseDto(stream.collect(Collectors.toList()), totalElements, totalPages, size, number, numberOfElements, first, last, sort);
 
 	}
+	
+
 
 
 	private FullEvent2Resp eventToEventDtoConverter(Event e) {
@@ -232,9 +202,7 @@ public class EventsServiceImpl implements EventsService {
 		return FullEvent2Resp.builder().eventId(e.getEventId())
 				.title(e.getTitle()).holiday(e.getHoliday())
 				.confession(e.getConfession()).date(e.getDate())
-				.time(e.getTime())
-				// .localDateTimeEvent(e.getLocalDateTimeEvent())
-				.duration(e.getDuration()).address(e.getAddress())
+				.time(e.getTime()).duration(e.getDuration()).address(e.getAddress())
 				.food(e.getFood()).description(e.getDescription())
 				.owner(EventOwner.builder().fullName(fullName)
 						.confession(ownerInfo.getConfession())
@@ -255,66 +223,4 @@ public class EventsServiceImpl implements EventsService {
 
 	}
 
-	// @Override
-	// public Post getPost(String id) {
-	// return repository.findById(id).orElse(null);
-	// }
-	//
-	// @Override
-	// public Post removePost(String id, String token) {
-	// Post post = repository.findById(id).orElse(null);
-	// if (post != null) {
-	// repository.delete(post);
-	// }
-	// return post;
-	// }
-	//
-	// @Override
-	// public Post updatePost(PostUpdateDto postUpdateDto, String token) {
-	// Post post = repository.findById(postUpdateDto.getId()).orElse(null);
-	// if (post != null) {
-	// post.setContent(postUpdateDto.getContent());
-	// repository.save(post);
-	// }
-	// return post;
-	// }
-	//
-	// @Override
-	// public boolean addLike(String id) {
-	// Post post = repository.findById(id).orElse(null);
-	// if (post != null) {
-	// post.addLike();
-	// repository.save(post);
-	// return true;
-	// }
-	// return false;
-	// }
-	//
-	// @Override
-	// public Post addComment(String id, NewCommentDto newComment) {
-	// Post post = repository.findById(id).orElse(null);
-	// if (post != null) {
-	// Comment comment = new Comment(newComment.getUser(),
-	// newComment.getMessage());
-	// post.addComment(comment);
-	// repository.save(post);
-	// }
-	// return post;
-	// }
-	//
-	// @Override
-	// public Iterable<Post> findPostsByTags(List<String> tags) {
-	// return repository.findByTagsIn(tags);
-	// }
-	//
-	// @Override
-	// public Iterable<Post> findPostsByAuthor(String author) {
-	// return repository.findByAuthor(author);
-	// }
-	//
-	// @Override
-	// public Iterable<Post> findPostsByDates(DatePeriodDto period) {
-	// return
-	// repository.findByDateCreatedBetween(LocalDate.parse(period.getFrom()),
-	// LocalDate.parse(period.getTo()));
 }

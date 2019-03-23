@@ -84,11 +84,13 @@ public class EventsController {
 	// }
 
 	// without authentication
-	@PostMapping("/allprogresslist") 
-	public EventListResponseDto findAllEventsInProgress(@RequestParam Integer page, @RequestParam Integer size,
+	@PostMapping("/allprogresslist") // ?page={Integer}&size={Integer}
+	public EventListResponseDto findAllEventsInProgress(@RequestParam int page, @RequestParam int size,
 			@RequestBody EventListRequestDto eventListRequestDto) {
-
-		return eventsService.findEventsInProgress( page, size,eventListRequestDto);// 
+		
+		System.out.println("page "+page+" size "+size);
+//		String sessionLogin = sessionConfiguration.sessionUserName();
+		return eventsService.findEventsInProgress( eventListRequestDto, page, size);
 
 	}
 }
