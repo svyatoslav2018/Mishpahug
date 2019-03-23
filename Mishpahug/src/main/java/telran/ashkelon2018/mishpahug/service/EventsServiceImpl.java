@@ -64,8 +64,7 @@ public class EventsServiceImpl implements EventsService {
 		if (!sessionLogin.equals(userAccount.getLogin())) {
 			throw new WrongLoginOrPasswordException();// 401 unauthorized
 		}
-		LocalDateTime dateFrom = newEvent.getDate().atTime(newEvent.getTime());// LocalDateTime.of(newEvent.getDate(),
-																				// newEvent.getTime());//
+		LocalDateTime dateFrom = newEvent.getDate().atTime(newEvent.getTime());
 		LocalDateTime dateTo = dateFrom.plusHours(newEvent.getDuration());
 		LocalDateTime checkDateFrom = LocalDateTime.of(newEvent.getDate(),
 				newEvent.getTime());
@@ -108,6 +107,7 @@ public class EventsServiceImpl implements EventsService {
 			throw new UserConflictException();// 409 busy date
 		}
 
+
 		// LocalDateTime localDateTimeEvent =
 		// LocalDateTime.of(newEvent.getDate(),
 		// newEvent.getTime());
@@ -120,6 +120,12 @@ public class EventsServiceImpl implements EventsService {
 				.duration(newEvent.getDuration()).food(newEvent.getFood())
 				.description(newEvent.getDescription())
 				.eventStatus(newEvent.getEventStatus()).build();
+		
+// 		Event event = Event.builder().eventId(eventId).owner(userAccount.getLogin()).title(newEvent.getTitle())
+// 				.holiday(newEvent.getHoliday()).address(newEvent.getAddress()).confession(newEvent.getConfession())
+// 				.date(newEvent.getDate()).time(newEvent.getTime()).duration(newEvent.getDuration())
+// 				.food(newEvent.getFood()).description(newEvent.getDescription()).eventStatus(newEvent.getEventStatus())
+// 				.build();
 
 		event.setEventStatus(EventConfiguration.INPROGRESS);
 		eventsRepository.save(event);
@@ -127,7 +133,6 @@ public class EventsServiceImpl implements EventsService {
 		System.out.println(event.getOwner());
 		return new CodeResponseDto(200, "Event is created");
 	}
-
 
 	@Override
 	public EventListResponseDto findEventsInProgress(EventListRequestDto body, int page, int size) {
@@ -139,11 +144,7 @@ public class EventsServiceImpl implements EventsService {
 	
 		Pageable pageable = PageRequest.of(page, size,
 				new Sort(Sort.Direction.ASC, "date"));
-		
-		
-		
-		Page<Event> listOfEvents = runThroughFilters.madeListWithFilter(body, pageable);
-
+	Page<Event> listOfEvents = runThroughFilters.madeListWithFilter(body, pageable);
 
 		System.out.println("!!!!! listOfEvents " + listOfEvents);
 		long totalElements = listOfEvents.getTotalElements();
@@ -165,6 +166,19 @@ public class EventsServiceImpl implements EventsService {
 		listOfEvents.forEach(e -> content.add(eventToEventDtoConverter(e)));
 		for (FullEvent2Resp i : content) {
 			System.out.println(i);
+
+// 		Pageable pageable = PageRequest.of(page, size, new Sort(Sort.Direction.DESC, "dateFrom"));
+// 		Page<Event> listOfEvents = eventsRepository.findByEventStatus(eventStatus, pageable);
+// 		// eventsRepository.findByLocationNear(point, distance, eventStatus,pageable);
+// 		List<AddEventDto> content = new ArrayList<>();
+// 		listOfEvents.forEach(e -> content.add(eventToEventDtoConverter(e)));
+
+// 		LocalDate dateFrom = filters.getDateFrom();
+// 		if (dateFrom != null) {
+// 			if (dateFrom.isBefore(LocalDate.now())) {
+// 				throw new UnprocessableEntityException();// "code": 422, "message": "Invalid filter parameters!"
+// 			}
+
 		}
 
 		Stream<FullEvent2Resp> stream = content.stream();
@@ -173,6 +187,7 @@ public class EventsServiceImpl implements EventsService {
 
 	}
 	
+
 
 
 	private FullEvent2Resp eventToEventDtoConverter(Event e) {
@@ -198,6 +213,14 @@ public class EventsServiceImpl implements EventsService {
 						.languages(ownerInfo.getLanguages())
 						.rate(ownerInfo.getRate()).build())
 				.build();
+
+// 	private AddEventDto eventToEventDtoConverter(Event e) {
+
+// 		return AddEventDto.builder().eventId(e.getEventId()).title(e.getTitle()).holiday(e.getHoliday())
+// 				.confession(e.getConfession()).date(e.getDate()).time(e.getTime()).duration(e.getDuration())
+// 				.address(e.getAddress()).food(e.getFood()).description(e.getDescription()).owner(e.getOwner())
+// 				.eventStatus(e.getEventStatus()).build();
+
 	}
 
 }

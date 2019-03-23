@@ -91,5 +91,6 @@ public class EventsController {
 		System.out.println("page "+page+" size "+size);
 //		String sessionLogin = sessionConfiguration.sessionUserName();
 		return eventsService.findEventsInProgress( eventListRequestDto, page, size);
+
 	}
 }

@@ -1,6 +1,5 @@
 package telran.ashkelon2018.mishpahug.service;
 
-import telran.ashkelon2018.mishpahug.domain.Event;
 import telran.ashkelon2018.mishpahug.dto.AddEventDto;
 import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
