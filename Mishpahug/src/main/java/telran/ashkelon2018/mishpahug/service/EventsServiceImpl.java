@@ -14,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
 
 import lombok.Builder;
@@ -49,8 +51,7 @@ public class EventsServiceImpl implements EventsService {
 	RunThroughFilters runThroughFilters;
 
 	@Override
-	public CodeResponseDto addNewEvent(AddEventDto newEvent,
-			String sessionLogin) {
+	public CodeResponseDto addNewEvent(AddEventDto newEvent, String sessionLogin) {
 
 		UserAccount userAccount = userRepository.findById(sessionLogin).get();
 		if (!sessionLogin.equals(userAccount.getLogin())) {
@@ -58,30 +59,22 @@ public class EventsServiceImpl implements EventsService {
 		}
 		LocalDateTime dateFrom = newEvent.getDate().atTime(newEvent.getTime());
 		LocalDateTime dateTo = dateFrom.plusHours(newEvent.getDuration());
-		LocalDateTime checkDateFrom = LocalDateTime.of(newEvent.getDate(),
-				newEvent.getTime());
-		LocalDateTime checkDateTo = checkDateFrom
-				.plusMinutes(newEvent.getDuration());
-		boolean checktime1 = LocalDateTime.now()
-				.isBefore(dateFrom.minusHours(48));
-		boolean checktime2 = LocalDateTime.now()
-				.isAfter(dateFrom.minusMonths(2));
+		LocalDateTime checkDateFrom = LocalDateTime.of(newEvent.getDate(), newEvent.getTime());
+		LocalDateTime checkDateTo = checkDateFrom.plusMinutes(newEvent.getDuration());
+		boolean checktime1 = LocalDateTime.now().isBefore(dateFrom.minusHours(48));
+		boolean checktime2 = LocalDateTime.now().isAfter(dateFrom.minusMonths(2));
 		boolean checktime3 = false;
 
-		List<Event> list = eventsRepository
-				.findByDurationAndOwnerAndDateAndTime(newEvent.getDuration(),
-						newEvent.getOwner(), newEvent.getDate(),
-						newEvent.getTime());
+		List<Event> list = eventsRepository.findByDurationAndOwnerAndDateAndTime(newEvent.getDuration(),
+				newEvent.getOwner(), newEvent.getDate(), newEvent.getTime());
 		if (list.isEmpty()) {
 			checktime3 = true;
 		}
 		if (!list.isEmpty()) {
 			checktime3 = true;
 			for (Event event : list) {
-				LocalDateTime dateTimeFromDateAndTime = LocalDateTime
-						.of(event.getDate(), event.getTime());
-				if (!dateTimeFromDateAndTime.isBefore(dateFrom)
-						&& !dateTo.isBefore(dateTimeFromDateAndTime)) {
+				LocalDateTime dateTimeFromDateAndTime = LocalDateTime.of(event.getDate(), event.getTime());
+				if (!dateTimeFromDateAndTime.isBefore(dateFrom) && !dateTo.isBefore(dateTimeFromDateAndTime)) {
 					checktime3 = false;
 				}
 			}
@@ -92,32 +85,17 @@ public class EventsServiceImpl implements EventsService {
 			return new CodeResponseDto(422, "Invalid data");
 		}
 
-		String eventId = userAccount.getLogin() + "D"
-				+ newEvent.getDate().toString().replaceAll("\\-", "") + "T"
+		String eventId = userAccount.getLogin() + "D" + newEvent.getDate().toString().replaceAll("\\-", "") + "T"
 				+ newEvent.getTime().toString();
 		if (eventsRepository.findById(eventId).orElse(null) != null) {
 			throw new UserConflictException();// 409 busy date
 		}
 
-
-		// LocalDateTime localDateTimeEvent =
-		// LocalDateTime.of(newEvent.getDate(),
-		// newEvent.getTime());
-		Event event = Event.builder().eventId(eventId).owner(sessionLogin)
-				.title(newEvent.getTitle()).holiday(newEvent.getHoliday())
-				.address(newEvent.getAddress())
-				.confession(newEvent.getConfession())
-				// .localDateTimeEvent(localDateTimeEvent)
-				.date(newEvent.getDate()).time(newEvent.getTime())
-				.duration(newEvent.getDuration()).food(newEvent.getFood())
-				.description(newEvent.getDescription())
-				.eventStatus(newEvent.getEventStatus()).build();
-		
-// 		Event event = Event.builder().eventId(eventId).owner(userAccount.getLogin()).title(newEvent.getTitle())
-// 				.holiday(newEvent.getHoliday()).address(newEvent.getAddress()).confession(newEvent.getConfession())
-// 				.date(newEvent.getDate()).time(newEvent.getTime()).duration(newEvent.getDuration())
-// 				.food(newEvent.getFood()).description(newEvent.getDescription()).eventStatus(newEvent.getEventStatus())
-// 				.build();
+		Event event = Event.builder().eventId(eventId).owner(sessionLogin).title(newEvent.getTitle())
+				.holiday(newEvent.getHoliday()).address(newEvent.getAddress()).confession(newEvent.getConfession())
+				.date(newEvent.getDate()).time(newEvent.getTime()).duration(newEvent.getDuration())
+				.food(newEvent.getFood()).description(newEvent.getDescription()).eventStatus(newEvent.getEventStatus())
+				.build();
 
 		event.setEventStatus(EventConfiguration.INPROGRESS);
 		eventsRepository.save(event);
@@ -129,129 +107,118 @@ public class EventsServiceImpl implements EventsService {
 	@Override
 
 	public EventListResponseDto findEventsInProgress(Integer page, Integer size, EventListRequestDto body) {
-  		System.out.println("FILTER.body:: " + body);
+		System.out.println("FILTER.body:: " + body);
 
 		String eventStatus = eventConfiguration.INPROGRESS;
 
-		// Point point = new
-		// Point(body.getLocation().getLat(),body.getLocation().getLng());
-		// Distance distance = new Distance(body.getLocation().getRadius());
+		if (body.getLocation().getLat() == null || body.getLocation().getLng() == null) {
+			Point point = new Point(body.getLocation().getLat(), body.getLocation().getLng());
+			Distance distance = new Distance(body.getLocation().getRadius());
+
+		}
+
 		Filters filters = body.getFilters();
 
-		Integer page = 0;
-		Integer size = 100;
-		Pageable pageable = PageRequest.of(page, size,
-				new Sort(Sort.Direction.DESC, "dateFrom"));
-		Page<Event> listOfEvents = runThroughFilters.madeListWithFilter(filters,
-				pageable);
+		// Integer page = 0;
+		// Integer size = 100;
+		Pageable pageable = PageRequest.of(page, size, new Sort(Sort.Direction.ASC, "dateFrom"));
+		// Page<Event> listOfEvents = runThroughFilters.madeListWithFilter(filters, pageable);
+		 Page<Event> listOfEvents = eventsRepository.findByEventStatus(eventStatus, pageable);
 
-		System.out.println("!!!!! listOfEvents " + listOfEvents);
-		long totalElements = listOfEvents.getTotalElements();
-		System.out.println("!!!!! totalElements " + totalElements);
-		int totalPages = listOfEvents.getTotalPages();
-		System.out.println("!!!!! totalPages " + totalPages);
-		int number = listOfEvents.getNumber();
-		System.out.println("!!!!! number " + number);
-		int numberOfElements = listOfEvents.getNumberOfElements();
-		System.out.println("!!!!! numberOfElements " + numberOfElements);
-		boolean first = listOfEvents.isFirst();
-		System.out.println("!!!!! first " + first);
-		boolean last = listOfEvents.isLast();
-		System.out.println("!!!!! last " + last);
-		Sort sort = listOfEvents.getSort();
-		System.out.println("!!!!! sort " + sort);
+		// System.out.println("!!!!! listOfEvents " + listOfEvents);
+		// long totalElements = listOfEvents.getTotalElements();
+		// System.out.println("!!!!! totalElements " + totalElements);
+		// int totalPages = listOfEvents.getTotalPages();
+		// System.out.println("!!!!! totalPages " + totalPages);
+		// int number = listOfEvents.getNumber();
+		// System.out.println("!!!!! number " + number);
+		// int numberOfElements = listOfEvents.getNumberOfElements();
+		// System.out.println("!!!!! numberOfElements " + numberOfElements);
+		// boolean first = listOfEvents.isFirst();
+		// System.out.println("!!!!! first " + first);
+		// boolean last = listOfEvents.isLast();
+		// System.out.println("!!!!! last " + last);
+		// Sort sort = listOfEvents.getSort();
+		// System.out.println("!!!!! sort " + sort);
 
 		List<FullEvent2Resp> content = new ArrayList<>();
 		listOfEvents.forEach(e -> content.add(eventToEventDtoConverter(e)));
+		listOfEvents.getSize();
 		for (FullEvent2Resp i : content) {
 			System.out.println(i);
 
-// 		Pageable pageable = PageRequest.of(page, size, new Sort(Sort.Direction.DESC, "dateFrom"));
-// 		Page<Event> listOfEvents = eventsRepository.findByEventStatus(eventStatus, pageable);
-// 		// eventsRepository.findByLocationNear(point, distance, eventStatus,pageable);
-// 		List<AddEventDto> content = new ArrayList<>();
-// 		listOfEvents.forEach(e -> content.add(eventToEventDtoConverter(e)));
+			// Pageable pageable = PageRequest.of(page, size, new Sort(Sort.Direction.DESC,
+			// "dateFrom"));
+			// Page<Event> listOfEvents = eventsRepository.findByEventStatus(eventStatus,
+			// pageable);
+			// // eventsRepository.findByLocationNear(point, distance,
+			// eventStatus,pageable);
+			// List<AddEventDto> content = new ArrayList<>();
+			// listOfEvents.forEach(e -> content.add(eventToEventDtoConverter(e)));
 
-// 		LocalDate dateFrom = filters.getDateFrom();
-// 		if (dateFrom != null) {
-// 			if (dateFrom.isBefore(LocalDate.now())) {
-// 				throw new UnprocessableEntityException();// "code": 422, "message": "Invalid filter parameters!"
-// 			}
+			// LocalDate dateFrom = filters.getDateFrom();
+			// if (dateFrom != null) {
+			// if (dateFrom.isBefore(LocalDate.now())) {
+			// throw new UnprocessableEntityException();// "code": 422, "message": "Invalid
+			// filter parameters!"
+			// }
 
 		}
 
 		Stream<FullEvent2Resp> stream = content.stream();
 
-		boolean standartFilter = runThroughFilters.standartFilter;
-		System.out
-				.println("EventsServiceImpl.standartFilter " + standartFilter);
-		if (!standartFilter) {
-			if (filters.getDateFrom() != null) {
-				System.out.println(filters.getDateFrom());
-				stream = stream.filter(
-						e -> e.getDate().isAfter(filters.getDateFrom()));
-			}
-			if (filters.getDateTo() != null) {
-				System.out.println(filters.getDateTo());
-				stream = stream
-						.filter(e -> e.getDate().isBefore(filters.getDateTo()));
-			}
-			if (filters.getHolidays() != null) {
-				System.out.println(filters.getHolidays());
-				stream = stream.filter(e -> e.getHoliday()
-						.equalsIgnoreCase(filters.getHolidays()));
-			}
-			if (filters.getConfession() != null) {
-				System.out.println(filters.getConfession());
-				stream = stream.filter(e -> e.getConfession()
-						.equalsIgnoreCase(filters.getConfession()));
-			}
-			if (filters.getFood() != null) {
-				System.out.println(filters.getFood());
-				stream = stream
-						.filter(e -> e.getFood().contains(filters.getFood()));
-			}
+		// boolean standartFilter = runThroughFilters.standartFilter;
+		// System.out.println("EventsServiceImpl.standartFilter " + standartFilter);
+		// if (!standartFilter) {
+		if (filters.getDateFrom() != null) {
+			System.out.println(filters.getDateFrom());
+			stream = stream.filter(e -> e.getDate().isAfter(filters.getDateFrom()));
 		}
+		if (filters.getDateTo() != null) {
+			System.out.println(filters.getDateTo());
+			stream = stream.filter(e -> e.getDate().isBefore(filters.getDateTo()));
+		}
+		if (filters.getHolidays() != null) {
+			System.out.println(filters.getHolidays());
+			stream = stream.filter(e -> e.getHoliday().equalsIgnoreCase(filters.getHolidays()));
+		}
+		if (filters.getConfession() != null) {
+			System.out.println(filters.getConfession());
+			stream = stream.filter(e -> e.getConfession().equalsIgnoreCase(filters.getConfession()));
+		}
+		if (filters.getFood() != null) {
+			System.out.println(filters.getFood());
+			stream = stream.filter(e -> e.getFood().contains(filters.getFood()));
+		}
+		// }
 
-		return new EventListResponseDto(stream.collect(Collectors.toList()),
-				totalElements, totalPages, size, number, numberOfElements,
-				first, last, sort);
+		return new EventListResponseDto(stream.collect(Collectors.toList()), page, size);
+		// totalElements, totalPages, size, number,numberOfElements, first, last, sort);
 
 	}
 
-
 	private FullEvent2Resp eventToEventDtoConverter(Event e) {
 		UserAccount ownerInfo = userRepository.findById(e.getOwner()).get();
-		String fullName = ownerInfo.getFirstName() + " "
-				+ ownerInfo.getLastName();
+		String fullName = ownerInfo.getFirstName() + " " + ownerInfo.getLastName();
 		DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
-		LocalDate birthdate = LocalDate.parse(ownerInfo.getDateOfBirth(),
-				formatter);
-		Integer age = (int) ChronoUnit.YEARS.between(birthdate,
-				LocalDate.now());
-		return FullEvent2Resp.builder().eventId(e.getEventId())
-				.title(e.getTitle()).holiday(e.getHoliday())
-				.confession(e.getConfession()).date(e.getDate())
-				.time(e.getTime())
-				// .localDateTimeEvent(e.getLocalDateTimeEvent())
-				.duration(e.getDuration()).address(e.getAddress())
-				.food(e.getFood()).description(e.getDescription())
-				.owner(EventOwner.builder().fullName(fullName)
-						.confession(ownerInfo.getConfession())
-						.gender(ownerInfo.getGender()).age(age)
-						.pictureLink(ownerInfo.getPictureLink())
-						.maritalStatus(ownerInfo.getMaritalStatus())
-						.foodPreferences(ownerInfo.getFoodPreferences())
-						.languages(ownerInfo.getLanguages())
-						.rate(ownerInfo.getRate()).build())
+		LocalDate birthdate = LocalDate.parse(ownerInfo.getDateOfBirth(), formatter);
+		Integer age = (int) ChronoUnit.YEARS.between(birthdate, LocalDate.now());
+		return FullEvent2Resp.builder().eventId(e.getEventId()).title(e.getTitle()).holiday(e.getHoliday())
+				.confession(e.getConfession()).date(e.getDate()).time(e.getTime()).duration(e.getDuration())
+				.address(e.getAddress()).food(e.getFood()).description(e.getDescription())
+				.owner(EventOwner.builder().fullName(fullName).confession(ownerInfo.getConfession())
+						.gender(ownerInfo.getGender()).age(age).pictureLink(ownerInfo.getPictureLink())
+						.maritalStatus(ownerInfo.getMaritalStatus()).foodPreferences(ownerInfo.getFoodPreferences())
+						.languages(ownerInfo.getLanguages()).rate(ownerInfo.getRate()).build())
 				.build();
 
-// 	private AddEventDto eventToEventDtoConverter(Event e) {
+		// private AddEventDto eventToEventDtoConverter(Event e) {
 
-// 		return AddEventDto.builder().eventId(e.getEventId()).title(e.getTitle()).holiday(e.getHoliday())
-// 				.confession(e.getConfession()).date(e.getDate()).time(e.getTime()).duration(e.getDuration())
-// 				.address(e.getAddress()).food(e.getFood()).description(e.getDescription()).owner(e.getOwner())
-// 				.eventStatus(e.getEventStatus()).build();
+		// return
+		// AddEventDto.builder().eventId(e.getEventId()).title(e.getTitle()).holiday(e.getHoliday())
+		// .confession(e.getConfession()).date(e.getDate()).time(e.getTime()).duration(e.getDuration())
+		// .address(e.getAddress()).food(e.getFood()).description(e.getDescription()).owner(e.getOwner())
+		// .eventStatus(e.getEventStatus()).build();
 
 	}
 

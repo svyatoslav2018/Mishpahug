@@ -29,7 +29,7 @@ public interface EventsRepository extends MongoRepository<Event, String> {
 			String eventStatus, String holiday, String confession, String food,
 			LocalDate dateFrom, LocalDate dateTo, Pageable pageable);
 
-	Page<Event> findByEventStatusAndDateIn(String eventStatus, LocalDate dateFrom, LocalDate dateTo,
+	Page<Event> findByEventStatusAndDateBetween(String eventStatus, LocalDate dateFrom, LocalDate dateTo,
 			Pageable pageable);
 
 	Page<Event> findByEventStatusAndHolidayAndConfessionAndFood(

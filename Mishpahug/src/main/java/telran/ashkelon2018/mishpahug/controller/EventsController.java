@@ -88,7 +88,7 @@ public class EventsController {
 	public EventListResponseDto findAllEventsInProgress(@RequestParam Integer page, @RequestParam Integer size,
 			@RequestBody EventListRequestDto eventListRequestDto) {
 
-		return eventsService.findEventsInProgress( page, size,eventListRequestDto);// 
+		return eventsService.findEventsInProgress( page, size,eventListRequestDto);
 
 	}
 }
