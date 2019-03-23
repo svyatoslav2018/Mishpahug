@@ -14,8 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.geo.Distance;
-import org.springframework.data.geo.Point;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
 import lombok.Builder;
@@ -23,7 +22,6 @@ import telran.ashkelon2018.mishpahug.configuration.EventConfiguration;
 import telran.ashkelon2018.mishpahug.dao.EventsRepository;
 import telran.ashkelon2018.mishpahug.dao.UserAccountRepository;
 import telran.ashkelon2018.mishpahug.domain.Event;
-import telran.ashkelon2018.mishpahug.domain.Filters;
 import telran.ashkelon2018.mishpahug.domain.EventOwner;
 import telran.ashkelon2018.mishpahug.domain.UserAccount;
 import telran.ashkelon2018.mishpahug.dto.AddEventDto;
@@ -48,7 +46,10 @@ public class EventsServiceImpl implements EventsService {
 	EventConfiguration eventConfiguration;
 
 	@Autowired
-	RunThroughFilters runThroughFilters;
+	RunThroughFiltersMT runThroughFilters;
+
+	@Autowired
+	MongoTemplate mongoTemplate;
 
 	@Override
 	public CodeResponseDto addNewEvent(AddEventDto newEvent, String sessionLogin) {
@@ -106,40 +107,31 @@ public class EventsServiceImpl implements EventsService {
 
 	@Override
 
-	public EventListResponseDto findEventsInProgress(Integer page, Integer size, EventListRequestDto body) {
-		System.out.println("FILTER.body:: " + body);
+	public EventListResponseDto findEventsInProgress(EventListRequestDto body, int page, int size) {
 
-		String eventStatus = eventConfiguration.INPROGRESS;
+		// Integer page, Integer size,
+		// Point point = new
+		// Point(body.getLocation().getLat(),body.getLocation().getLng());
+		// Distance distance = new Distance(body.getLocation().getRadius());
 
-		if (body.getLocation().getLat() == null || body.getLocation().getLng() == null) {
-			Point point = new Point(body.getLocation().getLat(), body.getLocation().getLng());
-			Distance distance = new Distance(body.getLocation().getRadius());
+		Pageable pageable = PageRequest.of(page, size, new Sort(Sort.Direction.ASC, "date"));
+		Page<Event> listOfEvents = runThroughFilters.madeListWithFilter(body, pageable);
 
-		}
-
-		Filters filters = body.getFilters();
-
-		// Integer page = 0;
-		// Integer size = 100;
-		Pageable pageable = PageRequest.of(page, size, new Sort(Sort.Direction.ASC, "dateFrom"));
-		// Page<Event> listOfEvents = runThroughFilters.madeListWithFilter(filters, pageable);
-		 Page<Event> listOfEvents = eventsRepository.findByEventStatus(eventStatus, pageable);
-
-		// System.out.println("!!!!! listOfEvents " + listOfEvents);
-		// long totalElements = listOfEvents.getTotalElements();
-		// System.out.println("!!!!! totalElements " + totalElements);
-		// int totalPages = listOfEvents.getTotalPages();
-		// System.out.println("!!!!! totalPages " + totalPages);
-		// int number = listOfEvents.getNumber();
-		// System.out.println("!!!!! number " + number);
-		// int numberOfElements = listOfEvents.getNumberOfElements();
-		// System.out.println("!!!!! numberOfElements " + numberOfElements);
-		// boolean first = listOfEvents.isFirst();
-		// System.out.println("!!!!! first " + first);
-		// boolean last = listOfEvents.isLast();
-		// System.out.println("!!!!! last " + last);
-		// Sort sort = listOfEvents.getSort();
-		// System.out.println("!!!!! sort " + sort);
+		 System.out.println("!!!!! listOfEvents " + listOfEvents);
+		 long totalElements = listOfEvents.getTotalElements();
+		 System.out.println("!!!!! totalElements " + totalElements);
+		 int totalPages = listOfEvents.getTotalPages();
+		 System.out.println("!!!!! totalPages " + totalPages);
+		 int number = listOfEvents.getNumber();
+		 System.out.println("!!!!! number " + number);
+		 int numberOfElements = listOfEvents.getNumberOfElements();
+		 System.out.println("!!!!! numberOfElements " + numberOfElements);
+		 boolean first = listOfEvents.isFirst();
+		 System.out.println("!!!!! first " + first);
+		 boolean last = listOfEvents.isLast();
+		 System.out.println("!!!!! last " + last);
+		 Sort sort = listOfEvents.getSort();
+		 System.out.println("!!!!! sort " + sort);
 
 		List<FullEvent2Resp> content = new ArrayList<>();
 		listOfEvents.forEach(e -> content.add(eventToEventDtoConverter(e)));
@@ -166,34 +158,8 @@ public class EventsServiceImpl implements EventsService {
 		}
 
 		Stream<FullEvent2Resp> stream = content.stream();
-
-		// boolean standartFilter = runThroughFilters.standartFilter;
-		// System.out.println("EventsServiceImpl.standartFilter " + standartFilter);
-		// if (!standartFilter) {
-		if (filters.getDateFrom() != null) {
-			System.out.println(filters.getDateFrom());
-			stream = stream.filter(e -> e.getDate().isAfter(filters.getDateFrom()));
-		}
-		if (filters.getDateTo() != null) {
-			System.out.println(filters.getDateTo());
-			stream = stream.filter(e -> e.getDate().isBefore(filters.getDateTo()));
-		}
-		if (filters.getHolidays() != null) {
-			System.out.println(filters.getHolidays());
-			stream = stream.filter(e -> e.getHoliday().equalsIgnoreCase(filters.getHolidays()));
-		}
-		if (filters.getConfession() != null) {
-			System.out.println(filters.getConfession());
-			stream = stream.filter(e -> e.getConfession().equalsIgnoreCase(filters.getConfession()));
-		}
-		if (filters.getFood() != null) {
-			System.out.println(filters.getFood());
-			stream = stream.filter(e -> e.getFood().contains(filters.getFood()));
-		}
-		// }
-
-		return new EventListResponseDto(stream.collect(Collectors.toList()), page, size);
-		// totalElements, totalPages, size, number,numberOfElements, first, last, sort);
+		return new EventListResponseDto(stream.collect(Collectors.toList()), totalElements, totalPages, size, number,
+				numberOfElements, first, last, sort);
 
 	}
 
@@ -222,66 +188,4 @@ public class EventsServiceImpl implements EventsService {
 
 	}
 
-	// @Override
-	// public Post getPost(String id) {
-	// return repository.findById(id).orElse(null);
-	// }
-	//
-	// @Override
-	// public Post removePost(String id, String token) {
-	// Post post = repository.findById(id).orElse(null);
-	// if (post != null) {
-	// repository.delete(post);
-	// }
-	// return post;
-	// }
-	//
-	// @Override
-	// public Post updatePost(PostUpdateDto postUpdateDto, String token) {
-	// Post post = repository.findById(postUpdateDto.getId()).orElse(null);
-	// if (post != null) {
-	// post.setContent(postUpdateDto.getContent());
-	// repository.save(post);
-	// }
-	// return post;
-	// }
-	//
-	// @Override
-	// public boolean addLike(String id) {
-	// Post post = repository.findById(id).orElse(null);
-	// if (post != null) {
-	// post.addLike();
-	// repository.save(post);
-	// return true;
-	// }
-	// return false;
-	// }
-	//
-	// @Override
-	// public Post addComment(String id, NewCommentDto newComment) {
-	// Post post = repository.findById(id).orElse(null);
-	// if (post != null) {
-	// Comment comment = new Comment(newComment.getUser(),
-	// newComment.getMessage());
-	// post.addComment(comment);
-	// repository.save(post);
-	// }
-	// return post;
-	// }
-	//
-	// @Override
-	// public Iterable<Post> findPostsByTags(List<String> tags) {
-	// return repository.findByTagsIn(tags);
-	// }
-	//
-	// @Override
-	// public Iterable<Post> findPostsByAuthor(String author) {
-	// return repository.findByAuthor(author);
-	// }
-	//
-	// @Override
-	// public Iterable<Post> findPostsByDates(DatePeriodDto period) {
-	// return
-	// repository.findByDateCreatedBetween(LocalDate.parse(period.getFrom()),
-	// LocalDate.parse(period.getTo()));
 }

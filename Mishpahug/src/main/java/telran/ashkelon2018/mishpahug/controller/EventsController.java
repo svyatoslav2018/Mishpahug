@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import telran.ashkelon2018.mishpahug.configuration.SessionConfiguration;
-import telran.ashkelon2018.mishpahug.domain.Event;
 import telran.ashkelon2018.mishpahug.dto.AddEventDto;
 import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
@@ -31,7 +30,7 @@ public class EventsController {
 	@PostMapping("/creation")
 	public CodeResponseDto addEvent(@RequestBody AddEventDto newEvent) {
 		String sessionLogin = sessionConfiguration.sessionUserName();
-		
+
 		return eventsService.addNewEvent(newEvent, sessionLogin);
 	}
 
@@ -85,10 +84,11 @@ public class EventsController {
 
 	// without authentication
 	@PostMapping("/allprogresslist") 
-	public EventListResponseDto findAllEventsInProgress(@RequestParam Integer page, @RequestParam Integer size,
+	public EventListResponseDto findAllEventsInProgress(@RequestParam int page, @RequestParam int size,
 			@RequestBody EventListRequestDto eventListRequestDto) {
-
-		return eventsService.findEventsInProgress( page, size,eventListRequestDto);
+		System.out.println("page " + page + " size " + size);
+		// String sessionLogin = sessionConfiguration.sessionUserName();
+		return eventsService.findEventsInProgress(eventListRequestDto, page, size);
 
 	}
 }

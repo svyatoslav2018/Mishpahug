@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import telran.ashkelon2018.mishpahug.domain.Event;
@@ -22,6 +23,11 @@ public interface EventsRepository extends MongoRepository<Event, String> {
 	// EventListResponseDto findByEventStatus(String eventStatus);// status "In
 	// progress"
 
+	
+	
+	
+	
+	
 	Page<Event> findByEventStatus(String eventStatus, Pageable pageable);
 
 	// @Query("{'holiday' : '8 march', 'confession': 'Religious'}")
