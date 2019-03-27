@@ -1,9 +1,9 @@
-package telran.ashkelon2018.mishpahug.dto;
+package telran.ashkelon2018.mishpahug.service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-import org.springframework.data.mongodb.core.mapping.DBRef;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +13,6 @@ import lombok.Setter;
 import lombok.ToString;
 import telran.ashkelon2018.mishpahug.domain.Address;
 import telran.ashkelon2018.mishpahug.domain.EventOwner;
-import telran.ashkelon2018.mishpahug.domain.UserAccount;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,7 +26,10 @@ public class FullEvent2Resp {
 	String title;
 	String holiday;
 	String confession;
+	//@JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm:ss")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	LocalDate date;
+	@JsonFormat(pattern = "hh:mm")
 	LocalTime time;
 	//LocalDateTime localDateTimeEvent;
 	Integer duration;//in minutes
@@ -35,7 +37,7 @@ public class FullEvent2Resp {
 	String food;
 	String description;
 	EventOwner owner;
-//	String eventStatus;//In progress, Done, Pending, Not done
+
 	
 
 }

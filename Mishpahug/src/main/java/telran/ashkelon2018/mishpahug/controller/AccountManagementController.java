@@ -15,7 +15,7 @@ import telran.ashkelon2018.mishpahug.dto.StaticFieldsDto;
 import telran.ashkelon2018.mishpahug.dto.UserProfileDto;
 import telran.ashkelon2018.mishpahug.service.AccountService;
 
-@CrossOrigin
+@CrossOrigin(origins="*", allowedHeaders="*")
 @RestController
 @RequestMapping("/user") // all will be start from user
 public class AccountManagementController {
@@ -38,6 +38,8 @@ public class AccountManagementController {
 
 	@PostMapping("/profile")
 	public UserProfileDto updateUserProfile(@RequestBody UserProfileDto userProfileDto) {
+//		System.out.println(userProfileDto);
+		
 		String sessionLogin = sessionConfiguration.sessionUserName();
 		return accountService.editUserProfile(userProfileDto, sessionLogin);
 	}

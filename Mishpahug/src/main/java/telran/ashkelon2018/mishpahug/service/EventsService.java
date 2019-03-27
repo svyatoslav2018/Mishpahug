@@ -1,6 +1,5 @@
 package telran.ashkelon2018.mishpahug.service;
 
-import telran.ashkelon2018.mishpahug.domain.Event;
 import telran.ashkelon2018.mishpahug.dto.AddEventDto;
 import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
@@ -14,6 +13,9 @@ public interface EventsService {
 
 	EventListResponseDto findEventsInProgress(EventListRequestDto eventListRequestDto, int page, int size);//Integer page, Integer size,
 
+	CodeResponseDto addSubscribe(String eventId, String token);
+	CodeResponseDto delSubscribe(String eventId, String token);
+	
 	// Event getEvent(String login, LocalDate date, LocalTime time);// id =
 	// login+date+time
 
