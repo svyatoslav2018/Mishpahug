@@ -18,5 +18,12 @@ import lombok.AllArgsConstructor;
 public class EventSubscribe {
 	@NotEmpty
 	String eventId;
+	@NotEmpty
 	String subscriberId;
+	boolean isInvited;
+	public EventSubscribe(String eventId,String subscriberId) {
+		this.eventId=eventId;
+		this.subscriberId=subscriberId;
+	}
+	
 }

@@ -208,7 +208,7 @@ public class EventsServiceImpl implements EventsService {
 		}
 		try {
 			EventSubscribe es = new EventSubscribe(eventId,
-					credentials.getLogin());
+					credentials.getLogin(), false);
 			eventSubscribeRepository.save(es);
 			return new CodeResponseDto(200, "User subscribed to the event!");
 		} catch (Exception e) {
