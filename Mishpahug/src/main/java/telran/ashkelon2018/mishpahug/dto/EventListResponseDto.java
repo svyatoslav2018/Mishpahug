@@ -12,7 +12,6 @@ import lombok.Setter;
 import lombok.ToString;
 import telran.ashkelon2018.mishpahug.service.FullEvent2Resp;
 
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -32,5 +31,3 @@ public class EventListResponseDto {
 	Sort sort;
 	
 }
-
-

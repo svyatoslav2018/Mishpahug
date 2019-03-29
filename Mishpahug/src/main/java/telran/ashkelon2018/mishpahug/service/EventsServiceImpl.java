@@ -66,8 +66,7 @@ public class EventsServiceImpl implements EventsService {
 		if (!sessionLogin.equals(userAccount.getLogin())) {
 			throw new WrongLoginOrPasswordException();// 401 unauthorized
 		}
-		LocalDateTime dateFrom = newEvent.getDate().atTime(newEvent.getTime());// LocalDateTime.of(newEvent.getDate(),
-																				// newEvent.getTime());//
+		LocalDateTime dateFrom = newEvent.getDate().atTime(newEvent.getTime());
 		LocalDateTime dateTo = dateFrom.plusHours(newEvent.getDuration());
 		LocalDateTime checkDateFrom = LocalDateTime.of(newEvent.getDate(),
 				newEvent.getTime());
@@ -110,6 +109,7 @@ public class EventsServiceImpl implements EventsService {
 			throw new UserConflictException();// 409 busy date
 		}
 
+
 		// LocalDateTime localDateTimeEvent =
 		// LocalDateTime.of(newEvent.getDate(),
 		// newEvent.getTime());
@@ -122,6 +122,12 @@ public class EventsServiceImpl implements EventsService {
 				.duration(newEvent.getDuration()).food(newEvent.getFood())
 				.description(newEvent.getDescription())
 				.eventStatus(newEvent.getEventStatus()).build();
+		
+// 		Event event = Event.builder().eventId(eventId).owner(userAccount.getLogin()).title(newEvent.getTitle())
+// 				.holiday(newEvent.getHoliday()).address(newEvent.getAddress()).confession(newEvent.getConfession())
+// 				.date(newEvent.getDate()).time(newEvent.getTime()).duration(newEvent.getDuration())
+// 				.food(newEvent.getFood()).description(newEvent.getDescription()).eventStatus(newEvent.getEventStatus())
+// 				.build();
 
 		event.setEventStatus(EventConfiguration.INPROGRESS);
 		eventsRepository.save(event);
@@ -138,7 +144,6 @@ public class EventsServiceImpl implements EventsService {
 		Page<Event> listOfEvents = runThroughFilters.madeListWithFilter(body,
 				pageable);
 
-		// System.out.println("!!!!! listOfEvents " + listOfEvents);
 		long totalElements = listOfEvents.getTotalElements();
 		// System.out.println("!!!!! totalElements " + totalElements);
 		int totalPages = listOfEvents.getTotalPages();
@@ -156,9 +161,6 @@ public class EventsServiceImpl implements EventsService {
 
 		List<FullEvent2Resp> content = new ArrayList<>();
 		listOfEvents.forEach(e -> content.add(eventToEventDtoConverter(e)));
-		// for (FullEvent2Resp i : content) {
-		// System.out.println(i);
-		// }
 
 		Stream<FullEvent2Resp> stream = content.stream();
 		return new EventListResponseDto(stream.collect(Collectors.toList()),

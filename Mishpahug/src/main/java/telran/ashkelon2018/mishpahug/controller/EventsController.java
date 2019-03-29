@@ -84,18 +84,8 @@ public class EventsController {
 	// foodPreference) {
 	// return service.findEventsByFoodPref(foodPreference);
 	// }
-
-	// without authentication
-	@PostMapping("/allprogresslist") // ?page={Integer}&size={Integer}
-	public EventListResponseDto findAllEventsInProgress(@RequestParam int page, @RequestParam int size,
-			@RequestBody EventListRequestDto eventListRequestDto) {
-		
-//		System.out.println("page "+page+" size "+size);
-//		String sessionLogin = sessionConfiguration.sessionUserName();
-		return eventsService.findEventsInProgress(eventListRequestDto, page, size);
-	}
-	
-	@PutMapping("/subscription/{eventId}") 
+  
+@PutMapping("/subscription/{eventId}") 
 	public CodeResponseDto subscribe(@PathVariable String eventId, @RequestHeader("Authorization") String token) {
 		System.out.println("eventId " + eventId+ " " + "token "+ token);
 		return eventsService.addSubscribe(eventId, token);
@@ -107,4 +97,15 @@ public class EventsController {
 		System.out.println("eventId " + eventId+ " " + "token "+ token);
 		return eventsService.delSubscribe(eventId, token);
 	}
+	// without authentication
+	@PostMapping("/allprogresslist") // ?page={Integer}&size={Integer}
+	public EventListResponseDto findAllEventsInProgress(@RequestParam int page, @RequestParam int size,
+			@RequestBody EventListRequestDto eventListRequestDto) {
+		return eventsService.findEventsInProgress( eventListRequestDto, page, size);
+
+
+		return eventsService.findEventsInProgress(eventListRequestDto, page, size);
+	}
+	
+	
 }
