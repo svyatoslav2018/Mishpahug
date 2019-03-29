@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,18 +18,22 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import lombok.Builder;
+import telran.ashkelon2018.mishpahug.configuration.AccountConfiguration;
+import telran.ashkelon2018.mishpahug.configuration.AccountUserCredentials;
 import telran.ashkelon2018.mishpahug.configuration.EventConfiguration;
+import telran.ashkelon2018.mishpahug.dao.EventSubscribeRepository;
 import telran.ashkelon2018.mishpahug.dao.EventsRepository;
 import telran.ashkelon2018.mishpahug.dao.UserAccountRepository;
 import telran.ashkelon2018.mishpahug.domain.Event;
 import telran.ashkelon2018.mishpahug.domain.EventOwner;
+import telran.ashkelon2018.mishpahug.domain.EventSubscribe;
 import telran.ashkelon2018.mishpahug.domain.UserAccount;
 import telran.ashkelon2018.mishpahug.dto.AddEventDto;
 import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
 import telran.ashkelon2018.mishpahug.dto.EventListResponseDto;
-import telran.ashkelon2018.mishpahug.dto.FullEvent2Resp;
 import telran.ashkelon2018.mishpahug.exceptions.UserConflictException;
+import telran.ashkelon2018.mishpahug.exceptions.UserNotFoundException;
 import telran.ashkelon2018.mishpahug.exceptions.WrongLoginOrPasswordException;
 
 @Builder
@@ -39,7 +44,13 @@ public class EventsServiceImpl implements EventsService {
 	EventsRepository eventsRepository;
 
 	@Autowired
+	EventSubscribeRepository eventSubscribeRepository;
+
+	@Autowired
 	UserAccountRepository userRepository;
+
+	@Autowired
+	AccountConfiguration accountConfiguration;
 
 	@Autowired
 	EventConfiguration eventConfiguration;
@@ -103,54 +114,26 @@ public class EventsServiceImpl implements EventsService {
 
 	@Override
 	public EventListResponseDto findEventsInProgress(EventListRequestDto body, int page, int size) {
-
-		// Integer page, Integer size,
-		// Point point = new
-		// Point(body.getLocation().getLat(),body.getLocation().getLng());
-		// Distance distance = new Distance(body.getLocation().getRadius());
-
 		Pageable pageable = PageRequest.of(page, size, new Sort(Sort.Direction.ASC, "date"));
 		Page<Event> listOfEvents = runThroughFilters.madeListWithFilter(body, pageable);
 
-		System.out.println("!!!!! listOfEvents " + listOfEvents);
 		long totalElements = listOfEvents.getTotalElements();
-		System.out.println("!!!!! totalElements " + totalElements);
+		// System.out.println("!!!!! totalElements " + totalElements);
 		int totalPages = listOfEvents.getTotalPages();
-		System.out.println("!!!!! totalPages " + totalPages);
+		// System.out.println("!!!!! totalPages " + totalPages);
 		int number = listOfEvents.getNumber();
-		System.out.println("!!!!! number " + number);
+		// System.out.println("!!!!! number " + number);
 		int numberOfElements = listOfEvents.getNumberOfElements();
-		System.out.println("!!!!! numberOfElements " + numberOfElements);
+		// System.out.println("!!!!! numberOfElements " + numberOfElements);
 		boolean first = listOfEvents.isFirst();
-		System.out.println("!!!!! first " + first);
+		// System.out.println("!!!!! first " + first);
 		boolean last = listOfEvents.isLast();
-		System.out.println("!!!!! last " + last);
+		// System.out.println("!!!!! last " + last);
 		Sort sort = listOfEvents.getSort();
-		System.out.println("!!!!! sort " + sort);
+		// System.out.println("!!!!! sort " + sort);
 
 		List<FullEvent2Resp> content = new ArrayList<>();
 		listOfEvents.forEach(e -> content.add(eventToEventDtoConverter(e)));
-		listOfEvents.getSize();
-		for (FullEvent2Resp i : content) {
-			System.out.println(i);
-
-			// Pageable pageable = PageRequest.of(page, size, new Sort(Sort.Direction.DESC,
-			// "dateFrom"));
-			// Page<Event> listOfEvents = eventsRepository.findByEventStatus(eventStatus,
-			// pageable);
-			// // eventsRepository.findByLocationNear(point, distance,
-			// eventStatus,pageable);
-			// List<AddEventDto> content = new ArrayList<>();
-			// listOfEvents.forEach(e -> content.add(eventToEventDtoConverter(e)));
-
-			// LocalDate dateFrom = filters.getDateFrom();
-			// if (dateFrom != null) {
-			// if (dateFrom.isBefore(LocalDate.now())) {
-			// throw new UnprocessableEntityException();// "code": 422, "message": "Invalid
-			// filter parameters!"
-			// }
-		}
-
 		Stream<FullEvent2Resp> stream = content.stream();
 		return new EventListResponseDto(stream.collect(Collectors.toList()), totalElements, totalPages, size, number,
 				numberOfElements, first, last, sort);
@@ -160,15 +143,70 @@ public class EventsServiceImpl implements EventsService {
 		UserAccount ownerInfo = userRepository.findById(e.getOwner()).get();
 		String fullName = ownerInfo.getFirstName() + " " + ownerInfo.getLastName();
 		DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
-		LocalDate birthdate = LocalDate.parse(ownerInfo.getDateOfBirth(), formatter);
-		Integer age = (int) ChronoUnit.YEARS.between(birthdate, LocalDate.now());
-		return FullEvent2Resp.builder().eventId(e.getEventId()).title(e.getTitle()).holiday(e.getHoliday())
-				.confession(e.getConfession()).date(e.getDate()).time(e.getTime()).duration(e.getDuration())
-				.address(e.getAddress()).food(e.getFood()).description(e.getDescription())
-				.owner(EventOwner.builder().fullName(fullName).confession(ownerInfo.getConfession())
-						.gender(ownerInfo.getGender()).age(age).pictureLink(ownerInfo.getPictureLink())
-						.maritalStatus(ownerInfo.getMaritalStatus()).foodPreferences(ownerInfo.getFoodPreferences())
-						.languages(ownerInfo.getLanguages()).rate(ownerInfo.getRate()).build())
+
+		LocalDate birthdate = LocalDate.parse(ownerInfo.getDateOfBirth(),
+				formatter);
+		Integer age = (int) ChronoUnit.YEARS.between(birthdate,
+				LocalDate.now());
+		return FullEvent2Resp.builder().eventId(e.getEventId())
+				.title(e.getTitle()).holiday(e.getHoliday())
+				.confession(e.getConfession()).date(e.getDate())
+				.time(e.getTime()).duration(e.getDuration())
+				.address(e.getAddress()).food(e.getFood())
+				.description(e.getDescription())
+				.owner(EventOwner.builder().fullName(fullName)
+						.confession(ownerInfo.getConfession())
+						.gender(ownerInfo.getGender()).age(age)
+						.pictureLink(ownerInfo.getPictureLink())
+						.maritalStatus(ownerInfo.getMaritalStatus())
+						.foodPreferences(ownerInfo.getFoodPreferences())
+						.languages(ownerInfo.getLanguages())
+						.rate(ownerInfo.getRate()).build())
 				.build();
+			}
+
+	@Override
+	public CodeResponseDto addSubscribe(String eventId, String token) {
+		AccountUserCredentials credentials = accountConfiguration.tokenDecode(token);
+		UserAccount userAccount = userRepository.findById(credentials.getLogin())
+				.orElseThrow(UserNotFoundException::new);// .get()
+		String candidatPassword = credentials.getPassword();
+		if (!credentials.getLogin().equals(userAccount.getLogin())
+				|| !BCrypt.checkpw(candidatPassword, userAccount.getPassword())) {
+			// throw new WrongLoginOrPasswordException();// 401 unauthorized
+			return new CodeResponseDto(401, "User unauthorized!");
 		}
+		try {
+			EventSubscribe es = new EventSubscribe(eventId, credentials.getLogin(), false);
+			eventSubscribeRepository.save(es);
+			return new CodeResponseDto(200, "User subscribed to the event!");
+		} catch (Exception e) {
+			return new CodeResponseDto(409, "User is the owner of the event or already subscribed to it!");
+		}
+
+	}
+
+	@Override
+	public CodeResponseDto delSubscribe(String eventId, String token) {
+		AccountUserCredentials credentials = accountConfiguration
+				.tokenDecode(token);
+		UserAccount userAccount = userRepository
+				.findById(credentials.getLogin())
+				.orElseThrow(UserNotFoundException::new);// .get()
+		String candidatPassword = credentials.getPassword();
+		if (!credentials.getLogin().equals(userAccount.getLogin()) || !BCrypt
+				.checkpw(candidatPassword, userAccount.getPassword())) {
+			// throw new WrongLoginOrPasswordException();// 401 unauthorized
+			return new CodeResponseDto(401, "User unauthorized!");
+		}
+		try {
+			EventSubscribe es = new EventSubscribe(eventId,
+					credentials.getLogin());
+			eventSubscribeRepository.delete(es);
+			return new CodeResponseDto(200, "User unsubscribed from the event!");
+		} catch (Exception e) {
+			return new CodeResponseDto(409,
+					"User can't unsubscribe from the event!");
+		}
+	}	
 }

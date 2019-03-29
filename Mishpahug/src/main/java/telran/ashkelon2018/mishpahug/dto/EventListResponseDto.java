@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import telran.ashkelon2018.mishpahug.service.FullEvent2Resp;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -30,19 +31,3 @@ public class EventListResponseDto {
 	Sort sort;
 }
 
-// Integer page;
-// Integer size;
-// public EventListResponseDto(List<FullEvent2Resp> content, Integer page,
-// Integer size) {
-// this.content = content;
-// this.size = size;
-// this.totalElements = content.size();
-// this.totalPages = content.size() % size > 0 ? (content.size() / size) + 1 :
-// content.size() / size;
-// this.numberOfElements = (number >= this.totalPages ? true : false) ?
-// content.size() % size : size;
-// this.first = number == 0 ? true : false;
-// this.last = number >= this.totalPages ? true : false;
-// this.sort = new Sort(Sort.Direction.ASC, "dateFrom");
-// }
-// }

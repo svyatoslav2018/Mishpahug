@@ -15,37 +15,27 @@ public interface EventsRepository extends MongoRepository<Event, String> {
 	List<Event> findByDurationAndOwnerAndDateAndTime(Integer duration,
 			String owner, LocalDate date, LocalTime time);
 
-	// EventListResponseDto findByEventId(String EventId);
-	// Page<Event> findByLocationNear(Point point, Distance distance);
-	// LocationNearAndEventStatusEquals(Point point, Distance distance, String
-	// eventStatus, Pageable pageable);
-	// EventListResponseDto findByEventStatus(String eventStatus);// status "In
-	// progress"
-
-		
 	Page<Event> findByEventStatus(String eventStatus, Pageable pageable);
-
 	// @Query("{'holiday' : '8 march', 'confession': 'Religious'}")
 	Page<Event> findByEventStatusAndHolidayAndConfessionAndFoodAndDateBetween(
 			String eventStatus, String holiday, String confession, String food,
 			LocalDate dateFrom, LocalDate dateTo, Pageable pageable);
 
-	Page<Event> findByEventStatusAndDateBetween(String eventStatus, LocalDate dateFrom, LocalDate dateTo,
-			Pageable pageable);
+	Page<Event> findByEventStatusAndDateBetween(String eventStatus,
+			LocalDate dateFrom, LocalDate dateTo, Pageable pageable);
 
 	Page<Event> findByEventStatusAndHolidayAndConfessionAndFood(
 			String eventStatus, String holiday, String confession, String food,
 			Pageable pageable);
-	
-	Page<Event>  findByEventStatusAndHoliday(
-			String eventStatus, String holiday, Pageable pageable);
-	
-	Page<Event>  findByEventStatusAndConfession(
-			String eventStatus, String confession, Pageable pageable);
-	
-	Page<Event>  findByEventStatusAndFood(
-			String eventStatus, String food, Pageable pageable);
-	
+
+	Page<Event> findByEventStatusAndHoliday(String eventStatus, String holiday,
+			Pageable pageable);
+
+	Page<Event> findByEventStatusAndConfession(String eventStatus,
+			String confession, Pageable pageable);
+
+	Page<Event> findByEventStatusAndFood(String eventStatus, String food,
+			Pageable pageable);
 
 	// Iterable<Event> findEventsByCity(String city);
 	//

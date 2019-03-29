@@ -13,6 +13,9 @@ public interface EventsService {
 
 	EventListResponseDto findEventsInProgress(EventListRequestDto eventListRequestDto, int page, int size);//Integer page, Integer size,
 
+	CodeResponseDto addSubscribe(String eventId, String token);
+	CodeResponseDto delSubscribe(String eventId, String token);
+	
 	// Event getEvent(String login, LocalDate date, LocalTime time);// id =
 	// login+date+time
 

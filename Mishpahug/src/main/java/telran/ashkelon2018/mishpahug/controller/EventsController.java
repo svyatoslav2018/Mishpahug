@@ -5,8 +5,11 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,7 +21,7 @@ import telran.ashkelon2018.mishpahug.dto.EventListResponseDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventInfoResponseDto;
 import telran.ashkelon2018.mishpahug.service.EventsService;
 
-@CrossOrigin
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/event") // all will be start from event
 
@@ -33,21 +36,19 @@ public class EventsController {
 	@PostMapping("/creation")
 	public CodeResponseDto addEvent(@RequestBody AddEventDto newEvent) {
 		String sessionLogin = sessionConfiguration.sessionUserName();
-
 		return eventsService.addNewEvent(newEvent, sessionLogin);
 	}
-	 @GetMapping("/calendar/{month}") // id=login+dateCreated
-		 public Event getEvent(@PathVariable String login, @PathVariable LocalDateTime
-		 dateCreated) {
-		 return eventsService.getEvent(login, dateCreated);
-		 }
-	 
-	 
-	 @GetMapping("/own/{eventId}")
-	 public MyEventInfoResponseDto getMyEventInfo(@PathVariable String eventId) {
-	 return eventsService.getMyEventInfo(eventId);
-	 }
-	 
+
+	@GetMapping("/calendar/{month}") // id=login+dateCreated
+	public Event getEvent(@PathVariable String login, @PathVariable LocalDateTime dateCreated) {
+		return eventsService.getEvent(login, dateCreated);
+	}
+
+	@GetMapping("/own/{eventId}")
+	public MyEventInfoResponseDto getMyEventInfo(@PathVariable String eventId) {
+		return eventsService.getMyEventInfo(eventId);
+	}
+
 	// @GetMapping("/event/{eventId}") // id=login+dateCreated
 	// public Event getEvent(@PathVariable String login, @PathVariable LocalDateTime
 	// dateCreated) {
@@ -96,13 +97,23 @@ public class EventsController {
 	// return service.findEventsByFoodPref(foodPreference);
 	// }
 
+	@PutMapping("/subscription/{eventId}")
+	public CodeResponseDto subscribe(@PathVariable String eventId, @RequestHeader("Authorization") String token) {
+		System.out.println("eventId " + eventId + " " + "token " + token);
+		return eventsService.addSubscribe(eventId, token);
+	}
+
+	@PutMapping("/unsubscription/{eventId}")
+	public CodeResponseDto unsubscribe(@PathVariable String eventId, @RequestHeader("Authorization") String token) {
+		System.out.println("eventId " + eventId + " " + "token " + token);
+		return eventsService.delSubscribe(eventId, token);
+	}
+
 	// without authentication
-	@PostMapping("/allprogresslist") 
+	@PostMapping("/allprogresslist")
 	public EventListResponseDto findAllEventsInProgress(@RequestParam int page, @RequestParam int size,
 			@RequestBody EventListRequestDto eventListRequestDto) {
-		System.out.println("page " + page + " size " + size);
-		// String sessionLogin = sessionConfiguration.sessionUserName();
 		return eventsService.findEventsInProgress(eventListRequestDto, page, size);
-
 	}
+
 }
