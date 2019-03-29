@@ -22,6 +22,7 @@ import telran.ashkelon2018.mishpahug.exceptions.UnprocessableEntityException;
 
 @Service
 public class RunThroughFiltersMT {
+	
 	@Autowired
 	MongoTemplate mongoTemplate;
 
@@ -39,10 +40,13 @@ public class RunThroughFiltersMT {
 			}
 		}
 		
-		if (filters.getDateFrom() != null && filters.getDateTo() != null) {
-			System.out.println(filters.getDateFrom()+" "+filters.getDateTo());
-			query.addCriteria(Criteria.where("date").gte(filters.getDateFrom()).lte(filters.getDateTo()));
+		if (filters.getDateFrom() != null) {
+			query.addCriteria(Criteria.where("date").gte(filters.getDateFrom()));
 		}
+		if (filters.getDateTo() != null) {
+			query.addCriteria(Criteria.where("date").lte(filters.getDateTo()));
+		}
+		
 		if (filters.getHolidays() != null) {
 			System.out.println(filters.getHolidays());
 			query.addCriteria(Criteria.where("holiday").is(filters.getHolidays()));
@@ -62,7 +66,6 @@ public class RunThroughFiltersMT {
 			query.addCriteria(Criteria.where("location").nearSphere(point).maxDistance(location.getRadius()));
 		}
 		
-
 		List<Event> qlistOfEvents = mongoTemplate.find(query, Event.class);
 		System.out.println("found events: "+qlistOfEvents.size());
 		

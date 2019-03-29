@@ -14,7 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
 import lombok.Builder;
@@ -47,9 +46,6 @@ public class EventsServiceImpl implements EventsService {
 
 	@Autowired
 	RunThroughFiltersMT runThroughFilters;
-
-	@Autowired
-	MongoTemplate mongoTemplate;
 
 	@Override
 	public CodeResponseDto addNewEvent(AddEventDto newEvent, String sessionLogin) {
@@ -106,7 +102,6 @@ public class EventsServiceImpl implements EventsService {
 	}
 
 	@Override
-
 	public EventListResponseDto findEventsInProgress(EventListRequestDto body, int page, int size) {
 
 		// Integer page, Integer size,
@@ -117,21 +112,21 @@ public class EventsServiceImpl implements EventsService {
 		Pageable pageable = PageRequest.of(page, size, new Sort(Sort.Direction.ASC, "date"));
 		Page<Event> listOfEvents = runThroughFilters.madeListWithFilter(body, pageable);
 
-		 System.out.println("!!!!! listOfEvents " + listOfEvents);
-		 long totalElements = listOfEvents.getTotalElements();
-		 System.out.println("!!!!! totalElements " + totalElements);
-		 int totalPages = listOfEvents.getTotalPages();
-		 System.out.println("!!!!! totalPages " + totalPages);
-		 int number = listOfEvents.getNumber();
-		 System.out.println("!!!!! number " + number);
-		 int numberOfElements = listOfEvents.getNumberOfElements();
-		 System.out.println("!!!!! numberOfElements " + numberOfElements);
-		 boolean first = listOfEvents.isFirst();
-		 System.out.println("!!!!! first " + first);
-		 boolean last = listOfEvents.isLast();
-		 System.out.println("!!!!! last " + last);
-		 Sort sort = listOfEvents.getSort();
-		 System.out.println("!!!!! sort " + sort);
+		System.out.println("!!!!! listOfEvents " + listOfEvents);
+		long totalElements = listOfEvents.getTotalElements();
+		System.out.println("!!!!! totalElements " + totalElements);
+		int totalPages = listOfEvents.getTotalPages();
+		System.out.println("!!!!! totalPages " + totalPages);
+		int number = listOfEvents.getNumber();
+		System.out.println("!!!!! number " + number);
+		int numberOfElements = listOfEvents.getNumberOfElements();
+		System.out.println("!!!!! numberOfElements " + numberOfElements);
+		boolean first = listOfEvents.isFirst();
+		System.out.println("!!!!! first " + first);
+		boolean last = listOfEvents.isLast();
+		System.out.println("!!!!! last " + last);
+		Sort sort = listOfEvents.getSort();
+		System.out.println("!!!!! sort " + sort);
 
 		List<FullEvent2Resp> content = new ArrayList<>();
 		listOfEvents.forEach(e -> content.add(eventToEventDtoConverter(e)));
@@ -154,13 +149,11 @@ public class EventsServiceImpl implements EventsService {
 			// throw new UnprocessableEntityException();// "code": 422, "message": "Invalid
 			// filter parameters!"
 			// }
-
 		}
 
 		Stream<FullEvent2Resp> stream = content.stream();
 		return new EventListResponseDto(stream.collect(Collectors.toList()), totalElements, totalPages, size, number,
 				numberOfElements, first, last, sort);
-
 	}
 
 	private FullEvent2Resp eventToEventDtoConverter(Event e) {
@@ -177,15 +170,5 @@ public class EventsServiceImpl implements EventsService {
 						.maritalStatus(ownerInfo.getMaritalStatus()).foodPreferences(ownerInfo.getFoodPreferences())
 						.languages(ownerInfo.getLanguages()).rate(ownerInfo.getRate()).build())
 				.build();
-
-		// private AddEventDto eventToEventDtoConverter(Event e) {
-
-		// return
-		// AddEventDto.builder().eventId(e.getEventId()).title(e.getTitle()).holiday(e.getHoliday())
-		// .confession(e.getConfession()).date(e.getDate()).time(e.getTime()).duration(e.getDuration())
-		// .address(e.getAddress()).food(e.getFood()).description(e.getDescription()).owner(e.getOwner())
-		// .eventStatus(e.getEventStatus()).build();
-
-	}
-
+		}
 }

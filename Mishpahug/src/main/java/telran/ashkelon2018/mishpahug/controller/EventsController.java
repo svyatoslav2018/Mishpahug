@@ -2,6 +2,8 @@ package telran.ashkelon2018.mishpahug.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +15,7 @@ import telran.ashkelon2018.mishpahug.dto.AddEventDto;
 import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
 import telran.ashkelon2018.mishpahug.dto.EventListResponseDto;
+import telran.ashkelon2018.mishpahug.dto.MyEventInfoResponseDto;
 import telran.ashkelon2018.mishpahug.service.EventsService;
 
 @CrossOrigin
@@ -33,7 +36,18 @@ public class EventsController {
 
 		return eventsService.addNewEvent(newEvent, sessionLogin);
 	}
-
+	 @GetMapping("/calendar/{month}") // id=login+dateCreated
+		 public Event getEvent(@PathVariable String login, @PathVariable LocalDateTime
+		 dateCreated) {
+		 return eventsService.getEvent(login, dateCreated);
+		 }
+	 
+	 
+	 @GetMapping("/own/{eventId}")
+	 public MyEventInfoResponseDto getMyEventInfo(@PathVariable String eventId) {
+	 return eventsService.getMyEventInfo(eventId);
+	 }
+	 
 	// @GetMapping("/event/{eventId}") // id=login+dateCreated
 	// public Event getEvent(@PathVariable String login, @PathVariable LocalDateTime
 	// dateCreated) {
