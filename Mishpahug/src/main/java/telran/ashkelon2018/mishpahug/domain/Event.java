@@ -13,14 +13,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
+import lombok.ToString; 
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @EqualsAndHashCode(of = { "eventId" })
 @ToString
-@Document(collection = "Events")
+@Document(collection = "Eventsandhugs")
 @Builder
 
 public class Event {
@@ -38,7 +38,7 @@ public class Event {
 	@Setter String food;
 	@Setter String description;
 	@Setter String eventStatus;
-	PageSize pageSize;
+	
 	
 
 }
