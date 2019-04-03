@@ -31,8 +31,6 @@ public class AccountManagementController {
 	// Authorized requests
 	@PostMapping("/registration")
 	public UserProfileDto register(@RequestHeader("Authorization") String token) {
-		// * add a token to the http session in order to check it on other endpoints *//
-		sessionConfiguration.setAttributeToken(token);
 		return accountService.addUser(token);
 	}
 
@@ -52,7 +50,6 @@ public class AccountManagementController {
 
 	@PostMapping("/login")
 	public UserProfileDto loginUser(@RequestHeader("Authorization") String token) {
-		sessionConfiguration.setAttributeToken(token);
 		return accountService.login(token);
 	}
 

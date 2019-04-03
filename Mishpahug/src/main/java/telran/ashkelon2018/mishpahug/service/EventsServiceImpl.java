@@ -21,6 +21,7 @@ import lombok.Builder;
 import telran.ashkelon2018.mishpahug.configuration.AccountConfiguration;
 import telran.ashkelon2018.mishpahug.configuration.AccountUserCredentials;
 import telran.ashkelon2018.mishpahug.configuration.EventConfiguration;
+import telran.ashkelon2018.mishpahug.configuration.SessionConfiguration;
 import telran.ashkelon2018.mishpahug.dao.EventSubscribeRepository;
 import telran.ashkelon2018.mishpahug.dao.EventsRepository;
 import telran.ashkelon2018.mishpahug.dao.UserAccountRepository;
@@ -54,7 +55,7 @@ public class EventsServiceImpl implements EventsService {
 
 	@Autowired
 	EventConfiguration eventConfiguration;
-
+	
 	@Autowired
 	RunThroughFiltersMT runThroughFilters;
 
@@ -133,6 +134,7 @@ public class EventsServiceImpl implements EventsService {
 	@Override
 	public EventListResponseDto findEventsInProgress(EventListRequestDto body,
 			int page, int size) {
+		
 		Pageable pageable = PageRequest.of(page, size,
 				new Sort(Sort.Direction.ASC, "date"));
 		Page<Event> listOfEvents = runThroughFilters.madeListWithFilter(body,
@@ -207,9 +209,11 @@ public class EventsServiceImpl implements EventsService {
 			return new CodeResponseDto(401, "User unauthorized!");
 		}
 		try {
+			boolean isInvited = false;
 			EventSubscribe es = new EventSubscribe(eventId,
-					credentials.getLogin(), false);
+					credentials.getLogin(), isInvited);
 			eventSubscribeRepository.save(es);
+			
 			return new CodeResponseDto(200, "User subscribed to the event!");
 		} catch (Exception e) {
 			return new CodeResponseDto(409,

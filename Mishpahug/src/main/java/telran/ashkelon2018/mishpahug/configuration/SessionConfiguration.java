@@ -2,6 +2,7 @@ package telran.ashkelon2018.mishpahug.configuration;
 
 import java.util.Base64;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.context.annotation.Configuration;
@@ -36,7 +37,20 @@ public class SessionConfiguration {
 		System.out.println("UserRegSessionId: " + httpSession.getId());
 		System.out.println("U_TOKEN: " + token);
 		httpSession.setAttribute("U_TOKEN", token);
+		
 	}
+	
+	public void invalidateToken() {
+		RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
+		ServletRequestAttributes attributes = (ServletRequestAttributes) requestAttributes;
+		HttpSession httpSession = attributes.getRequest().getSession(true);
+		System.out.println("InvalidateSessionId: " + httpSession.getId());
+//		System.out.println("U_TOKEN: " + token);
+//		httpSession.setAttribute("U_TOKEN", token);
+		httpSession.invalidate();
+	}
+	
+	
 
 	public AccountUserCredentials tokenDecode(String token) {
 		int index = token.indexOf(" ");
@@ -49,4 +63,6 @@ public class SessionConfiguration {
 		return credentials;
 
 	}
+	
+
 }

@@ -9,12 +9,13 @@ import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 
 @AllArgsConstructor
 @Document(collection = "EventSubscribe")
 @CompoundIndexes(value = { @CompoundIndex(name = "event_subscriber_id", def = "{'eventId':1, 'subscriberId':1}", unique = true) })
-
+@Getter
 public class EventSubscribe {
 	@NotEmpty
 	String eventId;
