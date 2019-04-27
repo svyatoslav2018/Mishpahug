@@ -13,20 +13,21 @@ import lombok.ToString;
 @NoArgsConstructor
 @Builder
 @ToString
-public class UserProfileDto {
+public class ParticipantsDto {
 	
-	String firstName;
-	String lastName;
-	String dateOfBirth;
-	String gender;
-	String maritalStatus;
+	String userId;// subscriberId
+
+	String fullName;
 	String confession;
+	String gender;
+	Integer age;
 	String[] pictureLink;// avatar and banner
-	String phoneNumber;
+	String maritalStatus;
 	String[] foodPreferences;
 	String[] languages;
-	String description;
 	Double rate;
 	Integer numberOfVoters;
+
+	boolean isInvited;
 
 }

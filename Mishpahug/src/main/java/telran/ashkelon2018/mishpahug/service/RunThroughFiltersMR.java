@@ -22,81 +22,60 @@ public class RunThroughFiltersMR {
 	boolean standartFilter;
 
 	public Page<Event> madeListWithFilter(Filters filters, Pageable pageable) {
-		
+
 		String eventStatus = EventConfiguration.INPROGRESS;
 
 		if (filters.getDateFrom() != null) {
 			if (filters.getDateFrom().isBefore(LocalDate.now())) {
-				throw new UnprocessableEntityException();// "code": 422,
-															// "message":
-															// "Invalid filter
-															// parameters!"
+				throw new UnprocessableEntityException(422, "Invalid filter parameters!");
+				// "code": 422, "message":"Invalid filter parameters!"
 			}
 		}
 
-		if (filters.getHolidays() != null && filters.getConfession() != null
-				&& filters.getFood() != null && filters.getDateFrom() != null
-				&& filters.getDateTo() != null) {
+		if (filters.getHolidays() != null && filters.getConfession() != null && filters.getFood() != null
+				&& filters.getDateFrom() != null && filters.getDateTo() != null) {
 			System.out.println("full filter: ");
 			standartFilter = true;
-			return eventsRepository
-					.findByEventStatusAndHolidayAndConfessionAndFoodAndDateBetween(
-							eventStatus, filters.getHolidays(),
-							filters.getConfession(), filters.getFood(),
-							filters.getDateFrom(), filters.getDateTo(),
-							pageable);
+			return eventsRepository.findByEventStatusAndHolidayAndConfessionAndFoodAndDateBetween(eventStatus,
+					filters.getHolidays(), filters.getConfession(), filters.getFood(), filters.getDateFrom(),
+					filters.getDateTo(), pageable);
 		}
-		if (filters.getHolidays() == null && filters.getConfession() == null
-				&& filters.getFood() == null && filters.getDateFrom() != null
-				&& filters.getDateTo() != null) {
+		if (filters.getHolidays() == null && filters.getConfession() == null && filters.getFood() == null
+				&& filters.getDateFrom() != null && filters.getDateTo() != null) {
 			System.out.println("date filter: ");
 			standartFilter = true;
-			return eventsRepository.findByEventStatusAndDateBetween(eventStatus,
-					filters.getDateFrom(), filters.getDateTo(), pageable);
+			return eventsRepository.findByEventStatusAndDateBetween(eventStatus, filters.getDateFrom(),
+					filters.getDateTo(), pageable);
 		}
-		if (filters.getHolidays() != null && filters.getConfession() != null
-				&& filters.getFood() != null && filters.getDateFrom() == null
-				&& filters.getDateTo() == null) {
+		if (filters.getHolidays() != null && filters.getConfession() != null && filters.getFood() != null
+				&& filters.getDateFrom() == null && filters.getDateTo() == null) {
 			System.out.println("without date filter: ");
 			standartFilter = true;
-			return eventsRepository
-					.findByEventStatusAndHolidayAndConfessionAndFood(
-							eventStatus, filters.getHolidays(),
-							filters.getConfession(), filters.getFood(),
-							pageable);
+			return eventsRepository.findByEventStatusAndHolidayAndConfessionAndFood(eventStatus, filters.getHolidays(),
+					filters.getConfession(), filters.getFood(), pageable);
 		}
-		if (filters.getHolidays() != null && filters.getConfession() == null
-				&& filters.getFood() == null && filters.getDateFrom() == null
-				&& filters.getDateTo() == null) {
+		if (filters.getHolidays() != null && filters.getConfession() == null && filters.getFood() == null
+				&& filters.getDateFrom() == null && filters.getDateTo() == null) {
 			System.out.println("Hholiday filter: ");
 			standartFilter = true;
-			return eventsRepository.findByEventStatusAndHoliday(
-					eventStatus, filters.getHolidays(), pageable);
+			return eventsRepository.findByEventStatusAndHoliday(eventStatus, filters.getHolidays(), pageable);
 		}
-		if (filters.getHolidays() == null && filters.getConfession() != null
-				&& filters.getFood() == null && filters.getDateFrom() == null
-				&& filters.getDateTo() == null) {
+		if (filters.getHolidays() == null && filters.getConfession() != null && filters.getFood() == null
+				&& filters.getDateFrom() == null && filters.getDateTo() == null) {
 			System.out.println("Confession filter: ");
 			standartFilter = true;
-			return eventsRepository.findByEventStatusAndConfession(
-					eventStatus, filters.getConfession(), pageable);
+			return eventsRepository.findByEventStatusAndConfession(eventStatus, filters.getConfession(), pageable);
 		}
-		if (filters.getHolidays() == null && filters.getConfession() == null
-				&& filters.getFood() != null && filters.getDateFrom() == null
-				&& filters.getDateTo() == null) {
+		if (filters.getHolidays() == null && filters.getConfession() == null && filters.getFood() != null
+				&& filters.getDateFrom() == null && filters.getDateTo() == null) {
 			System.out.println("Food filter: ");
 			standartFilter = true;
-			return eventsRepository.findByEventStatusAndFood(
-					eventStatus, filters.getFood(), pageable);
-		} 
+			return eventsRepository.findByEventStatusAndFood(eventStatus, filters.getFood(), pageable);
+		}
 
-			System.out.println("no filter, full list: ");
-			standartFilter = false;
-			return eventsRepository.findByEventStatus(eventStatus,
-					pageable);
-
-		
-
+		System.out.println("no filter, full list: ");
+		standartFilter = false;
+		return eventsRepository.findByEventStatus(eventStatus, pageable);
 	}
 
 }

@@ -1,9 +1,7 @@
-package telran.ashkelon2018.mishpahug.service;
+package telran.ashkelon2018.mishpahug.dto;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,24 +18,20 @@ import telran.ashkelon2018.mishpahug.domain.EventOwner;
 @Getter
 @Setter
 @ToString
-public class FullEvent2Resp {
+public class FullEventToResp {
 	
 	String eventId;
 	String title;
 	String holiday;
 	String confession;
-	//@JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm:ss")
-	@JsonFormat(pattern = "yyyy-MM-dd")
 	LocalDate date;
-	@JsonFormat(pattern = "hh:mm")
 	LocalTime time;
-	//LocalDateTime localDateTimeEvent;
 	Integer duration;//in minutes
 	Address address;
 	String food;
 	String description;
-	EventOwner owner;
-
+	EventOwner owner;	
+	String eventStatus;//In progress, Done, Pending, Not done
 	
 
 }

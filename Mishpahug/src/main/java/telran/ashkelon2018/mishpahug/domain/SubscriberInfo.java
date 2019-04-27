@@ -1,32 +1,29 @@
-package telran.ashkelon2018.mishpahug.dto;
+package telran.ashkelon2018.mishpahug.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
-@Getter
-@Setter
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@AllArgsConstructor
+@Getter
 @ToString
-public class UserProfileDto {
-	
-	String firstName;
-	String lastName;
-	String dateOfBirth;
-	String gender;
-	String maritalStatus;
+@Builder
+public class SubscriberInfo {
+
+	//String userId;// subscriberId
+
+	String fullName;
 	String confession;
+	String gender;
+	Integer age;
 	String[] pictureLink;// avatar and banner
-	String phoneNumber;
+	String maritalStatus;
 	String[] foodPreferences;
 	String[] languages;
-	String description;
 	Double rate;
 	Integer numberOfVoters;
-
+	Boolean isInvited;
 }

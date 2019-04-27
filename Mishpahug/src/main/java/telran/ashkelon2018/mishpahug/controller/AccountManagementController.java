@@ -38,8 +38,6 @@ public class AccountManagementController {
 
 	@PostMapping("/profile")
 	public UserProfileDto updateUserProfile(@RequestBody UserProfileDto userProfileDto) {
-//		System.out.println(userProfileDto);
-		
 		String sessionLogin = sessionConfiguration.sessionUserName();
 		return accountService.editUserProfile(userProfileDto, sessionLogin);
 	}
