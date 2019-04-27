@@ -18,7 +18,7 @@ import telran.ashkelon2018.mishpahug.domain.EventOwner;
 @Getter
 @Setter
 @ToString
-public class FullEvent2Resp {
+public class FullEventToResp {
 	
 	String eventId;
 	String title;
@@ -30,8 +30,8 @@ public class FullEvent2Resp {
 	Address address;
 	String food;
 	String description;
-	EventOwner owner;
-//	String eventStatus;//In progress, Done, Pending, Not done
+	EventOwner owner;	
+	String eventStatus;//In progress, Done, Pending, Not done
 	
 
 }

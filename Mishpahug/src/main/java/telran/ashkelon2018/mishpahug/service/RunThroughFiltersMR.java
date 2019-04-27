@@ -27,7 +27,7 @@ public class RunThroughFiltersMR {
 
 		if (filters.getDateFrom() != null) {
 			if (filters.getDateFrom().isBefore(LocalDate.now())) {
-				throw new UnprocessableEntityException();
+				throw new UnprocessableEntityException(422, "Invalid filter parameters!");
 				// "code": 422, "message":"Invalid filter parameters!"
 			}
 		}

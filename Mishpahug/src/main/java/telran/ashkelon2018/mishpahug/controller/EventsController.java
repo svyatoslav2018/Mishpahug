@@ -16,9 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 import telran.ashkelon2018.mishpahug.configuration.SessionConfiguration;
 import telran.ashkelon2018.mishpahug.dto.AddEventDto;
 import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
+import telran.ashkelon2018.mishpahug.dto.EventListForCalendarDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
 import telran.ashkelon2018.mishpahug.dto.EventListResponseDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventInfoResponseDto;
+import telran.ashkelon2018.mishpahug.dto.MyEventsListRespDto;
 import telran.ashkelon2018.mishpahug.service.EventsService;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -39,63 +41,22 @@ public class EventsController {
 		return eventsService.addNewEvent(newEvent, sessionLogin);
 	}
 
-	@GetMapping("/calendar/{month}") // id=login+dateCreated
-	public Event getEvent(@PathVariable String login, @PathVariable LocalDateTime dateCreated) {
-		return eventsService.getEvent(login, dateCreated);
+	@GetMapping("/calendar/{month}")
+	public EventListForCalendarDto calendar(@PathVariable String month, @RequestHeader("Authorization") String token) {
+		return eventsService.eventListForCalendar(month, token);
 	}
 
-	@GetMapping("/own/{eventId}")
-	public MyEventInfoResponseDto getMyEventInfo(@PathVariable String eventId) {
-		return eventsService.getMyEventInfo(eventId);
+//	@GetMapping("/own/{eventId}")
+//	public MyEventInfoResponseDto getMyEventInfo(@PathVariable String eventId, @RequestHeader("Authorization") String token) {
+//		return eventsService.myEventInfo(eventId, token);
+//	}
+	
+	@GetMapping("/currentlist")
+	public MyEventsListRespDto getMyEventsList(@RequestHeader("Authorization") String token) {
+		return eventsService.MyEventsList(token);
 	}
-
-	// @GetMapping("/event/{eventId}") // id=login+dateCreated
-	// public Event getEvent(@PathVariable String login, @PathVariable LocalDateTime
-	// dateCreated) {
-	// return siteService.getEvent(login, dateCreated);
-	// }
-
-	// i think delete must be automaticaly after getting status "done"+some days
-	// @DeleteMapping("/event/{login,dateCreated}") // id=login,dateCreated
-	// public Event removeEvent(@PathVariable String login, @PathVariable
-	// LocalDateTime dateCreated,
-	// @RequestBody String token) {
-	// return service.removeEvent(login, dateCreated, token);
-	// }
-
-	// @PutMapping("/event/{login,dateCreated}/rate")
-	// public boolean addRating(@PathVariable String login, @PathVariable
-	// LocalDateTime dateCreated) {
-	// return service.addRating(login, dateCreated);
-	// }
-
-	// @PostMapping("/events/city") // how get city from address
-	// public Iterable<Event> getEventsByCity(@PathVariable String city) {
-	// return service.findEventsByCity(city);
-	// }
-
-	// @PostMapping("/events/period")
-	// public Iterable<Event> getEventsBetweenDates(@RequestBody DatePeriodDto
-	// periodDto) {
-	// return service.findEventsByDates(periodDto);
-	// }
-
-	// @PostMapping("/events/holiday")
-	// public Iterable<Event> getEventsByHoliday(@PathVariable String holiday) {
-	// return service.findEventsByHoliday(holiday);
-	// }
-
-	// @PostMapping("/events/confession")
-	// public Iterable<Event> getEventsByConfession(@PathVariable String confession)
-	// {
-	// return service.findEventsByConfession(confession);
-	// }
-
-	// @PostMapping("/events/foodPref")
-	// public Iterable<Event> getEventsByFoodPref(@PathVariable String
-	// foodPreference) {
-	// return service.findEventsByFoodPref(foodPreference);
-	// }
+	
+	
 
 	@PutMapping("/subscription/{eventId}")
 	public CodeResponseDto subscribe(@PathVariable String eventId, @RequestHeader("Authorization") String token) {

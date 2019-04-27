@@ -27,7 +27,6 @@ public class AddEventDto {
 	String confession;
 	LocalDate date;
 	LocalTime time;
-	//LocalDateTime localDateTimeEvent;
 	Integer duration;//in minutes
 	String food;
 	String description;

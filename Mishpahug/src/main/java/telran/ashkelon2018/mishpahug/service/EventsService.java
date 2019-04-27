@@ -2,20 +2,28 @@ package telran.ashkelon2018.mishpahug.service;
 
 import telran.ashkelon2018.mishpahug.dto.AddEventDto;
 import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
+import telran.ashkelon2018.mishpahug.dto.EventListForCalendarDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
 import telran.ashkelon2018.mishpahug.dto.EventListResponseDto;
+import telran.ashkelon2018.mishpahug.dto.MyEventInfoResponseDto;
+import telran.ashkelon2018.mishpahug.dto.MyEventsListRespDto;
 
 public interface EventsService {
 
 	CodeResponseDto addNewEvent(AddEventDto newEvent, String sessionLogin);
-	// Iterable<Event> findEventsInProgress(EventListRequestDto
-	// eventsListFilterDto,String sessionLogin);
 
-	EventListResponseDto findEventsInProgress(EventListRequestDto eventListRequestDto, int page, int size);//Integer page, Integer size,
+	EventListResponseDto findEventsInProgress(EventListRequestDto eventListRequestDto, int page, int size);																											
 
 	CodeResponseDto addSubscribe(String eventId, String token);
+
 	CodeResponseDto delSubscribe(String eventId, String token);
-	
+
+	MyEventInfoResponseDto myEventInfo(String eventId, String token);
+
+	EventListForCalendarDto eventListForCalendar(String month, String token);
+
+	MyEventsListRespDto MyEventsList(String token);
+
 	// Event getEvent(String login, LocalDate date, LocalTime time);// id =
 	// login+date+time
 

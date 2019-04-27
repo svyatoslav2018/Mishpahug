@@ -6,6 +6,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.UNAUTHORIZED)
 
 public class WrongLoginOrPasswordException extends RuntimeException {
+	int code;
+	String message;
+
+	public WrongLoginOrPasswordException(int code, String message) {
+		this.code=code;
+		this.message=message;
+	}
+	
 	/**
 	 * 
 	 */

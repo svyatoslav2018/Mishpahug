@@ -41,12 +41,12 @@ public class AccountServiceImpl implements AccountService {
 
 		// if (!(emailValidator.validate(credentials.getLogin()))
 		// || !(passwordValidator.validate(credentials.getPassword()))) {
-		// throw new UnprocessableEntity();// 422 Invalid data. Email or password
+		// throw new UnprocessableEntity(422, "Invalid data. Email or password");
 		// does not meet the requirements
 		// }
 
 		if (userRepository.existsById(credentials.getLogin())) {
-			throw new UserConflictException();// 409 User exists
+			throw new UserConflictException(409, "User exists");
 		}
 
 		String hashPassword = BCrypt.hashpw(credentials.getPassword(), BCrypt.gensalt());
@@ -81,7 +81,7 @@ public class AccountServiceImpl implements AccountService {
 		UserAccount userAccount = userRepository.findById(sessionLogin).get();
 
 		if (!sessionLogin.equals(userAccount.getLogin())) {
-			throw new WrongLoginOrPasswordException();// 401 unauthorized
+			throw new WrongLoginOrPasswordException(401, "unauthorized");
 		}
 
 		userAccount.setFirstName(userProfileDto.getFirstName());
@@ -108,15 +108,14 @@ public class AccountServiceImpl implements AccountService {
 		
 		if (!credentials.getLogin().equals(userAccount.getLogin())
 				|| !BCrypt.checkpw(candidatPassword, userAccount.getPassword())) {
-			throw new WrongLoginOrPasswordException();// 401 unauthorized
-		}
+			throw new WrongLoginOrPasswordException(401, "unauthorized");		}
 
 		if (userAccount.getFirstName() == null || userAccount.getLastName() == null
 				|| userAccount.getPhoneNumber() == null || userAccount.getConfession() == null
 				|| userAccount.getDateOfBirth() == null || userAccount.getMaritalStatus() == null
 				|| userAccount.getFoodPreferences() == null || userAccount.getGender() == null
 				|| userAccount.getLanguages() == null || userAccount.getDescription() == null) {
-			throw new UserConflictException();// 409 empty profile exception
+			throw new UserConflictException(409, "empty profile exception");
 		}
 		return convertToUserProfileDto(userAccount);
 	}
@@ -130,7 +129,7 @@ public class AccountServiceImpl implements AccountService {
 				|| userAccount.getDateOfBirth() == null || userAccount.getMaritalStatus() == null
 				|| userAccount.getFoodPreferences() == null || userAccount.getGender() == null
 				|| userAccount.getLanguages() == null || userAccount.getDescription() == null) {
-			throw new UserConflictException();// 409 empty profile exception
+			throw new UserConflictException(409, "empty profile exception");
 		}
 		return convertToUserProfileDto(userAccount);
 	}
