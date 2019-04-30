@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import telran.ashkelon2018.mishpahug.domain.SubscriberInfo;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,7 +29,7 @@ public class MyEventsToResp {
 	String food;
 	String description;
 	String eventStatus;
-	List<ParticipantsDto> participants;
+	List<SubscriberInfo> participants;
 	
 
 }

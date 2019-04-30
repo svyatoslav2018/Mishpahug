@@ -13,7 +13,7 @@ import lombok.ToString;
 @Builder
 public class SubscriberInfo {
 
-	//String userId;// subscriberId
+	String userId;// subscriberId
 
 	String fullName;
 	String confession;

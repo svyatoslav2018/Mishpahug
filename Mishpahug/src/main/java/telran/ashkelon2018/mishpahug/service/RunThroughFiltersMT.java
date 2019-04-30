@@ -15,6 +15,7 @@ import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
 import telran.ashkelon2018.mishpahug.configuration.EventConfiguration;
+import telran.ashkelon2018.mishpahug.configuration.SessionConfiguration;
 import telran.ashkelon2018.mishpahug.domain.Event;
 import telran.ashkelon2018.mishpahug.domain.Filters;
 import telran.ashkelon2018.mishpahug.domain.Location;
@@ -26,14 +27,21 @@ public class RunThroughFiltersMT {
 
 	@Autowired
 	MongoTemplate mongoTemplate;
-
+	
+	@Autowired
+	SessionConfiguration sessionConfiguration;
+	
 	public Page<Event> madeListWithFilter(EventListRequestDto body, Pageable pageable) {
 		String eventStatus = EventConfiguration.INPROGRESS;
 		Query query = new Query(Criteria.where("eventStatus").is(eventStatus));
 		query.with(pageable);
-		// System.out.println("FILTER.body:: " + body);
 		Filters filters = body.getFilters();
-
+		
+		String sessionLogin = sessionConfiguration.sessionUserName();
+		System.out.println("Events without events where owner= "+ sessionLogin);
+		if(sessionLogin!=null) {
+			query.addCriteria(Criteria.where("owner").ne(sessionLogin));
+		}
 		if (filters.getDateFrom() != null) {
 			if (filters.getDateFrom().isBefore(LocalDate.now())) {
 				throw new UnprocessableEntityException(422, "Invalid filter parameters!");

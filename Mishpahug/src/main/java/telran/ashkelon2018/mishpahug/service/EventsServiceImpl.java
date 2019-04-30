@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -39,7 +40,7 @@ import telran.ashkelon2018.mishpahug.dto.FullEventToResp;
 import telran.ashkelon2018.mishpahug.dto.MyEventInfoResponseDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsListRespDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsToResp;
-import telran.ashkelon2018.mishpahug.dto.ParticipantsDto;
+import telran.ashkelon2018.mishpahug.dto.UserProfileDto;
 import telran.ashkelon2018.mishpahug.exceptions.UserNotFoundException;
 import telran.ashkelon2018.mishpahug.exceptions.WrongLoginOrPasswordException;
 
@@ -49,9 +50,6 @@ public class EventsServiceImpl implements EventsService {
 
 	@Autowired
 	EventsRepository eventsRepository;
-
-	@Autowired
-	EventSubscribeRepository eventSubscribeRepository;
 
 	@Autowired
 	UserAccountRepository userRepository;
@@ -66,7 +64,7 @@ public class EventsServiceImpl implements EventsService {
 	RunThroughFiltersMT runThroughFilters;
 
 	@Autowired
-	EventSubscribeRepository subscribeRepository;
+	EventSubscribeRepository eventSubscribeRepository;
 
 	@Autowired
 	MongoTemplate mongoTemplate;
@@ -151,13 +149,28 @@ public class EventsServiceImpl implements EventsService {
 		DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
 		LocalDate birthdate = LocalDate.parse(ownerInfo.getDateOfBirth(), formatter);
 		Integer age = (int) ChronoUnit.YEARS.between(birthdate, LocalDate.now());
-		return FullEventToResp.builder().eventId(e.getEventId()).title(e.getTitle()).holiday(e.getHoliday())
-				.confession(e.getConfession()).date(e.getDate()).time(e.getTime()).duration(e.getDuration())
-				.address(e.getAddress()).food(e.getFood()).description(e.getDescription())
-				.owner(EventOwner.builder().fullName(fullName).confession(ownerInfo.getConfession())
-						.gender(ownerInfo.getGender()).age(age).pictureLink(ownerInfo.getPictureLink())
-						.maritalStatus(ownerInfo.getMaritalStatus()).foodPreferences(ownerInfo.getFoodPreferences())
-						.languages(ownerInfo.getLanguages()).rate(ownerInfo.getRate()).build())
+		return FullEventToResp.builder()
+				.eventId(e.getEventId())
+				.title(e.getTitle())
+				.holiday(e.getHoliday())
+				.confession(e.getConfession())
+				.date(e.getDate())
+				.time(e.getTime())
+				.duration(e.getDuration())
+				.address(e.getAddress())
+				.food(e.getFood())
+				.description(e.getDescription())
+				.owner(EventOwner.builder()
+						.fullName(fullName)
+						.confession(ownerInfo.getConfession())
+						.gender(ownerInfo.getGender())
+						.age(age)
+						.pictureLink(ownerInfo.getPictureLink())
+						.maritalStatus(ownerInfo.getMaritalStatus())
+						.foodPreferences(ownerInfo.getFoodPreferences())
+						.languages(ownerInfo.getLanguages())
+						.rate(ownerInfo.getRate())
+						.build())
 				.build();
 	}
 
@@ -201,7 +214,7 @@ public class EventsServiceImpl implements EventsService {
 	}
 
 	@Override
-	public MyEventsListRespDto MyEventsList(String token) {
+	public MyEventsListRespDto myEventsList(String token) {
 		AccountUserCredentials credentials = accountConfiguration.tokenDecode(token);
 		UserAccount userAccount = userRepository.findById(credentials.getLogin())
 				.orElseThrow(UserNotFoundException::new);
@@ -217,6 +230,7 @@ public class EventsServiceImpl implements EventsService {
 		List<MyEventsToResp> events = new ArrayList<>();
 		Page<Event> listOfEvents;
 		String[] statuses = {EventConfiguration.INPROGRESS,EventConfiguration.PENDING,EventConfiguration.DONE};
+		
 		for(String s :statuses) {
 			if (s == EventConfiguration.DONE) {
 				pageable = PageRequest.of(0, Integer.MAX_VALUE, new Sort(Sort.Direction.DESC, "date"));
@@ -225,59 +239,45 @@ public class EventsServiceImpl implements EventsService {
 			}
 			System.out.println("pageable = " + pageable);
 		listOfEvents = eventsRepository.findByOwnerAndEventStatus(owner, s, pageable);	
-		
-		listOfEvents.forEach(e -> events.add(myEventsToEventDtoConverter(e)));		
-		
-		
+		listOfEvents.forEach(e -> events.add(myEventsToEventDtoConverter(e)));			
 		}
+
 		Stream<MyEventsToResp> stream = events.stream();
 		return new MyEventsListRespDto(stream.collect(Collectors.toList()));//, participants
 	}	
 
 	private MyEventsToResp myEventsToEventDtoConverter(Event e) {
-
-		List<EventSubscribe> listOfParticipants = subscribeRepository.findByEventId(e.getEventId());
-		List<ParticipantsDto> participants = new ArrayList<>();
-		listOfParticipants.forEach(p -> participants.add(participantsToParticipantsDtoConverter(e)));
-
-		return MyEventsToResp.builder()
-				.eventId(e.getEventId())
-				.title(e.getTitle())
-				.holiday(e.getHoliday())
-				.confession(e.getConfession())
-				.date(e.getDate())
-				.time(e.getTime())
-				.duration(e.getDuration())
-				.food(e.getFood())
-				.description(e.getDescription())
-				.eventStatus(e.getEventStatus())
-				.participants(participants)			
-				.build();
+		return MyEventsToResp.builder().eventId(e.getEventId())
+				.title(e.getTitle()).holiday(e.getHoliday()).confession(e.getConfession()).date(e.getDate())
+				.time(e.getTime()).duration(e.getDuration()).food(e.getFood())
+				.description(e.getDescription()).eventStatus(e.getEventStatus())
+				.participants(participantsToParticipantsDtoConverter(e)).build();
 	}
-	
-	private ParticipantsDto participantsToParticipantsDtoConverter(Event e) {
 
-		EventSubscribe subscriberInfo = eventSubscribeRepository.findById(e.getEventId()).get();
+	private List<SubscriberInfo> participantsToParticipantsDtoConverter(Event p) {
+		List<EventSubscribe> subscribersInfo = eventSubscribeRepository.findByEventId(p.getEventId());
+		UserAccount usersInfo;
+		List<SubscriberInfo> subInfo = new ArrayList<>();
+		for (int i = 0; i < subscribersInfo.size(); i++) {
+			usersInfo = userRepository.findById(subscribersInfo.get(i).getSubscriberId()).orElse(null);
+			SubscriberInfo element = SubscriberInfo.builder()
+					.userId(subscribersInfo.get(i).getSubscriberId())
+					.fullName(usersInfo.getFirstName() + " "+ usersInfo.getLastName())
+					.confession(usersInfo.getConfession()).gender(usersInfo.getGender()).age(calcAge(usersInfo))
+					.pictureLink(usersInfo.getPictureLink()).maritalStatus(usersInfo.getMaritalStatus())
+					.foodPreferences(usersInfo.getFoodPreferences()).languages(usersInfo.getLanguages())
+					.rate(usersInfo.getRate()).numberOfVoters(usersInfo.getNumberOfVoters())
+					.isInvited(subscribersInfo.get(i).getIsInvited()).build();
+			subInfo.add(element);
+		}
+		return subInfo;
+	}
 
-		UserAccount userInfo = userRepository.findById(subscriberInfo.getSubscriberId()).get();
-
+	private Integer calcAge(UserAccount usersInfo) {
 		DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
-		LocalDate birthdate = LocalDate.parse(userInfo.getDateOfBirth(), formatter);
-		Integer age = (int) ChronoUnit.YEARS.between(birthdate, LocalDate.now());
-
-		return ParticipantsDto.builder()
-				.userId(subscriberInfo.getSubscriberId())
-				.fullName(userInfo.getFirstName() + " " + userInfo.getLastName())
-				.confession(userInfo.getConfession())
-				.gender(userInfo.getGender())
-				.age(age).pictureLink(userInfo.getPictureLink())
-				.maritalStatus(userInfo.getMaritalStatus())
-				.foodPreferences(userInfo.getFoodPreferences())
-				.languages(userInfo.getLanguages())
-				.rate(userInfo.getRate())
-				.numberOfVoters(userInfo.getNumberOfVoters())
-				.isInvited(subscriberInfo.getIsInvited())
-				.build();
+		LocalDate birthdate = LocalDate.parse(usersInfo.getDateOfBirth(),
+				formatter);
+		return (int) ChronoUnit.YEARS.between(birthdate, LocalDate.now());
 	}
 
 	@Override
