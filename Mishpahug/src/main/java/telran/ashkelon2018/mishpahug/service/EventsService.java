@@ -22,7 +22,7 @@ public interface EventsService {
 
 	EventListForCalendarDto eventListForCalendar(String month, String token);
 
-	MyEventsListRespDto MyEventsList(String token);
+	MyEventsListRespDto myEventsList(String token);
 
 	// Event getEvent(String login, LocalDate date, LocalTime time);// id =
 	// login+date+time

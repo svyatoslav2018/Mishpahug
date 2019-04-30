@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,7 +18,6 @@ import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
 import telran.ashkelon2018.mishpahug.dto.EventListForCalendarDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
 import telran.ashkelon2018.mishpahug.dto.EventListResponseDto;
-import telran.ashkelon2018.mishpahug.dto.MyEventInfoResponseDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsListRespDto;
 import telran.ashkelon2018.mishpahug.service.EventsService;
 
@@ -53,7 +51,7 @@ public class EventsController {
 	
 	@GetMapping("/currentlist")
 	public MyEventsListRespDto getMyEventsList(@RequestHeader("Authorization") String token) {
-		return eventsService.MyEventsList(token);
+		return eventsService.myEventsList(token);
 	}
 	
 	
