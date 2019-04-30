@@ -54,6 +54,7 @@ public class AccountServiceImpl implements AccountService {
 //		String loginLowerCaseNoDot=loginLowerCase.replaceAll("\\.", "");
 		UserAccount userAccount = UserAccount.builder().login(credentials.getLogin()).password(hashPassword).build();
 		userRepository.save(userAccount);
+		sessionConfiguration.setAttributeToken(token);//CHECK!!!
 		return convertToUserProfileDto(userAccount);
 	}
 
@@ -106,6 +107,15 @@ public class AccountServiceImpl implements AccountService {
 		UserAccount userAccount = userRepository.findById(credentials.getLogin()).orElseThrow(UserNotFoundException::new);//.get()
 		String candidatPassword = credentials.getPassword();
 		
+		//CHECK!!!
+		// logout - if on endpoint "/login" request with token and sessionLogin
+				// equals
+				if (credentials.getLogin()
+						.equals(sessionConfiguration.sessionUserName())) {
+					sessionConfiguration.invalidateToken();
+					return null;
+				}
+		
 		if (!credentials.getLogin().equals(userAccount.getLogin())
 				|| !BCrypt.checkpw(candidatPassword, userAccount.getPassword())) {
 			throw new WrongLoginOrPasswordException(401, "unauthorized");		}
@@ -117,6 +127,7 @@ public class AccountServiceImpl implements AccountService {
 				|| userAccount.getLanguages() == null || userAccount.getDescription() == null) {
 			throw new UserConflictException(409, "empty profile exception");
 		}
+		sessionConfiguration.setAttributeToken(token);//CHECK!!!
 		return convertToUserProfileDto(userAccount);
 	}
 

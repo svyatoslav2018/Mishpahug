@@ -185,7 +185,8 @@ public class EventsServiceImpl implements EventsService {
 			return new CodeResponseDto(401, "User unauthorized!");
 		}
 		try {
-			EventSubscribe es = new EventSubscribe(eventId, credentials.getLogin(), false);
+			boolean isInvited = false;//CHECK!!!
+			EventSubscribe es = new EventSubscribe(eventId, credentials.getLogin(), isInvited);
 			eventSubscribeRepository.save(es);
 			return new CodeResponseDto(200, "User subscribed to the event!");
 		} catch (Exception e) {
