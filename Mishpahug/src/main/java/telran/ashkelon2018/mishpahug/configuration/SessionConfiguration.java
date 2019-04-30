@@ -38,6 +38,16 @@ public class SessionConfiguration {
 		httpSession.setAttribute("U_TOKEN", token);
 	}
 
+	public void invalidateToken() {
+		RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
+		ServletRequestAttributes attributes = (ServletRequestAttributes) requestAttributes;
+		HttpSession httpSession = attributes.getRequest().getSession(true);
+		System.out.println("InvalidateSessionId: " + httpSession.getId());
+		// System.out.println("U_TOKEN: " + token);
+		// httpSession.setAttribute("U_TOKEN", token);
+		httpSession.invalidate();
+	}
+
 	public AccountUserCredentials tokenDecode(String token) {
 		int index = token.indexOf(" ");
 		token = token.substring(index + 1);
