@@ -15,25 +15,30 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
 import lombok.Builder;
 import telran.ashkelon2018.mishpahug.configuration.AccountConfiguration;
 import telran.ashkelon2018.mishpahug.configuration.AccountUserCredentials;
 import telran.ashkelon2018.mishpahug.configuration.EventConfiguration;
-import telran.ashkelon2018.mishpahug.configuration.SessionConfiguration;
 import telran.ashkelon2018.mishpahug.dao.EventSubscribeRepository;
 import telran.ashkelon2018.mishpahug.dao.EventsRepository;
 import telran.ashkelon2018.mishpahug.dao.UserAccountRepository;
 import telran.ashkelon2018.mishpahug.domain.Event;
 import telran.ashkelon2018.mishpahug.domain.EventOwner;
 import telran.ashkelon2018.mishpahug.domain.EventSubscribe;
+import telran.ashkelon2018.mishpahug.domain.SubscriberInfo;
 import telran.ashkelon2018.mishpahug.domain.UserAccount;
 import telran.ashkelon2018.mishpahug.dto.AddEventDto;
 import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
+import telran.ashkelon2018.mishpahug.dto.EventListForCalendarDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
 import telran.ashkelon2018.mishpahug.dto.EventListResponseDto;
-import telran.ashkelon2018.mishpahug.exceptions.UserConflictException;
+import telran.ashkelon2018.mishpahug.dto.FullEventToResp;
+import telran.ashkelon2018.mishpahug.dto.MyEventInfoResponseDto;
+import telran.ashkelon2018.mishpahug.dto.MyEventsListRespDto;
+import telran.ashkelon2018.mishpahug.dto.MyEventsToResp;
 import telran.ashkelon2018.mishpahug.exceptions.UserNotFoundException;
 import telran.ashkelon2018.mishpahug.exceptions.WrongLoginOrPasswordException;
 
@@ -55,9 +60,15 @@ public class EventsServiceImpl implements EventsService {
 
 	@Autowired
 	EventConfiguration eventConfiguration;
-	
+
 	@Autowired
 	RunThroughFiltersMT runThroughFilters;
+
+	@Autowired
+	EventSubscribeRepository subscribeRepository;
+
+	@Autowired
+	MongoTemplate mongoTemplate;
 
 	@Override
 	public CodeResponseDto addNewEvent(AddEventDto newEvent,
@@ -65,15 +76,10 @@ public class EventsServiceImpl implements EventsService {
 
 		UserAccount userAccount = userRepository.findById(sessionLogin).get();
 		if (!sessionLogin.equals(userAccount.getLogin())) {
-			throw new WrongLoginOrPasswordException();// 401 unauthorized
+			throw new WrongLoginOrPasswordException(401, "unauthorized");
 		}
-		LocalDateTime dateFrom = newEvent.getDate().atTime(newEvent.getTime());// LocalDateTime.of(newEvent.getDate(),
-																				// newEvent.getTime());//
+		LocalDateTime dateFrom = newEvent.getDate().atTime(newEvent.getTime());
 		LocalDateTime dateTo = dateFrom.plusHours(newEvent.getDuration());
-		LocalDateTime checkDateFrom = LocalDateTime.of(newEvent.getDate(),
-				newEvent.getTime());
-		LocalDateTime checkDateTo = checkDateFrom
-				.plusMinutes(newEvent.getDuration());
 		boolean checktime1 = LocalDateTime.now()
 				.isBefore(dateFrom.minusHours(48));
 		boolean checktime2 = LocalDateTime.now()
@@ -100,28 +106,24 @@ public class EventsServiceImpl implements EventsService {
 		}
 
 		if (!(checktime1 && checktime2 && checktime3)) {
-			// throw new UnprocessableEntityException();// 422 Invalid data
 			return new CodeResponseDto(422, "Invalid data");
 		}
 
 		String eventId = userAccount.getLogin() + "D"
 				+ newEvent.getDate().toString().replaceAll("\\-", "") + "T"
 				+ newEvent.getTime().toString();
+
 		if (eventsRepository.findById(eventId).orElse(null) != null) {
-			throw new UserConflictException();// 409 busy date
+			return new CodeResponseDto(409,
+					"This user has already created the event on this date and time!");
 		}
 
-		// LocalDateTime localDateTimeEvent =
-		// LocalDateTime.of(newEvent.getDate(),
-		// newEvent.getTime());
 		Event event = Event.builder().eventId(eventId).owner(sessionLogin)
 				.title(newEvent.getTitle()).holiday(newEvent.getHoliday())
 				.address(newEvent.getAddress())
-				.confession(newEvent.getConfession())
-				// .localDateTimeEvent(localDateTimeEvent)
-				.date(newEvent.getDate()).time(newEvent.getTime())
-				.duration(newEvent.getDuration()).food(newEvent.getFood())
-				.description(newEvent.getDescription())
+				.confession(newEvent.getConfession()).date(newEvent.getDate())
+				.time(newEvent.getTime()).duration(newEvent.getDuration())
+				.food(newEvent.getFood()).description(newEvent.getDescription())
 				.eventStatus(newEvent.getEventStatus()).build();
 
 		event.setEventStatus(EventConfiguration.INPROGRESS);
@@ -134,51 +136,32 @@ public class EventsServiceImpl implements EventsService {
 	@Override
 	public EventListResponseDto findEventsInProgress(EventListRequestDto body,
 			int page, int size) {
-		
 		Pageable pageable = PageRequest.of(page, size,
 				new Sort(Sort.Direction.ASC, "date"));
 		Page<Event> listOfEvents = runThroughFilters.madeListWithFilter(body,
 				pageable);
 
-		// System.out.println("!!!!! listOfEvents " + listOfEvents);
 		long totalElements = listOfEvents.getTotalElements();
-		// System.out.println("!!!!! totalElements " + totalElements);
 		int totalPages = listOfEvents.getTotalPages();
-		// System.out.println("!!!!! totalPages " + totalPages);
 		int number = listOfEvents.getNumber();
-		// System.out.println("!!!!! number " + number);
 		int numberOfElements = listOfEvents.getNumberOfElements();
-		// System.out.println("!!!!! numberOfElements " + numberOfElements);
 		boolean first = listOfEvents.isFirst();
-		// System.out.println("!!!!! first " + first);
 		boolean last = listOfEvents.isLast();
-		// System.out.println("!!!!! last " + last);
 		Sort sort = listOfEvents.getSort();
-		// System.out.println("!!!!! sort " + sort);
 
-		List<FullEvent2Resp> content = new ArrayList<>();
+		List<FullEventToResp> content = new ArrayList<>();
 		listOfEvents.forEach(e -> content.add(eventToEventDtoConverter(e)));
-		// for (FullEvent2Resp i : content) {
-		// System.out.println(i);
-		// }
-
-		Stream<FullEvent2Resp> stream = content.stream();
+		Stream<FullEventToResp> stream = content.stream();
 		return new EventListResponseDto(stream.collect(Collectors.toList()),
 				totalElements, totalPages, size, number, numberOfElements,
 				first, last, sort);
-
 	}
 
-	private FullEvent2Resp eventToEventDtoConverter(Event e) {
+	private FullEventToResp eventToEventDtoConverter(Event e) {
 		UserAccount ownerInfo = userRepository.findById(e.getOwner()).get();
 		String fullName = ownerInfo.getFirstName() + " "
 				+ ownerInfo.getLastName();
-		DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
-		LocalDate birthdate = LocalDate.parse(ownerInfo.getDateOfBirth(),
-				formatter);
-		Integer age = (int) ChronoUnit.YEARS.between(birthdate,
-				LocalDate.now());
-		return FullEvent2Resp.builder().eventId(e.getEventId())
+		return FullEventToResp.builder().eventId(e.getEventId())
 				.title(e.getTitle()).holiday(e.getHoliday())
 				.confession(e.getConfession()).date(e.getDate())
 				.time(e.getTime()).duration(e.getDuration())
@@ -186,7 +169,7 @@ public class EventsServiceImpl implements EventsService {
 				.description(e.getDescription())
 				.owner(EventOwner.builder().fullName(fullName)
 						.confession(ownerInfo.getConfession())
-						.gender(ownerInfo.getGender()).age(age)
+						.gender(ownerInfo.getGender()).age(calcAge(ownerInfo))
 						.pictureLink(ownerInfo.getPictureLink())
 						.maritalStatus(ownerInfo.getMaritalStatus())
 						.foodPreferences(ownerInfo.getFoodPreferences())
@@ -201,19 +184,16 @@ public class EventsServiceImpl implements EventsService {
 				.tokenDecode(token);
 		UserAccount userAccount = userRepository
 				.findById(credentials.getLogin())
-				.orElseThrow(UserNotFoundException::new);// .get()
+				.orElseThrow(UserNotFoundException::new);
 		String candidatPassword = credentials.getPassword();
 		if (!credentials.getLogin().equals(userAccount.getLogin()) || !BCrypt
 				.checkpw(candidatPassword, userAccount.getPassword())) {
-			// throw new WrongLoginOrPasswordException();// 401 unauthorized
 			return new CodeResponseDto(401, "User unauthorized!");
 		}
 		try {
-			boolean isInvited = false;
 			EventSubscribe es = new EventSubscribe(eventId,
-					credentials.getLogin(), isInvited);
+					credentials.getLogin(), false);
 			eventSubscribeRepository.save(es);
-			
 			return new CodeResponseDto(200, "User subscribed to the event!");
 		} catch (Exception e) {
 			return new CodeResponseDto(409,
@@ -232,19 +212,109 @@ public class EventsServiceImpl implements EventsService {
 		String candidatPassword = credentials.getPassword();
 		if (!credentials.getLogin().equals(userAccount.getLogin()) || !BCrypt
 				.checkpw(candidatPassword, userAccount.getPassword())) {
-			// throw new WrongLoginOrPasswordException();// 401 unauthorized
 			return new CodeResponseDto(401, "User unauthorized!");
 		}
 		try {
 			EventSubscribe es = new EventSubscribe(eventId,
-					credentials.getLogin());
+					credentials.getLogin(), null);
 			eventSubscribeRepository.delete(es);
-			return new CodeResponseDto(200, "User unsubscribed from the event!");
+			return new CodeResponseDto(200,
+					"User unsubscribed from the event!");
 		} catch (Exception e) {
 			return new CodeResponseDto(409,
 					"User can't unsubscribe from the event!");
 		}
+	}
 
+	@Override
+	public MyEventsListRespDto myEventsList(String token) {
+		AccountUserCredentials credentials = accountConfiguration
+				.tokenDecode(token);
+		UserAccount userAccount = userRepository
+				.findById(credentials.getLogin())
+				.orElseThrow(UserNotFoundException::new);
+		String candidatPassword = credentials.getPassword();
+		if (!credentials.getLogin().equals(userAccount.getLogin()) || !BCrypt
+				.checkpw(candidatPassword, userAccount.getPassword())) {
+			throw new WrongLoginOrPasswordException(401, "User unauthorized");
+		}
+
+		String owner = credentials.getLogin();
+		Pageable pageable;
+		List<MyEventsToResp> events = new ArrayList<>();
+		String[] statuses = {EventConfiguration.INPROGRESS,
+				EventConfiguration.PENDING, EventConfiguration.DONE};
+		for (String s : statuses) {
+			if (s == EventConfiguration.DONE) {
+				pageable = PageRequest.of(0, Integer.MAX_VALUE,
+						new Sort(Sort.Direction.DESC, "date"));
+			} else {
+				pageable = PageRequest.of(0, Integer.MAX_VALUE,
+						new Sort(Sort.Direction.ASC, "date"));
+			}
+			Page<Event> listOfEvents = eventsRepository.findByOwnerAndEventStatus(owner, s, pageable);
+			listOfEvents.forEach(e -> events.add(myEventsToEventDtoConverter(e)));
+		}
+		Stream<MyEventsToResp> stream = events.stream();
+		return new MyEventsListRespDto(stream.collect(Collectors.toList()));
+	}
+
+	private MyEventsToResp myEventsToEventDtoConverter(Event e) {
+		return MyEventsToResp.builder().eventId(e.getEventId())
+				.title(e.getTitle()).holiday(e.getHoliday()).confession(e.getConfession()).date(e.getDate())
+				.time(e.getTime()).duration(e.getDuration()).food(e.getFood())
+				.description(e.getDescription()).eventStatus(e.getEventStatus())
+				.participants(participantsToParticipantsDtoConverter(e)).build();
+	}
+
+	private List<SubscriberInfo> participantsToParticipantsDtoConverter(Event p) {
+		List<EventSubscribe> subscribersInfo = eventSubscribeRepository.findByEventId(p.getEventId());
+		UserAccount usersInfo;
+		List<SubscriberInfo> subInfo = new ArrayList<>();
+		for (int i = 0; i < subscribersInfo.size(); i++) {
+			usersInfo = userRepository.findById(subscribersInfo.get(i).getSubscriberId()).orElse(null);
+			
+			SubscriberInfo element = SubscriberInfo.builder()
+					.userId(subscribersInfo.get(i).getSubscriberId())
+					.fullName(usersInfo.getFirstName() + " "+ usersInfo.getLastName())
+					.confession(usersInfo.getConfession()).gender(usersInfo.getGender()).age(calcAge(usersInfo))
+					.pictureLink(usersInfo.getPictureLink()).maritalStatus(usersInfo.getMaritalStatus())
+					.foodPreferences(usersInfo.getFoodPreferences()).languages(usersInfo.getLanguages())
+					.rate(usersInfo.getRate()).numberOfVoters(usersInfo.getNumberOfVoters())
+					.isInvited(subscribersInfo.get(i).getIsInvited()).build();
+			subInfo.add(element);
+		}
+		return subInfo;
+	}
+
+	private Integer calcAge(UserAccount usersInfo) {
+		DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
+		LocalDate birthdate = LocalDate.parse(usersInfo.getDateOfBirth(),
+				formatter);
+		return (int) ChronoUnit.YEARS.between(birthdate, LocalDate.now());
+	}
+
+	@Override
+	public EventListForCalendarDto eventListForCalendar(String month,
+			String token) {
+		AccountUserCredentials credentials = accountConfiguration
+				.tokenDecode(token);
+		UserAccount userAccount = userRepository
+				.findById(credentials.getLogin())
+				.orElseThrow(UserNotFoundException::new);
+		String candidatPassword = credentials.getPassword();
+		if (!credentials.getLogin().equals(userAccount.getLogin()) || !BCrypt
+				.checkpw(candidatPassword, userAccount.getPassword())) {
+			throw new WrongLoginOrPasswordException(401, "unauthorized");
+		}
+
+		return null;
+	}
+
+	@Override
+	public MyEventInfoResponseDto myEventInfo(String eventId, String token) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

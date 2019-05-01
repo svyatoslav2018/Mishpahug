@@ -15,9 +15,6 @@ public interface EventsRepository extends MongoRepository<Event, String> {
 	List<Event> findByDurationAndOwnerAndDateAndTime(Integer duration,
 			String owner, LocalDate date, LocalTime time);
 
-
-	
-////////////////////////////////changed by mongotempate//////////////////////////////////////////////////////////
 	Page<Event> findByEventStatus(String eventStatus, Pageable pageable);
 	// @Query("{'holiday' : '8 march', 'confession': 'Religious'}")
 	Page<Event> findByEventStatusAndHolidayAndConfessionAndFoodAndDateBetween(
@@ -39,6 +36,8 @@ public interface EventsRepository extends MongoRepository<Event, String> {
 
 	Page<Event> findByEventStatusAndFood(String eventStatus, String food,
 			Pageable pageable);
+
+	Page<Event> findByOwnerAndEventStatus(String owner, String eventStatus, Pageable pageable);
 
 	// Iterable<Event> findEventsByCity(String city);
 	//

@@ -2,8 +2,6 @@ package telran.ashkelon2018.mishpahug.dto;
 
 import java.util.List;
 
-import org.springframework.data.domain.Sort;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,15 +16,8 @@ import lombok.ToString;
 @Builder
 @ToString
 
-public class EventListResponseDto {
-	List<FullEventToResp> content;
-	long totalElements;
-	int totalPages;
-	int size;
-	int number;
-	int numberOfElements;
-	boolean first;
-	boolean last;
-	Sort sort;
+public class MyEventsListRespDto {
+	List<MyEventsToResp> events;
+	
 }
 

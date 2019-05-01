@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry excluding="telran/ashkelon2018/mishpahug/configuration/" kind="src" path="Mishpahug/src/main/java"/>
+	<classpathentry kind="src" path="Mishpahug/src/main/java/telran/ashkelon2018/mishpahug/configuration"/>
+	<classpathentry kind="src" path="Mishpahug/src/test/java"/>
+	<classpathentry kind="lib" path="Mishpahug/.mvn/wrapper/maven-wrapper.jar"/>
+	<classpathentry kind="output" path="Mishpahug/target/classes"/>
+</classpath>
