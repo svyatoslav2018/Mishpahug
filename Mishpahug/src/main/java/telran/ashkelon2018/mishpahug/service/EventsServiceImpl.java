@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -40,7 +39,6 @@ import telran.ashkelon2018.mishpahug.dto.FullEventToResp;
 import telran.ashkelon2018.mishpahug.dto.MyEventInfoResponseDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsListRespDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsToResp;
-import telran.ashkelon2018.mishpahug.dto.UserProfileDto;
 import telran.ashkelon2018.mishpahug.exceptions.UserNotFoundException;
 import telran.ashkelon2018.mishpahug.exceptions.WrongLoginOrPasswordException;
 
@@ -78,8 +76,7 @@ public class EventsServiceImpl implements EventsService {
 		}
 		LocalDateTime dateFrom = newEvent.getDate().atTime(newEvent.getTime());
 		LocalDateTime dateTo = dateFrom.plusHours(newEvent.getDuration());
-		LocalDateTime checkDateFrom = LocalDateTime.of(newEvent.getDate(), newEvent.getTime());
-		LocalDateTime checkDateTo = checkDateFrom.plusMinutes(newEvent.getDuration());
+		
 		boolean checktime1 = LocalDateTime.now().isBefore(dateFrom.minusHours(48));
 		boolean checktime2 = LocalDateTime.now().isAfter(dateFrom.minusMonths(2));
 		boolean checktime3 = false;
@@ -144,11 +141,9 @@ public class EventsServiceImpl implements EventsService {
 	}
 
 	private FullEventToResp eventToEventDtoConverter(Event e) {
+		
 		UserAccount ownerInfo = userRepository.findById(e.getOwner()).get();
 		String fullName = ownerInfo.getFirstName() + " " + ownerInfo.getLastName();
-		DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
-		LocalDate birthdate = LocalDate.parse(ownerInfo.getDateOfBirth(), formatter);
-		Integer age = (int) ChronoUnit.YEARS.between(birthdate, LocalDate.now());
 		return FullEventToResp.builder()
 				.eventId(e.getEventId())
 				.title(e.getTitle())
@@ -164,7 +159,7 @@ public class EventsServiceImpl implements EventsService {
 						.fullName(fullName)
 						.confession(ownerInfo.getConfession())
 						.gender(ownerInfo.getGender())
-						.age(age)
+						.age(calcAge(ownerInfo))
 						.pictureLink(ownerInfo.getPictureLink())
 						.maritalStatus(ownerInfo.getMaritalStatus())
 						.foodPreferences(ownerInfo.getFoodPreferences())
@@ -185,8 +180,7 @@ public class EventsServiceImpl implements EventsService {
 			return new CodeResponseDto(401, "User unauthorized!");
 		}
 		try {
-			boolean isInvited = false;//CHECK!!!
-			EventSubscribe es = new EventSubscribe(eventId, credentials.getLogin(), isInvited);
+			EventSubscribe es = new EventSubscribe(eventId, credentials.getLogin(), false);
 			eventSubscribeRepository.save(es);
 			return new CodeResponseDto(200, "User subscribed to the event!");
 		} catch (Exception e) {
@@ -244,7 +238,7 @@ public class EventsServiceImpl implements EventsService {
 		}
 
 		Stream<MyEventsToResp> stream = events.stream();
-		return new MyEventsListRespDto(stream.collect(Collectors.toList()));//, participants
+		return new MyEventsListRespDto(stream.collect(Collectors.toList()));
 	}	
 
 	private MyEventsToResp myEventsToEventDtoConverter(Event e) {
@@ -282,16 +276,28 @@ public class EventsServiceImpl implements EventsService {
 	}
 
 	@Override
-	public EventListForCalendarDto eventListForCalendar(String month, String token) {
-		AccountUserCredentials credentials = accountConfiguration.tokenDecode(token);
-		UserAccount userAccount = userRepository.findById(credentials.getLogin())
-				.orElseThrow(UserNotFoundException::new);
-		String candidatPassword = credentials.getPassword();
-		if (!credentials.getLogin().equals(userAccount.getLogin())
-				|| !BCrypt.checkpw(candidatPassword, userAccount.getPassword())) {
-			throw new WrongLoginOrPasswordException(401, "unauthorized");
-		}
-
+	public EventListForCalendarDto eventListForCalendar(int month, String token) {
+//		AccountUserCredentials credentials = accountConfiguration.tokenDecode(token);
+//		UserAccount userAccount = userRepository.findById(credentials.getLogin())
+//				.orElseThrow(UserNotFoundException::new);
+//		String candidatPassword = credentials.getPassword();
+//		if (!credentials.getLogin().equals(userAccount.getLogin())
+//				|| !BCrypt.checkpw(candidatPassword, userAccount.getPassword())) {
+//			throw new WrongLoginOrPasswordException(401, "unauthorized");
+//		}
+//				
+//		List<E> 
+//		List<FullEventToResp> myEvents = new ArrayList<>();
+//		List<FullEventToResp> subscribedEvents = new ArrayList<>();
+//		
+//		String owner = credentials.getLogin();
+//		String[] statuses = {EventConfiguration.INPROGRESS,EventConfiguration.PENDING};
+//		
+//		
+//		listOfEvents = eventsRepository.findByOwnerAndEventStatus(owner, EventConfiguration.INPROGRESS,EventConfiguration.PENDING);	
+//		listOfEvents.forEach(e -> myEvents.add(myEventsToCalendarDtoConverter(e)));			
+//		}
+//		
 		return null;
 	}
 
