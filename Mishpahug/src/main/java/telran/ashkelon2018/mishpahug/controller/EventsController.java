@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -41,14 +40,19 @@ public class EventsController {
 	}
 
 	@GetMapping("/calendar/{month}")
-	public EventListForCalendarDto calendar(@PathVariable String month, @RequestHeader("Authorization") String token) {
+
+	public EventListForCalendarDto calendar(@PathVariable int month, @RequestHeader("Authorization") String token) {
 		return eventsService.eventListForCalendar(month, token);
 	}
 
+
+//	@GetMapping("/own/{eventId}")
+//	public MyEventInfoResponseDto getMyEventInfo(@PathVariable String eventId, @RequestHeader("Authorization") String token) {
+//		return eventsService.myEventInfo(eventId, token);
+//	}
 	
 	@GetMapping("/currentlist")
 	public MyEventsListRespDto getMyEventsList(@RequestHeader("Authorization") String token) {
-		System.out.println("currentlist " + "token " + token);
 		return eventsService.myEventsList(token);
 	}
 	
@@ -70,8 +74,7 @@ public class EventsController {
 	@PostMapping("/allprogresslist")
 	public EventListResponseDto findAllEventsInProgress(@RequestParam int page, @RequestParam int size,
 			@RequestBody EventListRequestDto eventListRequestDto) {
-		String sessionLogin = sessionConfiguration.sessionUserName();
-		System.out.println("/allprogresslist Events without events where owner= "+ sessionLogin);
+		
 		return eventsService.findEventsInProgress(eventListRequestDto, page, size);
 	}
 

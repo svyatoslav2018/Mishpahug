@@ -14,6 +14,7 @@ import lombok.ToString;
 @Builder
 @ToString
 public class UserProfileDto {
+	
 	String firstName;
 	String lastName;
 	String dateOfBirth;
@@ -27,22 +28,5 @@ public class UserProfileDto {
 	String description;
 	Double rate;
 	Integer numberOfVoters;
-	
-	// check angular
-//	String login;
-//	String password;
-//	String firstName;
-//	String lastName;
-//	String dateOfBirth;
-//	String gender;
-//	String maritalStatus;
-//	String confession;
-//	String[] pictureLink;// avatar and banner
-//	String phoneNumber;
-//	String[] foodPreferences;
-//	String[] languages;
-//	String description;
-//	Double rate;
-//	Integer numberOfVoters;
 
 }

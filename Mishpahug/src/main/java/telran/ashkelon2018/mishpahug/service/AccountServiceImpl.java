@@ -115,33 +115,29 @@ System.out.println("editUserProfile sessionLogin "+ sessionLogin);
 				.findById(credentials.getLogin())
 				.orElseThrow(UserNotFoundException::new);// .get()
 		String candidatPassword = credentials.getPassword();
-
-		// logout - if on endpoint "/login" request with token and sessionLogin
-		// equals
-		if (credentials.getLogin()
-				.equals(sessionConfiguration.sessionUserName())) {
-			sessionConfiguration.invalidateToken();
-			return null;
-		}
-
-		if (!credentials.getLogin().equals(userAccount.getLogin()) || !BCrypt
-				.checkpw(candidatPassword, userAccount.getPassword())) {
-			throw new WrongLoginOrPasswordException(401, "unauthorized");// 401 unauthorized
-		}
-		sessionConfiguration.setAttributeToken(token);
-		if (userAccount.getFirstName() == null
-				|| userAccount.getLastName() == null
-				|| userAccount.getPhoneNumber() == null
-				|| userAccount.getConfession() == null
-				|| userAccount.getDateOfBirth() == null
-				|| userAccount.getMaritalStatus() == null
-				|| userAccount.getFoodPreferences() == null
-				|| userAccount.getGender() == null
-				|| userAccount.getLanguages() == null
-				|| userAccount.getDescription() == null) {
-			throw new UserConflictException(409, "empty profile exception");// 409 empty profile exception
-		}
 		
+		// logout - if on endpoint "/login" request with token and sessionLogin
+				// equals
+				if (credentials.getLogin()
+						.equals(sessionConfiguration.sessionUserName())) {
+					sessionConfiguration.invalidateToken();
+					return null;
+				}
+		
+		if (!credentials.getLogin().equals(userAccount.getLogin())
+				|| !BCrypt.checkpw(candidatPassword, userAccount.getPassword())) {
+			throw new WrongLoginOrPasswordException(401, "unauthorized");		}
+
+		sessionConfiguration.setAttributeToken(token);
+
+		if (userAccount.getFirstName() == null || userAccount.getLastName() == null
+				|| userAccount.getPhoneNumber() == null || userAccount.getConfession() == null
+				|| userAccount.getDateOfBirth() == null || userAccount.getMaritalStatus() == null
+				|| userAccount.getFoodPreferences() == null || userAccount.getGender() == null
+				|| userAccount.getLanguages() == null || userAccount.getDescription() == null) {
+			throw new UserConflictException(409, "empty profile exception");
+
+		}
 		return convertToUserProfileDto(userAccount);
 	}
 

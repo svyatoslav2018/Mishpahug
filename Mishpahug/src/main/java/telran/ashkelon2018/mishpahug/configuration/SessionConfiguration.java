@@ -50,7 +50,8 @@ public class SessionConfiguration {
 		httpSession.invalidate();
 	}
 	
-	
+
+
 
 	public AccountUserCredentials tokenDecode(String token) {
 		int index = token.indexOf(" ");

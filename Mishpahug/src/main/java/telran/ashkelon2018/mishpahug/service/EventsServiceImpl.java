@@ -50,9 +50,6 @@ public class EventsServiceImpl implements EventsService {
 	EventsRepository eventsRepository;
 
 	@Autowired
-	EventSubscribeRepository eventSubscribeRepository;
-
-	@Autowired
 	UserAccountRepository userRepository;
 
 	@Autowired
@@ -65,14 +62,14 @@ public class EventsServiceImpl implements EventsService {
 	RunThroughFiltersMT runThroughFilters;
 
 	@Autowired
-	EventSubscribeRepository subscribeRepository;
+
+	EventSubscribeRepository eventSubscribeRepository;
 
 	@Autowired
 	MongoTemplate mongoTemplate;
 
 	@Override
-	public CodeResponseDto addNewEvent(AddEventDto newEvent,
-			String sessionLogin) {
+	public CodeResponseDto addNewEvent(AddEventDto newEvent, String sessionLogin) {
 
 		UserAccount userAccount = userRepository.findById(sessionLogin).get();
 		if (!sessionLogin.equals(userAccount.getLogin())) {
@@ -80,26 +77,23 @@ public class EventsServiceImpl implements EventsService {
 		}
 		LocalDateTime dateFrom = newEvent.getDate().atTime(newEvent.getTime());
 		LocalDateTime dateTo = dateFrom.plusHours(newEvent.getDuration());
-		boolean checktime1 = LocalDateTime.now()
-				.isBefore(dateFrom.minusHours(48));
-		boolean checktime2 = LocalDateTime.now()
-				.isAfter(dateFrom.minusMonths(2));
+
+		
+		boolean checktime1 = LocalDateTime.now().isBefore(dateFrom.minusHours(48));
+		boolean checktime2 = LocalDateTime.now().isAfter(dateFrom.minusMonths(2));
+
 		boolean checktime3 = false;
 
-		List<Event> list = eventsRepository
-				.findByDurationAndOwnerAndDateAndTime(newEvent.getDuration(),
-						newEvent.getOwner(), newEvent.getDate(),
-						newEvent.getTime());
+		List<Event> list = eventsRepository.findByDurationAndOwnerAndDateAndTime(newEvent.getDuration(),
+				newEvent.getOwner(), newEvent.getDate(), newEvent.getTime());
 		if (list.isEmpty()) {
 			checktime3 = true;
 		}
 		if (!list.isEmpty()) {
 			checktime3 = true;
 			for (Event event : list) {
-				LocalDateTime dateTimeFromDateAndTime = LocalDateTime
-						.of(event.getDate(), event.getTime());
-				if (!dateTimeFromDateAndTime.isBefore(dateFrom)
-						&& !dateTo.isBefore(dateTimeFromDateAndTime)) {
+				LocalDateTime dateTimeFromDateAndTime = LocalDateTime.of(event.getDate(), event.getTime());
+				if (!dateTimeFromDateAndTime.isBefore(dateFrom) && !dateTo.isBefore(dateTimeFromDateAndTime)) {
 					checktime3 = false;
 				}
 			}
@@ -109,22 +103,22 @@ public class EventsServiceImpl implements EventsService {
 			return new CodeResponseDto(422, "Invalid data");
 		}
 
-		String eventId = userAccount.getLogin() + "D"
-				+ newEvent.getDate().toString().replaceAll("\\-", "") + "T"
+		String eventId = userAccount.getLogin() + "D" + newEvent.getDate().toString().replaceAll("\\-", "") + "T"
 				+ newEvent.getTime().toString();
 
 		if (eventsRepository.findById(eventId).orElse(null) != null) {
-			return new CodeResponseDto(409,
-					"This user has already created the event on this date and time!");
+
+			return new CodeResponseDto(409, "This user has already created the event on this date and time!");
+
 		}
 
-		Event event = Event.builder().eventId(eventId).owner(sessionLogin)
-				.title(newEvent.getTitle()).holiday(newEvent.getHoliday())
-				.address(newEvent.getAddress())
-				.confession(newEvent.getConfession()).date(newEvent.getDate())
-				.time(newEvent.getTime()).duration(newEvent.getDuration())
-				.food(newEvent.getFood()).description(newEvent.getDescription())
-				.eventStatus(newEvent.getEventStatus()).build();
+
+		Event event = Event.builder().eventId(eventId).owner(sessionLogin).title(newEvent.getTitle())
+				.holiday(newEvent.getHoliday()).address(newEvent.getAddress()).confession(newEvent.getConfession())
+				.date(newEvent.getDate()).time(newEvent.getTime()).duration(newEvent.getDuration())
+				.food(newEvent.getFood()).description(newEvent.getDescription()).eventStatus(newEvent.getEventStatus())
+				.build();
+
 
 		event.setEventStatus(EventConfiguration.INPROGRESS);
 		eventsRepository.save(event);
@@ -152,13 +146,16 @@ public class EventsServiceImpl implements EventsService {
 		List<FullEventToResp> content = new ArrayList<>();
 		listOfEvents.forEach(e -> content.add(eventToEventDtoConverter(e)));
 		Stream<FullEventToResp> stream = content.stream();
+
 		return new EventListResponseDto(stream.collect(Collectors.toList()),
 				totalElements, totalPages, size, number, numberOfElements,
 				first, last, sort);
 	}
 
 	private FullEventToResp eventToEventDtoConverter(Event e) {
+
 		UserAccount ownerInfo = userRepository.findById(e.getOwner()).get();
+
 		String fullName = ownerInfo.getFirstName() + " "
 				+ ownerInfo.getLastName();
 		return FullEventToResp.builder().eventId(e.getEventId())
@@ -186,6 +183,7 @@ public class EventsServiceImpl implements EventsService {
 				.findById(credentials.getLogin())
 				.orElseThrow(UserNotFoundException::new);
 		String candidatPassword = credentials.getPassword();
+
 		if (!credentials.getLogin().equals(userAccount.getLogin()) || !BCrypt
 				.checkpw(candidatPassword, userAccount.getPassword())) {
 			return new CodeResponseDto(401, "User unauthorized!");
@@ -210,13 +208,14 @@ public class EventsServiceImpl implements EventsService {
 				.findById(credentials.getLogin())
 				.orElseThrow(UserNotFoundException::new);// .get()
 		String candidatPassword = credentials.getPassword();
+
 		if (!credentials.getLogin().equals(userAccount.getLogin()) || !BCrypt
 				.checkpw(candidatPassword, userAccount.getPassword())) {
 			return new CodeResponseDto(401, "User unauthorized!");
 		}
 		try {
 			EventSubscribe es = new EventSubscribe(eventId,
-					credentials.getLogin(), null);
+					credentials.getLogin());
 			eventSubscribeRepository.delete(es);
 			return new CodeResponseDto(200,
 					"User unsubscribed from the event!");
@@ -236,14 +235,18 @@ public class EventsServiceImpl implements EventsService {
 		String candidatPassword = credentials.getPassword();
 		if (!credentials.getLogin().equals(userAccount.getLogin()) || !BCrypt
 				.checkpw(candidatPassword, userAccount.getPassword())) {
-			throw new WrongLoginOrPasswordException(401, "User unauthorized");
+			throw new WrongLoginOrPasswordException(401, "unauthorized");// 401,
+																			// "unauthorized"
 		}
 
 		String owner = credentials.getLogin();
 		Pageable pageable;
+
 		List<MyEventsToResp> events = new ArrayList<>();
+		Page<Event> listOfEvents;
 		String[] statuses = {EventConfiguration.INPROGRESS,
 				EventConfiguration.PENDING, EventConfiguration.DONE};
+
 		for (String s : statuses) {
 			if (s == EventConfiguration.DONE) {
 				pageable = PageRequest.of(0, Integer.MAX_VALUE,
@@ -252,8 +255,11 @@ public class EventsServiceImpl implements EventsService {
 				pageable = PageRequest.of(0, Integer.MAX_VALUE,
 						new Sort(Sort.Direction.ASC, "date"));
 			}
-			Page<Event> listOfEvents = eventsRepository.findByOwnerAndEventStatus(owner, s, pageable);
-			listOfEvents.forEach(e -> events.add(myEventsToEventDtoConverter(e)));
+			System.out.println("pageable = " + pageable);
+			listOfEvents = eventsRepository.findByOwnerAndEventStatus(owner, s,
+					pageable);
+			listOfEvents
+					.forEach(e -> events.add(myEventsToEventDtoConverter(e)));
 		}
 		Stream<MyEventsToResp> stream = events.stream();
 		return new MyEventsListRespDto(stream.collect(Collectors.toList()));
@@ -261,26 +267,36 @@ public class EventsServiceImpl implements EventsService {
 
 	private MyEventsToResp myEventsToEventDtoConverter(Event e) {
 		return MyEventsToResp.builder().eventId(e.getEventId())
-				.title(e.getTitle()).holiday(e.getHoliday()).confession(e.getConfession()).date(e.getDate())
+				.title(e.getTitle()).holiday(e.getHoliday())
+				.confession(e.getConfession()).date(e.getDate())
 				.time(e.getTime()).duration(e.getDuration()).food(e.getFood())
 				.description(e.getDescription()).eventStatus(e.getEventStatus())
-				.participants(participantsToParticipantsDtoConverter(e)).build();
+				.participants(participantsToParticipantsDtoConverter(e))
+				.build();
 	}
 
-	private List<SubscriberInfo> participantsToParticipantsDtoConverter(Event p) {
-		List<EventSubscribe> subscribersInfo = eventSubscribeRepository.findByEventId(p.getEventId());
+	private List<SubscriberInfo> participantsToParticipantsDtoConverter(
+			Event p) {
+		List<EventSubscribe> subscribersInfo = eventSubscribeRepository
+				.findByEventId(p.getEventId());
 		UserAccount usersInfo;
 		List<SubscriberInfo> subInfo = new ArrayList<>();
 		for (int i = 0; i < subscribersInfo.size(); i++) {
-			usersInfo = userRepository.findById(subscribersInfo.get(i).getSubscriberId()).orElse(null);
-			
+			usersInfo = userRepository
+					.findById(subscribersInfo.get(i).getSubscriberId())
+					.orElse(null);
 			SubscriberInfo element = SubscriberInfo.builder()
 					.userId(subscribersInfo.get(i).getSubscriberId())
-					.fullName(usersInfo.getFirstName() + " "+ usersInfo.getLastName())
-					.confession(usersInfo.getConfession()).gender(usersInfo.getGender()).age(calcAge(usersInfo))
-					.pictureLink(usersInfo.getPictureLink()).maritalStatus(usersInfo.getMaritalStatus())
-					.foodPreferences(usersInfo.getFoodPreferences()).languages(usersInfo.getLanguages())
-					.rate(usersInfo.getRate()).numberOfVoters(usersInfo.getNumberOfVoters())
+					.fullName(usersInfo.getFirstName() + " "
+							+ usersInfo.getLastName())
+					.confession(usersInfo.getConfession())
+					.gender(usersInfo.getGender()).age(calcAge(usersInfo))
+					.pictureLink(usersInfo.getPictureLink())
+					.maritalStatus(usersInfo.getMaritalStatus())
+					.foodPreferences(usersInfo.getFoodPreferences())
+					.languages(usersInfo.getLanguages())
+					.rate(usersInfo.getRate())
+					.numberOfVoters(usersInfo.getNumberOfVoters())
 					.isInvited(subscribersInfo.get(i).getIsInvited()).build();
 			subInfo.add(element);
 		}
@@ -295,19 +311,28 @@ public class EventsServiceImpl implements EventsService {
 	}
 
 	@Override
-	public EventListForCalendarDto eventListForCalendar(String month,
-			String token) {
-		AccountUserCredentials credentials = accountConfiguration
-				.tokenDecode(token);
-		UserAccount userAccount = userRepository
-				.findById(credentials.getLogin())
-				.orElseThrow(UserNotFoundException::new);
-		String candidatPassword = credentials.getPassword();
-		if (!credentials.getLogin().equals(userAccount.getLogin()) || !BCrypt
-				.checkpw(candidatPassword, userAccount.getPassword())) {
-			throw new WrongLoginOrPasswordException(401, "unauthorized");
-		}
-
+	public EventListForCalendarDto eventListForCalendar(int month, String token) {
+//		AccountUserCredentials credentials = accountConfiguration.tokenDecode(token);
+//		UserAccount userAccount = userRepository.findById(credentials.getLogin())
+//				.orElseThrow(UserNotFoundException::new);
+//		String candidatPassword = credentials.getPassword();
+//		if (!credentials.getLogin().equals(userAccount.getLogin())
+//				|| !BCrypt.checkpw(candidatPassword, userAccount.getPassword())) {
+//			throw new WrongLoginOrPasswordException(401, "unauthorized");
+//		}
+//				
+//		List<E> 
+//		List<FullEventToResp> myEvents = new ArrayList<>();
+//		List<FullEventToResp> subscribedEvents = new ArrayList<>();
+//		
+//		String owner = credentials.getLogin();
+//		String[] statuses = {EventConfiguration.INPROGRESS,EventConfiguration.PENDING};
+//		
+//		
+//		listOfEvents = eventsRepository.findByOwnerAndEventStatus(owner, EventConfiguration.INPROGRESS,EventConfiguration.PENDING);	
+//		listOfEvents.forEach(e -> myEvents.add(myEventsToCalendarDtoConverter(e)));			
+//		}
+//		
 		return null;
 	}
 

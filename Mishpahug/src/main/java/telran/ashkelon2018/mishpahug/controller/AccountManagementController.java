@@ -15,7 +15,7 @@ import telran.ashkelon2018.mishpahug.dto.StaticFieldsDto;
 import telran.ashkelon2018.mishpahug.dto.UserProfileDto;
 import telran.ashkelon2018.mishpahug.service.AccountService;
 
-@CrossOrigin(origins="*", allowedHeaders="*")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/user") // all will be start from user
 public class AccountManagementController {
@@ -30,14 +30,18 @@ public class AccountManagementController {
 
 	// Authorized requests
 	@PostMapping("/registration")
-	public UserProfileDto register(@RequestHeader("Authorization") String token) {
+	public UserProfileDto register(
+			@RequestHeader("Authorization") String token) {
+
+		// * add a token to the http session in order to check it on other
+		// endpoints *//
+		sessionConfiguration.setAttributeToken(token); // CHECK!!!
 		return accountService.addUser(token);
 	}
 
 	@PostMapping("/profile")
-	public UserProfileDto updateUserProfile(@RequestBody UserProfileDto userProfileDto) {
-//		System.out.println(userProfileDto);
-		
+	public UserProfileDto updateUserProfile(
+			@RequestBody UserProfileDto userProfileDto) {
 		String sessionLogin = sessionConfiguration.sessionUserName();
 		return accountService.editUserProfile(userProfileDto, sessionLogin);
 	}
@@ -49,14 +53,18 @@ public class AccountManagementController {
 	}
 
 	@PostMapping("/login")
-	public UserProfileDto loginUser(@RequestHeader("Authorization") String token) {
+	public UserProfileDto loginUser(
+			@RequestHeader("Authorization") String token) {
+
+		sessionConfiguration.setAttributeToken(token);// CHECK!!!
 		return accountService.login(token);
 	}
 
 	// Unauthorized requests
 
 	@GetMapping("/staticfields")
-	public StaticFieldsDto staticFields(@RequestBody StaticFieldsDto staticFieldsDto) {
+	public StaticFieldsDto staticFields(
+			@RequestBody StaticFieldsDto staticFieldsDto) {
 		return accountService.getStaticFields(staticFieldsDto);
 
 	}

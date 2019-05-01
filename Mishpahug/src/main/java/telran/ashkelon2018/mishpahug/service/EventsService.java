@@ -20,7 +20,8 @@ public interface EventsService {
 
 	MyEventInfoResponseDto myEventInfo(String eventId, String token);
 
-	EventListForCalendarDto eventListForCalendar(String month, String token);
+
+	EventListForCalendarDto eventListForCalendar(int month, String token);
 
 	MyEventsListRespDto myEventsList(String token);
 
