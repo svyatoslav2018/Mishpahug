@@ -286,19 +286,21 @@ public class EventsServiceImpl implements EventsService {
 //			throw new WrongLoginOrPasswordException(401, "unauthorized");
 //		}
 //				
-//		List<E> 
+//		List<EventListForCalendarDto> listOfEvents;
 //		List<FullEventToResp> myEvents = new ArrayList<>();
 //		List<FullEventToResp> subscribedEvents = new ArrayList<>();
-//		
-//		String owner = credentials.getLogin();
+//		String login = credentials.getLogin();
+//		String owner=eventsRepository.findByOwner(login);
+//
 //		String[] statuses = {EventConfiguration.INPROGRESS,EventConfiguration.PENDING};
-//		
-//		
-//		listOfEvents = eventsRepository.findByOwnerAndEventStatus(owner, EventConfiguration.INPROGRESS,EventConfiguration.PENDING);	
-//		listOfEvents.forEach(e -> myEvents.add(myEventsToCalendarDtoConverter(e)));			
+//	
+//		if (login == owner) {
+//			listOfEvents = eventsRepository.findByOwnerAndEventStatusOrEventStatus(owner, EventConfiguration.INPROGRESS,
+//					EventConfiguration.PENDING);
+//			listOfEvents.forEach(e -> myEvents.add(myEventsToCalendarDtoConverter(e)));
 //		}
 //		
-		return null;
+//		return null;
 	}
 
 	@Override
