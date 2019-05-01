@@ -42,15 +42,14 @@ public class AccountManagementController {
 		return accountService.editUserProfile(userProfileDto, sessionLogin);
 	}
 
-	@GetMapping("/profile")
-	public UserProfileDto getProfile() {
-		String sessionLogin = sessionConfiguration.sessionUserName();
-		return accountService.getUserProfile(sessionLogin);
-	}
+//	@GetMapping("/profile")
+//	public UserProfileDto getProfile() {
+//		String sessionLogin = sessionConfiguration.sessionUserName();
+//		return accountService.getUserProfile(sessionLogin);
+//	}
 
 	@PostMapping("/login")
 	public UserProfileDto loginUser(@RequestHeader("Authorization") String token) {
-		sessionConfiguration.setAttributeToken(token);//CHECK!!!
 		return accountService.login(token);
 	}
 

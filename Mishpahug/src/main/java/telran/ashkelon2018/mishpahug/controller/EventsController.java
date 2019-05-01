@@ -72,6 +72,7 @@ public class EventsController {
 	@PostMapping("/allprogresslist")
 	public EventListResponseDto findAllEventsInProgress(@RequestParam int page, @RequestParam int size,
 			@RequestBody EventListRequestDto eventListRequestDto) {
+		
 		return eventsService.findEventsInProgress(eventListRequestDto, page, size);
 	}
 
