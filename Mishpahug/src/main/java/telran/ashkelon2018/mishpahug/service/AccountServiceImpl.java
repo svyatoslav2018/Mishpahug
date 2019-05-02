@@ -73,6 +73,7 @@ public class AccountServiceImpl implements AccountService {
 				.description(userAccount.getDescription())
 				.rate(userAccount.getRate())
 				.numberOfVoters(userAccount.getNumberOfVoters())
+				.standartrole(userAccount.getStandartrole())
 				.build();
 	}
 
@@ -127,9 +128,9 @@ System.out.println("editUserProfile sessionLogin "+ sessionLogin);
 		if (!credentials.getLogin().equals(userAccount.getLogin())
 				|| !BCrypt.checkpw(candidatPassword, userAccount.getPassword())) {
 			throw new WrongLoginOrPasswordException(401, "unauthorized");		}
-
-		sessionConfiguration.setAttributeToken(token);
-
+		
+		sessionConfiguration.setAttributeToken(token);// CHECK!!!
+		
 		if (userAccount.getFirstName() == null || userAccount.getLastName() == null
 				|| userAccount.getPhoneNumber() == null || userAccount.getConfession() == null
 				|| userAccount.getDateOfBirth() == null || userAccount.getMaritalStatus() == null
@@ -138,6 +139,9 @@ System.out.println("editUserProfile sessionLogin "+ sessionLogin);
 			throw new UserConflictException(409, "empty profile exception");
 
 		}
+		
+		System.out.println("Profile " + convertToUserProfileDto(userAccount));
+		
 		return convertToUserProfileDto(userAccount);
 	}
 

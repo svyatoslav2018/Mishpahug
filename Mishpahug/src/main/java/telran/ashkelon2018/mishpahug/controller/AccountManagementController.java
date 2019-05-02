@@ -1,5 +1,7 @@
 package telran.ashkelon2018.mishpahug.controller;
 
+import java.security.Principal;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,17 +48,17 @@ public class AccountManagementController {
 		return accountService.editUserProfile(userProfileDto, sessionLogin);
 	}
 
-	@GetMapping("/profile")
-	public UserProfileDto getProfile() {
-		String sessionLogin = sessionConfiguration.sessionUserName();
-		return accountService.getUserProfile(sessionLogin);
-	}
+//	@GetMapping("/profile")
+//	public UserProfileDto getProfile() {
+//		String sessionLogin = sessionConfiguration.sessionUserName();
+//		return accountService.getUserProfile(sessionLogin);
+//	}
 
 	@PostMapping("/login")
 	public UserProfileDto loginUser(
-			@RequestHeader("Authorization") String token) {
+			@RequestHeader("Authorization") String token, Principal principal) {
 
-		sessionConfiguration.setAttributeToken(token);// CHECK!!!
+		System.out.println("Principal " + principal);
 		return accountService.login(token);
 	}
 

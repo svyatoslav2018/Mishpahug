@@ -15,7 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Setter
 @Getter
-@EqualsAndHashCode(of = { "login" })
+@EqualsAndHashCode(of = {"login"})
 @Document(collection = "Mishpahug_users")
 @Builder
 public class UserAccount {
@@ -35,7 +35,8 @@ public class UserAccount {
 	String description;
 	Double rate;
 	Integer numberOfVoters;
-
+	String standartrole;
+	
 	public void addRate() {
 		rate++;
 	}

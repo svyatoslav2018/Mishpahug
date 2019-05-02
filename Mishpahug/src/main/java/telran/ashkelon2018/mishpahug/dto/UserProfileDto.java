@@ -28,5 +28,5 @@ public class UserProfileDto {
 	String description;
 	Double rate;
 	Integer numberOfVoters;
-
+	String standartrole;
 }
