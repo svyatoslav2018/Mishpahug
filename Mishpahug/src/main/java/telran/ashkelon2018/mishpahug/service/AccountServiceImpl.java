@@ -50,8 +50,8 @@ public class AccountServiceImpl implements AccountService {
 		}
 
 		String hashPassword = BCrypt.hashpw(credentials.getPassword(), BCrypt.gensalt());
-//		String loginLowerCase=credentials.getLogin().toLowerCase();
-//		String loginLowerCaseNoDot=loginLowerCase.replaceAll("\\.", "");
+		// String loginLowerCase=credentials.getLogin().toLowerCase();
+		// String loginLowerCaseNoDot=loginLowerCase.replaceAll("\\.", "");
 		UserAccount userAccount = UserAccount.builder().login(credentials.getLogin()).password(hashPassword).build();
 		userRepository.save(userAccount);
 		sessionConfiguration.setAttributeToken(token);
@@ -75,6 +75,7 @@ public class AccountServiceImpl implements AccountService {
 				.numberOfVoters(userAccount.getNumberOfVoters())
 				.standartrole(userAccount.getStandartrole())
 				.build();
+
 	}
 
 	@Override
@@ -104,7 +105,7 @@ System.out.println("editUserProfile sessionLogin "+ sessionLogin);
 
 	@Override
 	public UserProfileDto login(String token) {
-
+    
 		AccountUserCredentials credentials = accountConfiguration
 				.tokenDecode(token);
 		System.out.println("credentials of token - "+credentials);
@@ -114,19 +115,24 @@ System.out.println("editUserProfile sessionLogin "+ sessionLogin);
 		}
 		UserAccount userAccount = userRepository
 				.findById(credentials.getLogin())
+
+		//UserAccount userAccount = userRepository.findById(credentials.getLogin())
+
 				.orElseThrow(UserNotFoundException::new);// .get()
 		String candidatPassword = credentials.getPassword();
-		
+
 		// logout - if on endpoint "/login" request with token and sessionLogin
-				// equals
-				if (credentials.getLogin()
-						.equals(sessionConfiguration.sessionUserName())) {
-					sessionConfiguration.invalidateToken();
-					return null;
-				}
-		
+		// equals
+		if (credentials.getLogin().equals(sessionConfiguration.sessionUserName())) {
+			sessionConfiguration.invalidateToken();
+			return null;
+		}
+
+		sessionConfiguration.setAttributeToken(token);// CHECK!!!
+
 		if (!credentials.getLogin().equals(userAccount.getLogin())
 				|| !BCrypt.checkpw(candidatPassword, userAccount.getPassword())) {
+      
 			throw new WrongLoginOrPasswordException(401, "unauthorized");		}
 		
 		sessionConfiguration.setAttributeToken(token);// CHECK!!!
@@ -145,19 +151,19 @@ System.out.println("editUserProfile sessionLogin "+ sessionLogin);
 		return convertToUserProfileDto(userAccount);
 	}
 
-	@Override
-	public UserProfileDto getUserProfile(String sessionLogin) {
-		UserAccount userAccount = userRepository.findById(sessionLogin).get();
-
-		if (userAccount.getFirstName() == null || userAccount.getLastName() == null
-				|| userAccount.getPhoneNumber() == null || userAccount.getConfession() == null
-				|| userAccount.getDateOfBirth() == null || userAccount.getMaritalStatus() == null
-				|| userAccount.getFoodPreferences() == null || userAccount.getGender() == null
-				|| userAccount.getLanguages() == null || userAccount.getDescription() == null) {
-			throw new UserConflictException(409, "empty profile exception");
-		}
-		return convertToUserProfileDto(userAccount);
-	}
+//	@Override
+//	public UserProfileDto getUserProfile(String sessionLogin) {
+//		UserAccount userAccount = userRepository.findById(sessionLogin).get();
+//
+//		if (userAccount.getFirstName() == null || userAccount.getLastName() == null
+//				|| userAccount.getPhoneNumber() == null || userAccount.getConfession() == null
+//				|| userAccount.getDateOfBirth() == null || userAccount.getMaritalStatus() == null
+//				|| userAccount.getFoodPreferences() == null || userAccount.getGender() == null
+//				|| userAccount.getLanguages() == null || userAccount.getDescription() == null) {
+//			throw new UserConflictException(409, "empty profile exception");
+//		}
+//		return convertToUserProfileDto(userAccount);
+//	}
 
 	// Unauthorized requests
 

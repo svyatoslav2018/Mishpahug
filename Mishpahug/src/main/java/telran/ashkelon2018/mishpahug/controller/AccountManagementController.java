@@ -59,6 +59,8 @@ public class AccountManagementController {
 			@RequestHeader("Authorization") String token, Principal principal) {
 
 		System.out.println("Principal " + principal);
+
+	//public UserProfileDto loginUser(@RequestHeader("Authorization") String token) {
 		return accountService.login(token);
 	}
 
