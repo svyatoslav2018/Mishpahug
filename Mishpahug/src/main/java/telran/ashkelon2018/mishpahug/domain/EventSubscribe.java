@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Document(collection = "EventSubscribe")
 @CompoundIndexes(value = {
-		@CompoundIndex(name = "event_subscriber_id", def = "{'eventId':1, 'subscriberId':1}", unique = true) })
+		@CompoundIndex(name = "event_subscriber_id", def = "{'eventId':1, 'subscriberId':1}", unique = true)})
+
 @Builder
 @Getter
 public class EventSubscribe {
@@ -29,5 +31,4 @@ public class EventSubscribe {
 		this.eventId = eventId;
 		this.subscriberId = subscriberId;
 	}
-	
-	}
+}

@@ -40,9 +40,11 @@ public class EventsController {
 	}
 
 	@GetMapping("/calendar/{month}")
+
 	public EventListForCalendarDto calendar(@PathVariable int month, @RequestHeader("Authorization") String token) {
 		return eventsService.eventListForCalendar(month, token);
 	}
+
 
 //	@GetMapping("/own/{eventId}")
 //	public MyEventInfoResponseDto getMyEventInfo(@PathVariable String eventId, @RequestHeader("Authorization") String token) {

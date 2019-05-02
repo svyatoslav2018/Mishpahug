@@ -9,5 +9,4 @@ import telran.ashkelon2018.mishpahug.domain.EventSubscribe;
 public interface EventSubscribeRepository extends MongoRepository<EventSubscribe, String> {
 
 	List<EventSubscribe> findByEventId(String eventId);
-
 }

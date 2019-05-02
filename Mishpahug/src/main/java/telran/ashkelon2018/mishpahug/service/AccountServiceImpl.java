@@ -59,18 +59,28 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	private UserProfileDto convertToUserProfileDto(UserAccount userAccount) {
-		return UserProfileDto.builder().firstName(userAccount.getFirstName()).lastName(userAccount.getLastName())
-				.dateOfBirth(userAccount.getDateOfBirth()).gender(userAccount.getGender())
-				.maritalStatus(userAccount.getMaritalStatus()).confession(userAccount.getConfession())
-				.pictureLink(userAccount.getPictureLink()).phoneNumber(userAccount.getPhoneNumber())
-				.foodPreferences(userAccount.getFoodPreferences()).languages(userAccount.getLanguages())
-				.description(userAccount.getDescription()).rate(userAccount.getRate())
-				.numberOfVoters(userAccount.getNumberOfVoters()).build();
+		return UserProfileDto.builder()
+				.firstName(userAccount.getFirstName())
+				.lastName(userAccount.getLastName())
+				.dateOfBirth(userAccount.getDateOfBirth())
+				.gender(userAccount.getGender())
+				.maritalStatus(userAccount.getMaritalStatus())
+				.confession(userAccount.getConfession())
+				.pictureLink(userAccount.getPictureLink())
+				.phoneNumber(userAccount.getPhoneNumber())
+				.foodPreferences(userAccount.getFoodPreferences())
+				.languages(userAccount.getLanguages())
+				.description(userAccount.getDescription())
+				.rate(userAccount.getRate())
+				.numberOfVoters(userAccount.getNumberOfVoters())
+				.standartrole(userAccount.getStandartrole())
+				.build();
+
 	}
 
 	@Override
 	public UserProfileDto editUserProfile(UserProfileDto userProfileDto, String sessionLogin) {
-
+System.out.println("editUserProfile sessionLogin "+ sessionLogin);
 		UserAccount userAccount = userRepository.findById(sessionLogin).get();
 
 		if (!sessionLogin.equals(userAccount.getLogin())) {
@@ -95,8 +105,19 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public UserProfileDto login(String token) {
-		AccountUserCredentials credentials = accountConfiguration.tokenDecode(token);
-		UserAccount userAccount = userRepository.findById(credentials.getLogin())
+    
+		AccountUserCredentials credentials = accountConfiguration
+				.tokenDecode(token);
+		System.out.println("credentials of token - "+credentials);
+		// token may be empty
+		if (credentials==null) {
+			return null;
+		}
+		UserAccount userAccount = userRepository
+				.findById(credentials.getLogin())
+
+		//UserAccount userAccount = userRepository.findById(credentials.getLogin())
+
 				.orElseThrow(UserNotFoundException::new);// .get()
 		String candidatPassword = credentials.getPassword();
 
@@ -111,16 +132,22 @@ public class AccountServiceImpl implements AccountService {
 
 		if (!credentials.getLogin().equals(userAccount.getLogin())
 				|| !BCrypt.checkpw(candidatPassword, userAccount.getPassword())) {
-			throw new WrongLoginOrPasswordException(401, "unauthorized");
-		}
-
+      
+			throw new WrongLoginOrPasswordException(401, "unauthorized");		}
+		
+		sessionConfiguration.setAttributeToken(token);// CHECK!!!
+		
 		if (userAccount.getFirstName() == null || userAccount.getLastName() == null
 				|| userAccount.getPhoneNumber() == null || userAccount.getConfession() == null
 				|| userAccount.getDateOfBirth() == null || userAccount.getMaritalStatus() == null
 				|| userAccount.getFoodPreferences() == null || userAccount.getGender() == null
 				|| userAccount.getLanguages() == null || userAccount.getDescription() == null) {
 			throw new UserConflictException(409, "empty profile exception");
+
 		}
+		
+		System.out.println("Profile " + convertToUserProfileDto(userAccount));
+		
 		return convertToUserProfileDto(userAccount);
 	}
 
