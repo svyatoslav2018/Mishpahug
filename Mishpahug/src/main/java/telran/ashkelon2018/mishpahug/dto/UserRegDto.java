@@ -9,4 +9,5 @@ public class UserRegDto {
 	@Id
 	String login;// email as login. Email without point in DB
 	String password;
+	
 }

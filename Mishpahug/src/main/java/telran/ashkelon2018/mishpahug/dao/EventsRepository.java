@@ -39,17 +39,8 @@ public interface EventsRepository extends MongoRepository<Event, String> {
 
 	Page<Event> findByOwnerAndEventStatus(String owner, String eventStatus, Pageable pageable);
 
-	String findByOwner(String login);
+	List<Event> findByOwnerAndEventStatusOrEventStatus(String sessionLogin, String inprogress, String pending);
 
-	// Iterable<Event> findEventsByCity(String city);
-	//
-	// Iterable<Event> findByDateBetween(LocalDate dateFrom, LocalDate dateTo,
-	// Pageable pageable);
-	//
-	// Iterable<Event> findEventsByHoliday(String holiday);
-	//
-	// Iterable<Event> findEventsByConfession(String confession);
-	//
-	// Iterable<Event> findEventsByFoodPref(String foodPreference);
+	List<Event> findByEventIdAndEventStatusOrEventStatus(String eventId, String inprogress, String pending);
 
 }

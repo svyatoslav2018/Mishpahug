@@ -11,7 +11,7 @@
 
 		UserProfileDto getUserProfile(String token);
 
-		UserProfileDto login(String token);
+		UserProfileDto login(String login);
 
 		StaticFieldsDto getStaticFields(StaticFieldsDto staticFieldsDto);
 		

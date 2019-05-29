@@ -1,5 +1,7 @@
 package telran.ashkelon2018.mishpahug.dto;
 
+import java.util.Set;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,5 +30,5 @@ public class UserProfileDto {
 	String description;
 	Double rate;
 	Integer numberOfVoters;
-	String standartrole;
+	Set<String> roles;
 }

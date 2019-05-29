@@ -12,5 +12,5 @@ import lombok.Setter;
 public class AccountUserCredentials {
 	String login;
 	String password;
-
+	
 }

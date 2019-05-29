@@ -17,9 +17,8 @@ import telran.ashkelon2018.mishpahug.domain.Event;
 @Builder
 @ToString
 
-public class EventListForCalendarDto {
-	List<Event> myEvents;
-//	List<Event> subscribedEvents;
-	
+public class CalendarDto {
+	List<EventListForCalendarDto> events;
+
 }
 
