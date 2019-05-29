@@ -1,12 +1,22 @@
 package telran.ashkelon2018.mishpahug.service;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Calendar;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import lombok.Builder;
 import telran.ashkelon2018.mishpahug.configuration.AccountConfiguration;
 import telran.ashkelon2018.mishpahug.configuration.AccountUserCredentials;
+import telran.ashkelon2018.mishpahug.configuration.CustomAuthenticationEntryPoint;
 import telran.ashkelon2018.mishpahug.configuration.SessionConfiguration;
 import telran.ashkelon2018.mishpahug.dao.StaticFieldsRepository;
 import telran.ashkelon2018.mishpahug.dao.UserAccountRepository;
@@ -52,7 +62,8 @@ public class AccountServiceImpl implements AccountService {
 		String hashPassword = BCrypt.hashpw(credentials.getPassword(), BCrypt.gensalt());
 //		String loginLowerCase=credentials.getLogin().toLowerCase();
 //		String loginLowerCaseNoDot=loginLowerCase.replaceAll("\\.", "");
-		UserAccount userAccount = UserAccount.builder().login(credentials.getLogin()).password(hashPassword).build();
+		UserAccount userAccount = UserAccount.builder()
+				.login(credentials.getLogin()).password(hashPassword).build();
 		userRepository.save(userAccount);
 		sessionConfiguration.setAttributeToken(token);
 		return convertToUserProfileDto(userAccount);
@@ -73,7 +84,7 @@ public class AccountServiceImpl implements AccountService {
 				.description(userAccount.getDescription())
 				.rate(userAccount.getRate())
 				.numberOfVoters(userAccount.getNumberOfVoters())
-				.standartrole(userAccount.getStandartrole())
+				.roles(userAccount.getRoles())
 				.build();
 	}
 
@@ -103,34 +114,45 @@ System.out.println("editUserProfile sessionLogin "+ sessionLogin);
 	}
 
 	@Override
-	public UserProfileDto login(String token) {
+	public UserProfileDto login(String login) {
 
-		AccountUserCredentials credentials = accountConfiguration
-				.tokenDecode(token);
-		System.out.println("credentials of token - "+credentials);
+//		AccountUserCredentials credentials = accountConfiguration
+//				.tokenDecode(login);
+//		System.out.println("credentials of token - "+credentials);
+		
 		// token may be empty
-		if (credentials==null) {
-			return null;
-		}
+//		if (credentials==null) {
+//			return null;
+//		}
 		UserAccount userAccount = userRepository
-				.findById(credentials.getLogin())
+				.findById(login)
 				.orElseThrow(UserNotFoundException::new);// .get()
-		String candidatPassword = credentials.getPassword();
+//		String candidatPassword = credentials.getPassword();
 		
 		// logout - if on endpoint "/login" request with token and sessionLogin
 				// equals
-				if (credentials.getLogin()
-						.equals(sessionConfiguration.sessionUserName())) {
-					sessionConfiguration.invalidateToken();
-					return null;
-				}
+//				if (credentials.getLogin()
+//						.equals(sessionConfiguration.sessionUserName())) {
+//					sessionConfiguration.invalidateToken();
+//					return null;
+//				}
 		
-		if (!credentials.getLogin().equals(userAccount.getLogin())
-				|| !BCrypt.checkpw(candidatPassword, userAccount.getPassword())) {
-			throw new WrongLoginOrPasswordException(401, "unauthorized");		}
-		
-		sessionConfiguration.setAttributeToken(token);// CHECK!!!
-		
+//		if (!credentials.getLogin().equals(userAccount.getLogin())
+//				|| !BCrypt.checkpw(candidatPassword, userAccount.getPassword())) {
+//			throw new WrongLoginOrPasswordException(401, "unauthorized");		}
+
+///////////////////////////////////////////////////////////////////////////////////	
+		sessionConfiguration.setAttributeToken(login);// CHECK!!!
+///////////////		
+		String sessionUser = userAccount.getLogin();
+		String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmmss").format(Calendar.getInstance().getTime());
+		String usStamp = sessionUser+";"+timeStamp;
+		ServletRequestAttributes attributes = (ServletRequestAttributes) 
+			    RequestContextHolder.currentRequestAttributes();
+		HttpSession session = attributes.getRequest().getSession();
+		session.setAttribute("U_S_STAMP", usStamp);
+		session.setMaxInactiveInterval(60*60*24); 
+///////////////////////////////////////////////////////////////////////////////////		
 		if (userAccount.getFirstName() == null || userAccount.getLastName() == null
 				|| userAccount.getPhoneNumber() == null || userAccount.getConfession() == null
 				|| userAccount.getDateOfBirth() == null || userAccount.getMaritalStatus() == null
@@ -141,7 +163,6 @@ System.out.println("editUserProfile sessionLogin "+ sessionLogin);
 		}
 		
 		System.out.println("Profile " + convertToUserProfileDto(userAccount));
-		
 		return convertToUserProfileDto(userAccount);
 	}
 
@@ -163,7 +184,6 @@ System.out.println("editUserProfile sessionLogin "+ sessionLogin);
 
 	@Override
 	public StaticFieldsDto getStaticFields(StaticFieldsDto staticFieldsDto) {
-
 		return StaticFieldsDto.builder().confession(staticFieldsDto.getConfession()).gender(staticFieldsDto.getGender())
 				.maritalStatus(staticFieldsDto.getMaritalStatus()).foodPreferences(staticFieldsDto.getFoodPreferences())
 				.languages(staticFieldsDto.getLanguages()).holliday(staticFieldsDto.getHolliday()).build();

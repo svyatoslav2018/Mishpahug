@@ -3,6 +3,9 @@ package telran.ashkelon2018.mishpahug.controller;
 import java.security.Principal;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,11 +33,14 @@ public class AccountManagementController {
 	@Autowired
 	SessionConfiguration sessionConfiguration;
 
+	UsernamePasswordAuthenticationToken authenticationToken;
+	Principal principal;
+
 	// Authorized requests
 	@PostMapping("/registration")
 	public UserProfileDto register(
 			@RequestHeader("Authorization") String token) {
-
+		System.out.println("/registration " + token);
 		// * add a token to the http session in order to check it on other
 		// endpoints *//
 		sessionConfiguration.setAttributeToken(token); // CHECK!!!
@@ -43,23 +49,30 @@ public class AccountManagementController {
 
 	@PostMapping("/profile")
 	public UserProfileDto updateUserProfile(
-			@RequestBody UserProfileDto userProfileDto) {
-		String sessionLogin = sessionConfiguration.sessionUserName();
-		return accountService.editUserProfile(userProfileDto, sessionLogin);
+			@RequestBody UserProfileDto userProfileDto, Principal principal) {
+
+		String currentusername = principal.getName();
+		System.out.println("currentusername " + currentusername);
+
+		
+		return accountService.editUserProfile(userProfileDto, currentusername);
 	}
 
-//	@GetMapping("/profile")
-//	public UserProfileDto getProfile() {
-//		String sessionLogin = sessionConfiguration.sessionUserName();
-//		return accountService.getUserProfile(sessionLogin);
-//	}
+	@GetMapping("/profile")
+	public UserProfileDto getUserProfile(Principal principal) {
+		System.out.println("@@@@@ '/profile' @@@@@");
+		System.out.println("Principal " + principal.getName());
+
+		return accountService.getUserProfile(principal.getName());
+
+	}
 
 	@PostMapping("/login")
-	public UserProfileDto loginUser(
-			@RequestHeader("Authorization") String token, Principal principal) {
+	public UserProfileDto loginUser(Principal principal) {
+		System.out.println("@@@@@@@@@@@@@@ '/login' @@@@@@@@@@@@@");
+		System.out.println("Principal " + principal.getName());
+		return accountService.login(principal.getName());
 
-		System.out.println("Principal " + principal);
-		return accountService.login(token);
 	}
 
 	// Unauthorized requests

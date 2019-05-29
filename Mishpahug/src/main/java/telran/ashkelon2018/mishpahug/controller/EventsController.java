@@ -40,23 +40,14 @@ public class EventsController {
 	}
 
 	@GetMapping("/calendar/{month}")
-
 	public EventListForCalendarDto calendar(@PathVariable int month, @RequestHeader("Authorization") String token) {
 		return eventsService.eventListForCalendar(month, token);
 	}
-
-
-//	@GetMapping("/own/{eventId}")
-//	public MyEventInfoResponseDto getMyEventInfo(@PathVariable String eventId, @RequestHeader("Authorization") String token) {
-//		return eventsService.myEventInfo(eventId, token);
-//	}
 	
 	@GetMapping("/currentlist")
 	public MyEventsListRespDto getMyEventsList(@RequestHeader("Authorization") String token) {
 		return eventsService.myEventsList(token);
 	}
-	
-	
 
 	@PutMapping("/subscription/{eventId}")
 	public CodeResponseDto subscribe(@PathVariable String eventId, @RequestHeader("Authorization") String token) {
@@ -74,7 +65,6 @@ public class EventsController {
 	@PostMapping("/allprogresslist")
 	public EventListResponseDto findAllEventsInProgress(@RequestParam int page, @RequestParam int size,
 			@RequestBody EventListRequestDto eventListRequestDto) {
-		
 		return eventsService.findEventsInProgress(eventListRequestDto, page, size);
 	}
 

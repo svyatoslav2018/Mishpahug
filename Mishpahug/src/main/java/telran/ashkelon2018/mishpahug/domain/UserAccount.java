@@ -1,6 +1,8 @@
 
 package telran.ashkelon2018.mishpahug.domain;
 
+import java.util.Set;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -18,7 +20,7 @@ import lombok.Setter;
 @EqualsAndHashCode(of = {"login"})
 @Document(collection = "Mishpahug_users")
 @Builder
-public class UserAccount {
+public class UserAccount  {
 	@Id
 	String login;
 	String password;
@@ -35,7 +37,7 @@ public class UserAccount {
 	String description;
 	Double rate;
 	Integer numberOfVoters;
-	String standartrole;
+	Set<String> roles;
 	
 	public void addRate() {
 		rate++;
