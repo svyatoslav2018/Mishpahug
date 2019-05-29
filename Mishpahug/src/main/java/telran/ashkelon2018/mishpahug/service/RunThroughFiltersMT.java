@@ -1,5 +1,6 @@
 package telran.ashkelon2018.mishpahug.service;
 
+import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -15,7 +16,6 @@ import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
 import telran.ashkelon2018.mishpahug.configuration.EventConfiguration;
-import telran.ashkelon2018.mishpahug.configuration.SessionConfiguration;
 import telran.ashkelon2018.mishpahug.domain.Event;
 import telran.ashkelon2018.mishpahug.domain.Filters;
 import telran.ashkelon2018.mishpahug.domain.Location;
@@ -28,8 +28,6 @@ public class RunThroughFiltersMT {
 	@Autowired
 	MongoTemplate mongoTemplate;
 
-	@Autowired
-	SessionConfiguration sessionConfiguration;
 
 	public Page<Event> madeListWithFilter(EventListRequestDto body,
 			Pageable pageable) {
@@ -38,17 +36,15 @@ public class RunThroughFiltersMT {
 		query.with(pageable);
 
 		Filters filters = body.getFilters();
-
-		String sessionLogin = sessionConfiguration.sessionUserName();
-		System.out
-				.println("Events without events where owner= " + sessionLogin);
-		if (sessionLogin != null) {
-			query.addCriteria(Criteria.where("owner").ne(sessionLogin));
-		}
+//		Principal principal = null;
+//		String sessionLogin = principal.getName();
+//		System.out.println("Events without events where owner= " + sessionLogin);
+//		if (sessionLogin != null) {
+//			query.addCriteria(Criteria.where("owner").ne(sessionLogin));
+//		}
 		if (filters.getDateFrom() != null) {
 			if (filters.getDateFrom().isBefore(LocalDate.now())) {
-				throw new UnprocessableEntityException(422,
-						"Invalid filter parameters!");
+				throw new UnprocessableEntityException(422, "Invalid filter parameters!");
 			}
 		}
 
