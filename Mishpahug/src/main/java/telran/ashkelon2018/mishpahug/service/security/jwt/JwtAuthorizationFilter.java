@@ -70,10 +70,10 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 						.parseClaimsJws(jwtToken.replace("Bearer ", ""));
 				String username = parsedToken.getBody().getSubject();
 				List<SimpleGrantedAuthority> authorities = ((List<String>) parsedToken
-						.getBody().get("role"))
-								.stream()
-								.map(authority -> new SimpleGrantedAuthority(
-										(String) authority))
+						.getBody()
+						.get("role"))
+						.stream()
+								.map(authority -> new SimpleGrantedAuthority((String) authority))
 								.collect(Collectors.toList());
 				if (!StringUtils.isEmpty(username)) {
 					UsernamePasswordAuthenticationToken userNPAT = new UsernamePasswordAuthenticationToken(
@@ -96,7 +96,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 				throw new WebServerException(jwtToken + " is not correct", e);
 			}
 		}
-
 		return null;
 	}
 }

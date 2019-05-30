@@ -34,7 +34,6 @@ public class AccountConfiguration {
 	@Bean
 	public PasswordEncoder getPasswordEncoder() {
 		return new BCryptPasswordEncoder();
-
 	}
 
 	public AccountUserCredentials tokenDecode(String token) {
@@ -47,16 +46,13 @@ public class AccountConfiguration {
 				token = new String(base64DecodeBytes);
 				String[] auth = token.split(":");
 				auth[0] = auth[0].toLowerCase().replaceAll("\\.", "");
-				AccountUserCredentials credentials = new AccountUserCredentials(
-						(auth[0]), auth[1]);
+				AccountUserCredentials credentials = new AccountUserCredentials((auth[0]), auth[1]);
 				return credentials;
 			} else {
-				Claims claims = Jwts.parser()
-						.setSigningKey(SecurityConstants.JWT_SECRET.getBytes())
+				Claims claims = Jwts.parser().setSigningKey(SecurityConstants.JWT_SECRET.getBytes())
 						.parseClaimsJws(token.replace("Bearer ", "")).getBody();
 				String userClaims = claims.getSubject();
-				AccountUserCredentials credentials = new AccountUserCredentials(
-						userClaims, null);
+				AccountUserCredentials credentials = new AccountUserCredentials(userClaims, null);
 				return credentials;
 			}
 		} catch (Exception e) {

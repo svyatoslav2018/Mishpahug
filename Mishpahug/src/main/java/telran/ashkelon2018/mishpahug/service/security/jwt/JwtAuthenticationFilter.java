@@ -28,22 +28,19 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import telran.ashkelon2018.mishpahug.configuration.AccountUserCredentials;
 
-public class JwtAuthenticationFilter
-		extends
-			UsernamePasswordAuthenticationFilter {
-	 
+public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+
 	private final AuthenticationManager authenticationManager;
 
-	public JwtAuthenticationFilter(
-			AuthenticationManager authenticationManager) {
+	public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
 
 		setFilterProcessesUrl(SecurityConstants.AUTH_LOGIN_URL);
 	}
 
 	@Override
-	public Authentication attemptAuthentication(HttpServletRequest request,
-			HttpServletResponse response) throws AuthenticationException {
+	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+			throws AuthenticationException {
 
 		String tokenLgn = request.getHeader("Authorization");
 		System.out.println("attemptAuthentication token " + tokenLgn);
@@ -51,8 +48,8 @@ public class JwtAuthenticationFilter
 		String username = jwtTokenDecode(tokenLgn).getLogin();
 		String password = jwtTokenDecode(tokenLgn).getPassword();
 
-		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-				username, password);
+		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username,
+				password);
 		return authenticationManager.authenticate(authenticationToken);
 	}
 
@@ -64,8 +61,7 @@ public class JwtAuthenticationFilter
 		Set<String> roles = user.getAuthorities().stream()
 				.map(GrantedAuthority::getAuthority)
 				.collect(Collectors.toSet());
-		System.out.println(
-				"successfulAuthentication user " + user + " roles " + roles);
+		System.out.println("successfulAuthentication user " + user + " roles " + roles);
 		byte[] signingKey = SecurityConstants.JWT_SECRET.getBytes();
 
 		String tokenJWT = Jwts.builder()
@@ -78,7 +74,7 @@ public class JwtAuthenticationFilter
 				.setExpiration(new Date(System.currentTimeMillis() + 864000000))
 				.claim("role", roles).compact();
 		System.out.println("created tokenJWT " + tokenJWT);
-		// We can use the page https://jwt.io/#debugger to to validate tokenJWT
+		// We can use the page https://jwt.io/#debugger to validate tokenJWT
 		response.addHeader(SecurityConstants.TOKEN_HEADER,
 				SecurityConstants.TOKEN_PREFIX + tokenJWT);
 	}
@@ -91,8 +87,5 @@ public class JwtAuthenticationFilter
 			String[] auth = token.split(":");
 			auth[0] = auth[0].toLowerCase().replaceAll("\\.", "");
 			return new AccountUserCredentials((auth[0]), auth[1]);
-
 	}
-
-
 }

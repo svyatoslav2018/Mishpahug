@@ -15,6 +15,7 @@ import telran.ashkelon2018.mishpahug.domain.SubscriberInfo;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+
 @Getter
 @Setter
 @ToString

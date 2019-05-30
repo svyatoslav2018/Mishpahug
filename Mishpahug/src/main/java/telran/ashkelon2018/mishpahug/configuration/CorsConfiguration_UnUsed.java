@@ -1,3 +1,4 @@
+package telran.ashkelon2018.mishpahug.configuration;
 //package telran.ashkelon2018.mishpahug.configuration;
 //
 //import org.springframework.context.annotation.Bean;

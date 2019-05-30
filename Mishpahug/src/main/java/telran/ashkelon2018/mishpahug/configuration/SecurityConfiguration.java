@@ -29,41 +29,35 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	public void configure(WebSecurity web) {
 		web.ignoring().antMatchers(HttpMethod.POST, "/user/registration");
-		web.ignoring().antMatchers(HttpMethod.POST, "/event/allprogresslist");
 	}
 
 	@Override
 	protected void configure(HttpSecurity httpSec) throws Exception {
-		// httpSec.httpBasic().authenticationEntryPoint(authenticationEntryPoint);
 		httpSec.csrf().disable();
 		httpSec.cors();
 
-		httpSec.sessionManagement()
-				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+		httpSec.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-
+		httpSec.authorizeRequests().antMatchers(HttpMethod.POST, "/event/allprogresslist").permitAll();
+		
 		httpSec.authorizeRequests().anyRequest().authenticated().and()
 				.addFilter(new JwtAuthenticationFilter(authenticationManager()))
 				.addFilter(new JwtAuthorizationFilter(authenticationManager()));
-
 	}
 
+	//CORS config
 	@Bean
 	public WebMvcConfigurer corsConfigurer() {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**")
-						.allowedMethods("GET, POST, PUT, DELETE")
-						.allowedOrigins("http://localhost:3000")
-						.allowCredentials(true)
-						.allowedHeaders("X-Requested-With", "Origin",
-								"Content-Type", "Accept", "Authorization")
+				registry.addMapping("/**").allowedMethods("GET, POST, PUT, DELETE")
+						.allowedOrigins("http://localhost:3000").allowCredentials(true)
+						.allowedHeaders("X-Requested-With", "Origin", "Content-Type", "Accept", "Authorization")
 						.exposedHeaders("Access-Control-Allow-Headers",
 								"Authorization, x-xsrf-token, Access-Control-Allow-Headers, Origin, Accept, X-Requested-With, "
 										+ "Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
 						.maxAge(1800).allowCredentials(true);
-
 			}
 		};
 	}

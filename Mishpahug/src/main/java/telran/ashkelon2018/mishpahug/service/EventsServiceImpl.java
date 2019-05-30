@@ -1,16 +1,20 @@
 package telran.ashkelon2018.mishpahug.service;
 
+
+import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,23 +24,23 @@ import org.springframework.stereotype.Service;
 
 import lombok.Builder;
 import telran.ashkelon2018.mishpahug.configuration.AccountConfiguration;
-import telran.ashkelon2018.mishpahug.configuration.AccountUserCredentials;
 import telran.ashkelon2018.mishpahug.configuration.EventConfiguration;
 import telran.ashkelon2018.mishpahug.dao.EventSubscribeRepository;
 import telran.ashkelon2018.mishpahug.dao.EventsRepository;
 import telran.ashkelon2018.mishpahug.dao.UserAccountRepository;
 import telran.ashkelon2018.mishpahug.domain.Event;
+import telran.ashkelon2018.mishpahug.domain.EventCalendar;
 import telran.ashkelon2018.mishpahug.domain.EventOwner;
 import telran.ashkelon2018.mishpahug.domain.EventSubscribe;
 import telran.ashkelon2018.mishpahug.domain.SubscriberInfo;
 import telran.ashkelon2018.mishpahug.domain.UserAccount;
 import telran.ashkelon2018.mishpahug.dto.AddEventDto;
+import telran.ashkelon2018.mishpahug.dto.CalendarDto;
 import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
 import telran.ashkelon2018.mishpahug.dto.EventListForCalendarDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
 import telran.ashkelon2018.mishpahug.dto.EventListResponseDto;
 import telran.ashkelon2018.mishpahug.dto.FullEventToResp;
-import telran.ashkelon2018.mishpahug.dto.MyEventInfoResponseDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsListRespDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsToResp;
 import telran.ashkelon2018.mishpahug.exceptions.UserNotFoundException;
@@ -130,18 +134,17 @@ public class EventsServiceImpl implements EventsService {
 
 		event.setEventStatus(EventConfiguration.INPROGRESS);
 		eventsRepository.save(event);
-		System.out.println(newEvent.getOwner());
-		System.out.println(event.getOwner());
 		return new CodeResponseDto(200, "Event is created");
 	}
 
 	@Override
 	public EventListResponseDto findEventsInProgress(EventListRequestDto body,
-			int page, int size) {
+			int page, int size, Principal principal) {
+		System.out.println("findEventsInProgress " + principal);
 		Pageable pageable = PageRequest.of(page, size,
 				new Sort(Sort.Direction.ASC, "date"));
 		Page<Event> listOfEvents = runThroughFilters.madeListWithFilter(body,
-				pageable);
+				pageable, principal);
 
 		long totalElements = listOfEvents.getTotalElements();
 		int totalPages = listOfEvents.getTotalPages();
@@ -184,46 +187,28 @@ public class EventsServiceImpl implements EventsService {
 	}
 
 	@Override
-	public CodeResponseDto addSubscribe(String eventId, String token) {
-		AccountUserCredentials credentials = accountConfiguration
-				.tokenDecode(token);
-		UserAccount userAccount = userRepository
-				.findById(credentials.getLogin())
+	public CodeResponseDto addSubscribe(String eventId, String sessionLogin) {
+		UserAccount userAccount = userRepository.findById(sessionLogin)
 				.orElseThrow(UserNotFoundException::new);
-		String candidatPassword = credentials.getPassword();
 
-		if (!credentials.getLogin().equals(userAccount.getLogin()) || !BCrypt
-				.checkpw(candidatPassword, userAccount.getPassword())) {
+		if (!sessionLogin.equals(userAccount.getLogin())) {
 			return new CodeResponseDto(401, "User unauthorized!");
 		}
 		try {
-			EventSubscribe es = new EventSubscribe(eventId,
-					credentials.getLogin(), false);
+			EventSubscribe es = new EventSubscribe(eventId, sessionLogin,
+					false);
 			eventSubscribeRepository.save(es);
 			return new CodeResponseDto(200, "User subscribed to the event!");
 		} catch (Exception e) {
 			return new CodeResponseDto(409,
 					"User is the owner of the event or already subscribed to it!");
 		}
-
 	}
 
 	@Override
-	public CodeResponseDto delSubscribe(String eventId, String token) {
-		AccountUserCredentials credentials = accountConfiguration
-				.tokenDecode(token);
-		UserAccount userAccount = userRepository
-				.findById(credentials.getLogin())
-				.orElseThrow(UserNotFoundException::new);// .get()
-		String candidatPassword = credentials.getPassword();
-
-		if (!credentials.getLogin().equals(userAccount.getLogin()) || !BCrypt
-				.checkpw(candidatPassword, userAccount.getPassword())) {
-			return new CodeResponseDto(401, "User unauthorized!");
-		}
+	public CodeResponseDto delSubscribe(String eventId, String sessionLogin) {
 		try {
-			EventSubscribe es = new EventSubscribe(eventId,
-					credentials.getLogin());
+			EventSubscribe es = new EventSubscribe(eventId, sessionLogin);
 			eventSubscribeRepository.delete(es);
 			return new CodeResponseDto(200,
 					"User unsubscribed from the event!");
@@ -234,23 +219,9 @@ public class EventsServiceImpl implements EventsService {
 	}
 
 	@Override
-	public MyEventsListRespDto myEventsList(String token) {
-		AccountUserCredentials credentials = accountConfiguration
-				.tokenDecode(token);
-		UserAccount userAccount = userRepository
-				.findById(credentials.getLogin())
-				.orElseThrow(UserNotFoundException::new);
-		// String candidatPassword = credentials.getPassword();
-		if (!credentials.getLogin().equals(userAccount.getLogin()))
-		// || !BCrypt.checkpw(candidatPassword, userAccount.getPassword()))
-		{
-			throw new WrongLoginOrPasswordException(401, "unauthorized");// 401,
-																			// "unauthorized"
-		}
+	public MyEventsListRespDto myEventsList(String sessionLogin) {
 
-		String owner = credentials.getLogin();
 		Pageable pageable;
-
 		List<MyEventsToResp> events = new ArrayList<>();
 		Page<Event> listOfEvents;
 		String[] statuses = {EventConfiguration.INPROGRESS,
@@ -264,9 +235,8 @@ public class EventsServiceImpl implements EventsService {
 				pageable = PageRequest.of(0, Integer.MAX_VALUE,
 						new Sort(Sort.Direction.ASC, "date"));
 			}
-			System.out.println("pageable = " + pageable);
-			listOfEvents = eventsRepository.findByOwnerAndEventStatus(owner, s,
-					pageable);
+			listOfEvents = eventsRepository
+					.findByOwnerAndEventStatus(sessionLogin, s, pageable);
 			listOfEvents
 					.forEach(e -> events.add(myEventsToEventDtoConverter(e)));
 		}
@@ -320,41 +290,48 @@ public class EventsServiceImpl implements EventsService {
 	}
 
 	@Override
-	public EventListForCalendarDto eventListForCalendar(int month,
-			String token) {
-		// AccountUserCredentials credentials =
-		// accountConfiguration.tokenDecode(token);
-		// UserAccount userAccount =
-		// userRepository.findById(credentials.getLogin())
-		// .orElseThrow(UserNotFoundException::new);
-		// String candidatPassword = credentials.getPassword();
-		// if (!credentials.getLogin().equals(userAccount.getLogin())
-		// || !BCrypt.checkpw(candidatPassword, userAccount.getPassword())) {
-		// throw new WrongLoginOrPasswordException(401, "unauthorized");
-		// }
-		//
-		// List<E>
-		// List<FullEventToResp> myEvents = new ArrayList<>();
-		// List<FullEventToResp> subscribedEvents = new ArrayList<>();
-		//
-		// String owner = credentials.getLogin();
-		// String[] statuses =
-		// {EventConfiguration.INPROGRESS,EventConfiguration.PENDING};
-		//
-		//
-		// listOfEvents = eventsRepository.findByOwnerAndEventStatus(owner,
-		// EventConfiguration.INPROGRESS,EventConfiguration.PENDING);
-		// listOfEvents.forEach(e ->
-		// myEvents.add(myEventsToCalendarDtoConverter(e)));
-		// }
-		//
-		return null;
+	public EventListForCalendarDto eventListForCalendar(int month,String sessionLogin) {
+		List<Event> myEventsFromRep = eventsRepository.findByOwner(sessionLogin);
+		myEventsFromRep=filteredStatus(myEventsFromRep);
+		List<EventCalendar> myEventsCal = eventsToClndr(myEventsFromRep);
+
+		List<EventSubscribe> listSubscrEventId = eventSubscribeRepository.findBySubscriberId(sessionLogin);
+		List<Event> sbscrbEventsFromRep = new ArrayList<>();
+		for (int i = 0; i < listSubscrEventId.size(); i++) {
+			String eventId = listSubscrEventId.get(i).getEventId();
+			sbscrbEventsFromRep.addAll(eventsRepository.findByEventId(eventId));
+		}
+		sbscrbEventsFromRep=filteredStatus(sbscrbEventsFromRep);
+		List<EventCalendar> subscribedEvents = eventsToClndr(sbscrbEventsFromRep);
+
+		return EventListForCalendarDto.builder()
+				.myEvents(myEventsCal)
+				.subscribedEvents(subscribedEvents)
+				.build();
 	}
 
-	@Override
-	public MyEventInfoResponseDto myEventInfo(String eventId, String token) {
-		// TODO Auto-generated method stub
-		return null;
+	private List<Event> filteredStatus(List<Event> fullList) {
+		return 	fullList.stream().filter(ev->(ev.getEventStatus()
+				.equals(EventConfiguration.INPROGRESS) ||
+				ev.getEventStatus().equals( EventConfiguration.PENDING)))
+				.collect(Collectors.toList());
 	}
+
+	private List<EventCalendar> eventsToClndr(List<Event> eventsFromRep) {
+		List<EventCalendar> eventsCalendar = new ArrayList<>();
+		eventsFromRep.forEach(e->eventsCalendar.add(EventCalendar.builder().eventId(e.getEventId())
+				.title(e.getTitle()).date(e.getDate()).time(e.getTime())
+				.duration(e.getDuration()).eventStatus(e.getEventStatus())
+				.build()));
+		return eventsCalendar;
+	}
+	
+
+	
+	// @Override
+	// public MyEventInfoResponseDto myEventInfo(String eventId, String token) {
+	// // TODO Auto-generated method stub
+	// return null;
+	// }
 
 }

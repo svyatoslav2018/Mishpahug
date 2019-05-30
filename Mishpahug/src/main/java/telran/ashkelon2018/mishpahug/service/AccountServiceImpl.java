@@ -1,23 +1,12 @@
 package telran.ashkelon2018.mishpahug.service;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.util.Calendar;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import lombok.Builder;
 import telran.ashkelon2018.mishpahug.configuration.AccountConfiguration;
 import telran.ashkelon2018.mishpahug.configuration.AccountUserCredentials;
-import telran.ashkelon2018.mishpahug.configuration.CustomAuthenticationEntryPoint;
-import telran.ashkelon2018.mishpahug.configuration.SessionConfiguration;
 import telran.ashkelon2018.mishpahug.dao.StaticFieldsRepository;
 import telran.ashkelon2018.mishpahug.dao.UserAccountRepository;
 import telran.ashkelon2018.mishpahug.domain.UserAccount;
@@ -40,9 +29,6 @@ public class AccountServiceImpl implements AccountService {
 	@Autowired
 	StaticFieldsRepository staticFieldsRepository;
 
-	@Autowired
-	SessionConfiguration sessionConfiguration;
-
 	@Override
 	public UserProfileDto addUser(String token) {
 		// EmailValidator emailValidator = new EmailValidator();
@@ -63,9 +49,10 @@ public class AccountServiceImpl implements AccountService {
 //		String loginLowerCase=credentials.getLogin().toLowerCase();
 //		String loginLowerCaseNoDot=loginLowerCase.replaceAll("\\.", "");
 		UserAccount userAccount = UserAccount.builder()
-				.login(credentials.getLogin()).password(hashPassword).build();
+				.login(credentials.getLogin())
+				.password(hashPassword)
+				.build();
 		userRepository.save(userAccount);
-		sessionConfiguration.setAttributeToken(token);
 		return convertToUserProfileDto(userAccount);
 	}
 
@@ -90,7 +77,6 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public UserProfileDto editUserProfile(UserProfileDto userProfileDto, String sessionLogin) {
-System.out.println("editUserProfile sessionLogin "+ sessionLogin);
 		UserAccount userAccount = userRepository.findById(sessionLogin).get();
 
 		if (!sessionLogin.equals(userAccount.getLogin())) {
@@ -116,53 +102,17 @@ System.out.println("editUserProfile sessionLogin "+ sessionLogin);
 	@Override
 	public UserProfileDto login(String login) {
 
-//		AccountUserCredentials credentials = accountConfiguration
-//				.tokenDecode(login);
-//		System.out.println("credentials of token - "+credentials);
-		
-		// token may be empty
-//		if (credentials==null) {
-//			return null;
-//		}
 		UserAccount userAccount = userRepository
 				.findById(login)
-				.orElseThrow(UserNotFoundException::new);// .get()
-//		String candidatPassword = credentials.getPassword();
-		
-		// logout - if on endpoint "/login" request with token and sessionLogin
-				// equals
-//				if (credentials.getLogin()
-//						.equals(sessionConfiguration.sessionUserName())) {
-//					sessionConfiguration.invalidateToken();
-//					return null;
-//				}
-		
-//		if (!credentials.getLogin().equals(userAccount.getLogin())
-//				|| !BCrypt.checkpw(candidatPassword, userAccount.getPassword())) {
-//			throw new WrongLoginOrPasswordException(401, "unauthorized");		}
+				.orElseThrow(UserNotFoundException::new);
 
-///////////////////////////////////////////////////////////////////////////////////	
-		sessionConfiguration.setAttributeToken(login);// CHECK!!!
-///////////////		
-		String sessionUser = userAccount.getLogin();
-		String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmmss").format(Calendar.getInstance().getTime());
-		String usStamp = sessionUser+";"+timeStamp;
-		ServletRequestAttributes attributes = (ServletRequestAttributes) 
-			    RequestContextHolder.currentRequestAttributes();
-		HttpSession session = attributes.getRequest().getSession();
-		session.setAttribute("U_S_STAMP", usStamp);
-		session.setMaxInactiveInterval(60*60*24); 
-///////////////////////////////////////////////////////////////////////////////////		
 		if (userAccount.getFirstName() == null || userAccount.getLastName() == null
 				|| userAccount.getPhoneNumber() == null || userAccount.getConfession() == null
 				|| userAccount.getDateOfBirth() == null || userAccount.getMaritalStatus() == null
 				|| userAccount.getFoodPreferences() == null || userAccount.getGender() == null
 				|| userAccount.getLanguages() == null || userAccount.getDescription() == null) {
 			throw new UserConflictException(409, "empty profile exception");
-
-		}
-		
-		System.out.println("Profile " + convertToUserProfileDto(userAccount));
+		}		
 		return convertToUserProfileDto(userAccount);
 	}
 
