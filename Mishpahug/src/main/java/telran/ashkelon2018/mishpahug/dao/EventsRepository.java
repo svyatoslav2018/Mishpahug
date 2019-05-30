@@ -2,6 +2,7 @@ package telran.ashkelon2018.mishpahug.dao;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -39,8 +40,16 @@ public interface EventsRepository extends MongoRepository<Event, String> {
 
 	Page<Event> findByOwnerAndEventStatus(String owner, String eventStatus, Pageable pageable);
 
-	List<Event> findByOwnerAndEventStatusOrEventStatus(String sessionLogin, String inprogress, String pending);
+	List<Event> findByOwnerAndEventStatus(String sessionLogin, String inprogress);
 
-	List<Event> findByEventIdAndEventStatusOrEventStatus(String eventId, String inprogress, String pending);
+//	List<Event> findByEventIdAndEventStatusOrEventStatus(String eventId, String inprogress, String pending);
+
+	List<Event> findByOwner(String sessionLogin);
+
+	List<Event> findByEventIdAndEventStatus(String sessionLogin,
+			String inprogress);
+
+	Collection<? extends Event> findByEventId(String eventId);
+
 
 }

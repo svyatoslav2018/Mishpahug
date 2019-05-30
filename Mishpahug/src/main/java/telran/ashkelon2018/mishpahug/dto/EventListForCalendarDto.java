@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import telran.ashkelon2018.mishpahug.domain.Event;
+import telran.ashkelon2018.mishpahug.domain.EventCalendar;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,8 +18,8 @@ import telran.ashkelon2018.mishpahug.domain.Event;
 @ToString
 
 public class EventListForCalendarDto {
-	List<Event> myEvents;
-//	List<Event> subscribedEvents;
+	List<EventCalendar> myEvents;
+	List<EventCalendar> subscribedEvents;
 	
 }
 

@@ -1,8 +1,11 @@
 package telran.ashkelon2018.mishpahug.controller;
 
+
+
 import java.security.Principal;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import telran.ashkelon2018.mishpahug.dto.AddEventDto;
-import telran.ashkelon2018.mishpahug.dto.CalendarDto;
 import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
 import telran.ashkelon2018.mishpahug.dto.EventListForCalendarDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
@@ -37,7 +39,7 @@ public class EventsController {
 	}
 
 	@GetMapping("/calendar/{month}")
-	public CalendarDto calendar(@PathVariable int month,Principal principal) {
+	public EventListForCalendarDto calendar(@PathVariable int month,Principal principal) {
 		return eventsService.eventListForCalendar(month, principal.getName());
 	}
 	
@@ -59,8 +61,8 @@ public class EventsController {
 	// without authentication
 	@PostMapping("/allprogresslist")
 	public EventListResponseDto findAllEventsInProgress(@RequestParam int page, @RequestParam int size,
-			@RequestBody EventListRequestDto eventListRequestDto) {
-		return eventsService.findEventsInProgress(eventListRequestDto, page, size);
+			@RequestBody EventListRequestDto eventListRequestDto, Principal principal) {
+		return eventsService.findEventsInProgress(eventListRequestDto, page, size, principal);
 	}
 
 }

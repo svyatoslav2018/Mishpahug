@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.geo.Circle;
@@ -30,18 +31,17 @@ public class RunThroughFiltersMT {
 
 
 	public Page<Event> madeListWithFilter(EventListRequestDto body,
-			Pageable pageable) {
+			Pageable pageable, Principal principal) {
 		String eventStatus = EventConfiguration.INPROGRESS;
 		Query query = new Query(Criteria.where("eventStatus").is(eventStatus));
 		query.with(pageable);
 
 		Filters filters = body.getFilters();
-//		Principal principal = null;
-//		String sessionLogin = principal.getName();
-//		System.out.println("Events without events where owner= " + sessionLogin);
-//		if (sessionLogin != null) {
-//			query.addCriteria(Criteria.where("owner").ne(sessionLogin));
-//		}
+
+		if (principal != null) {
+			System.out.println("Events without events where owner= " + principal.getName());
+			query.addCriteria(Criteria.where("owner").ne(principal.getName()));
+		}
 		if (filters.getDateFrom() != null) {
 			if (filters.getDateFrom().isBefore(LocalDate.now())) {
 				throw new UnprocessableEntityException(422, "Invalid filter parameters!");

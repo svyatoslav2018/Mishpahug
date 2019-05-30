@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import telran.ashkelon2018.mishpahug.domain.Event;
 
 @NoArgsConstructor
 @AllArgsConstructor

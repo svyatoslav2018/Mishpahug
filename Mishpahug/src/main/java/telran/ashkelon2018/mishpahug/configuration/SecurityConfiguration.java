@@ -29,7 +29,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	public void configure(WebSecurity web) {
 		web.ignoring().antMatchers(HttpMethod.POST, "/user/registration");
-		web.ignoring().antMatchers(HttpMethod.POST, "/event/allprogresslist");
 	}
 
 	@Override
@@ -39,6 +38,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 		httpSec.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
+		httpSec.authorizeRequests().antMatchers(HttpMethod.POST, "/event/allprogresslist").permitAll();
+		
 		httpSec.authorizeRequests().anyRequest().authenticated().and()
 				.addFilter(new JwtAuthenticationFilter(authenticationManager()))
 				.addFilter(new JwtAuthorizationFilter(authenticationManager()));

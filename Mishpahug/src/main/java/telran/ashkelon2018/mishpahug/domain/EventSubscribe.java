@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,6 +21,7 @@ import lombok.NoArgsConstructor;
 
 @Builder
 @Getter
+@ToString
 public class EventSubscribe {
 	@NotEmpty
 	String eventId;

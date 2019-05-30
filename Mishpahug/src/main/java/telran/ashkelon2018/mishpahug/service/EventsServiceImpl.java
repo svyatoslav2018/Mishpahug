@@ -1,15 +1,20 @@
 package telran.ashkelon2018.mishpahug.service;
 
+
+import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +29,7 @@ import telran.ashkelon2018.mishpahug.dao.EventSubscribeRepository;
 import telran.ashkelon2018.mishpahug.dao.EventsRepository;
 import telran.ashkelon2018.mishpahug.dao.UserAccountRepository;
 import telran.ashkelon2018.mishpahug.domain.Event;
+import telran.ashkelon2018.mishpahug.domain.EventCalendar;
 import telran.ashkelon2018.mishpahug.domain.EventOwner;
 import telran.ashkelon2018.mishpahug.domain.EventSubscribe;
 import telran.ashkelon2018.mishpahug.domain.SubscriberInfo;
@@ -67,7 +73,8 @@ public class EventsServiceImpl implements EventsService {
 	MongoTemplate mongoTemplate;
 
 	@Override
-	public CodeResponseDto addNewEvent(AddEventDto newEvent,String sessionLogin) {
+	public CodeResponseDto addNewEvent(AddEventDto newEvent,
+			String sessionLogin) {
 
 		UserAccount userAccount = userRepository.findById(sessionLogin).get();
 		if (!sessionLogin.equals(userAccount.getLogin())) {
@@ -76,21 +83,27 @@ public class EventsServiceImpl implements EventsService {
 		LocalDateTime dateFrom = newEvent.getDate().atTime(newEvent.getTime());
 		LocalDateTime dateTo = dateFrom.plusHours(newEvent.getDuration());
 
-		boolean checktime1 = LocalDateTime.now().isBefore(dateFrom.minusHours(48));
-		boolean checktime2 = LocalDateTime.now().isAfter(dateFrom.minusMonths(2));
+		boolean checktime1 = LocalDateTime.now()
+				.isBefore(dateFrom.minusHours(48));
+		boolean checktime2 = LocalDateTime.now()
+				.isAfter(dateFrom.minusMonths(2));
 
 		boolean checktime3 = false;
 
-		List<Event> list = eventsRepository.findByDurationAndOwnerAndDateAndTime(newEvent.getDuration(),
-				newEvent.getOwner(), newEvent.getDate(), newEvent.getTime());
+		List<Event> list = eventsRepository
+				.findByDurationAndOwnerAndDateAndTime(newEvent.getDuration(),
+						newEvent.getOwner(), newEvent.getDate(),
+						newEvent.getTime());
 		if (list.isEmpty()) {
 			checktime3 = true;
 		}
 		if (!list.isEmpty()) {
 			checktime3 = true;
 			for (Event event : list) {
-				LocalDateTime dateTimeFromDateAndTime = LocalDateTime.of(event.getDate(), event.getTime());
-				if (!dateTimeFromDateAndTime.isBefore(dateFrom) && !dateTo.isBefore(dateTimeFromDateAndTime)) {
+				LocalDateTime dateTimeFromDateAndTime = LocalDateTime
+						.of(event.getDate(), event.getTime());
+				if (!dateTimeFromDateAndTime.isBefore(dateFrom)
+						&& !dateTo.isBefore(dateTimeFromDateAndTime)) {
 					checktime3 = false;
 				}
 			}
@@ -126,11 +139,12 @@ public class EventsServiceImpl implements EventsService {
 
 	@Override
 	public EventListResponseDto findEventsInProgress(EventListRequestDto body,
-			int page, int size) {
+			int page, int size, Principal principal) {
+		System.out.println("findEventsInProgress " + principal);
 		Pageable pageable = PageRequest.of(page, size,
 				new Sort(Sort.Direction.ASC, "date"));
 		Page<Event> listOfEvents = runThroughFilters.madeListWithFilter(body,
-				pageable);
+				pageable, principal);
 
 		long totalElements = listOfEvents.getTotalElements();
 		int totalPages = listOfEvents.getTotalPages();
@@ -144,8 +158,9 @@ public class EventsServiceImpl implements EventsService {
 		listOfEvents.forEach(e -> content.add(eventToEventDtoConverter(e)));
 		Stream<FullEventToResp> stream = content.stream();
 
-		return new EventListResponseDto(stream.collect(Collectors.toList()), totalElements, totalPages, size, number,
-				numberOfElements, first, last, sort);
+		return new EventListResponseDto(stream.collect(Collectors.toList()),
+				totalElements, totalPages, size, number, numberOfElements,
+				first, last, sort);
 	}
 
 	private FullEventToResp eventToEventDtoConverter(Event e) {
@@ -172,18 +187,21 @@ public class EventsServiceImpl implements EventsService {
 	}
 
 	@Override
-	public CodeResponseDto addSubscribe(String eventId,String sessionLogin) {
-		UserAccount userAccount = userRepository.findById(sessionLogin).orElseThrow(UserNotFoundException::new);
+	public CodeResponseDto addSubscribe(String eventId, String sessionLogin) {
+		UserAccount userAccount = userRepository.findById(sessionLogin)
+				.orElseThrow(UserNotFoundException::new);
 
 		if (!sessionLogin.equals(userAccount.getLogin())) {
 			return new CodeResponseDto(401, "User unauthorized!");
 		}
 		try {
-			EventSubscribe es = new EventSubscribe(eventId, sessionLogin, false);
+			EventSubscribe es = new EventSubscribe(eventId, sessionLogin,
+					false);
 			eventSubscribeRepository.save(es);
 			return new CodeResponseDto(200, "User subscribed to the event!");
 		} catch (Exception e) {
-			return new CodeResponseDto(409, "User is the owner of the event or already subscribed to it!");
+			return new CodeResponseDto(409,
+					"User is the owner of the event or already subscribed to it!");
 		}
 	}
 
@@ -192,9 +210,11 @@ public class EventsServiceImpl implements EventsService {
 		try {
 			EventSubscribe es = new EventSubscribe(eventId, sessionLogin);
 			eventSubscribeRepository.delete(es);
-			return new CodeResponseDto(200, "User unsubscribed from the event!");
+			return new CodeResponseDto(200,
+					"User unsubscribed from the event!");
 		} catch (Exception e) {
-			return new CodeResponseDto(409, "User can't unsubscribe from the event!");
+			return new CodeResponseDto(409,
+					"User can't unsubscribe from the event!");
 		}
 	}
 
@@ -204,57 +224,59 @@ public class EventsServiceImpl implements EventsService {
 		Pageable pageable;
 		List<MyEventsToResp> events = new ArrayList<>();
 		Page<Event> listOfEvents;
-		String[] statuses = { EventConfiguration.INPROGRESS, EventConfiguration.PENDING, EventConfiguration.DONE };
+		String[] statuses = {EventConfiguration.INPROGRESS,
+				EventConfiguration.PENDING, EventConfiguration.DONE};
 
 		for (String s : statuses) {
 			if (s == EventConfiguration.DONE) {
-				pageable = PageRequest.of(0, Integer.MAX_VALUE, new Sort(Sort.Direction.DESC, "date"));
+				pageable = PageRequest.of(0, Integer.MAX_VALUE,
+						new Sort(Sort.Direction.DESC, "date"));
 			} else {
-				pageable = PageRequest.of(0, Integer.MAX_VALUE, new Sort(Sort.Direction.ASC, "date"));
+				pageable = PageRequest.of(0, Integer.MAX_VALUE,
+						new Sort(Sort.Direction.ASC, "date"));
 			}
-			listOfEvents = eventsRepository.findByOwnerAndEventStatus(sessionLogin, s, pageable);
-			listOfEvents.forEach(e -> events.add(myEventsToEventDtoConverter(e)));
+			listOfEvents = eventsRepository
+					.findByOwnerAndEventStatus(sessionLogin, s, pageable);
+			listOfEvents
+					.forEach(e -> events.add(myEventsToEventDtoConverter(e)));
 		}
 		Stream<MyEventsToResp> stream = events.stream();
 		return new MyEventsListRespDto(stream.collect(Collectors.toList()));
 	}
 
 	private MyEventsToResp myEventsToEventDtoConverter(Event e) {
-		return MyEventsToResp.builder()
-				.eventId(e.getEventId())
-				.title(e.getTitle())
-				.holiday(e.getHoliday())
-				.confession(e.getConfession())
-				.date(e.getDate())
-				.time(e.getTime())
-				.duration(e.getDuration())
-				.food(e.getFood())
-				.description(e.getDescription())
-				.eventStatus(e.getEventStatus())
+		return MyEventsToResp.builder().eventId(e.getEventId())
+				.title(e.getTitle()).holiday(e.getHoliday())
+				.confession(e.getConfession()).date(e.getDate())
+				.time(e.getTime()).duration(e.getDuration()).food(e.getFood())
+				.description(e.getDescription()).eventStatus(e.getEventStatus())
 				.participants(participantsToParticipantsDtoConverter(e))
 				.build();
 	}
 
-	private List<SubscriberInfo> participantsToParticipantsDtoConverter(Event p) {
-		List<EventSubscribe> subscribersInfo = eventSubscribeRepository.findByEventId(p.getEventId());
+	private List<SubscriberInfo> participantsToParticipantsDtoConverter(
+			Event p) {
+		List<EventSubscribe> subscribersInfo = eventSubscribeRepository
+				.findByEventId(p.getEventId());
 		UserAccount usersInfo;
 		List<SubscriberInfo> subInfo = new ArrayList<>();
 		for (int i = 0; i < subscribersInfo.size(); i++) {
-			usersInfo = userRepository.findById(subscribersInfo.get(i).getSubscriberId()).orElse(null);
+			usersInfo = userRepository
+					.findById(subscribersInfo.get(i).getSubscriberId())
+					.orElse(null);
 			SubscriberInfo element = SubscriberInfo.builder()
 					.userId(subscribersInfo.get(i).getSubscriberId())
-					.fullName(usersInfo.getFirstName() + " " + usersInfo.getLastName())
+					.fullName(usersInfo.getFirstName() + " "
+							+ usersInfo.getLastName())
 					.confession(usersInfo.getConfession())
-					.gender(usersInfo.getGender())
-					.age(calcAge(usersInfo))
+					.gender(usersInfo.getGender()).age(calcAge(usersInfo))
 					.pictureLink(usersInfo.getPictureLink())
 					.maritalStatus(usersInfo.getMaritalStatus())
 					.foodPreferences(usersInfo.getFoodPreferences())
 					.languages(usersInfo.getLanguages())
 					.rate(usersInfo.getRate())
 					.numberOfVoters(usersInfo.getNumberOfVoters())
-					.isInvited(subscribersInfo.get(i).getIsInvited())
-					.build();
+					.isInvited(subscribersInfo.get(i).getIsInvited()).build();
 			subInfo.add(element);
 		}
 		return subInfo;
@@ -262,87 +284,54 @@ public class EventsServiceImpl implements EventsService {
 
 	private Integer calcAge(UserAccount usersInfo) {
 		DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
-		LocalDate birthdate = LocalDate.parse(usersInfo.getDateOfBirth(), formatter);
+		LocalDate birthdate = LocalDate.parse(usersInfo.getDateOfBirth(),
+				formatter);
 		return (int) ChronoUnit.YEARS.between(birthdate, LocalDate.now());
 	}
 
 	@Override
-	public CalendarDto eventListForCalendar(int month, String sessionLogin) {
+	public EventListForCalendarDto eventListForCalendar(int month,String sessionLogin) {
+		List<Event> myEventsFromRep = eventsRepository.findByOwner(sessionLogin);
+		myEventsFromRep=filteredStatus(myEventsFromRep);
+		List<EventCalendar> myEventsCal = eventsToClndr(myEventsFromRep);
 
-		List<EventListForCalendarDto> events = new ArrayList<>();
+		List<EventSubscribe> listSubscrEventId = eventSubscribeRepository.findBySubscriberId(sessionLogin);
+		List<Event> sbscrbEventsFromRep = new ArrayList<>();
+		for (int i = 0; i < listSubscrEventId.size(); i++) {
+			String eventId = listSubscrEventId.get(i).getEventId();
+			sbscrbEventsFromRep.addAll(eventsRepository.findByEventId(eventId));
+		}
+		sbscrbEventsFromRep=filteredStatus(sbscrbEventsFromRep);
+		List<EventCalendar> subscribedEvents = eventsToClndr(sbscrbEventsFromRep);
 
-		List<Event> listOfEvents=new ArrayList<>();
-
-		listOfEvents.forEach(e -> System.out.println(events.add(calendarBuilder(e, sessionLogin))));
-		listOfEvents.forEach(e -> events.add(calendarBuilder(e, sessionLogin)));
-		
-		Stream<EventListForCalendarDto> streamd = events.stream();
-				events.stream().forEach(System.out::println);
-	   // List<MyEventsToResp> eventsCalendar = stream.collect(Collectors.toList());		
-			// stream.forEach(System.out::println);
-		return new CalendarDto(streamd.collect(Collectors.toList()));
-	}
-
-	private EventListForCalendarDto calendarBuilder(Event e,String sessionLogin) {
-		
-		
-				
-				EventListForCalendarDto elfc =EventListForCalendarDto.builder()
-				.myEvents(myEventsBuilder(e,sessionLogin))
-//				.subscribedEvents(subscribedEventsBuilder(e,sessionLogin))
+		return EventListForCalendarDto.builder()
+				.myEvents(myEventsCal)
+				.subscribedEvents(subscribedEvents)
 				.build();
-				System.out.println("elfc "+ elfc);
-		
-		return elfc;
-
 	}
 
-	private List<Event> myEventsBuilder(Event e, String sessionLogin) {
-		
-		List<Event> events = eventsRepository.findByOwnerAndEventStatusOrEventStatus(
-				sessionLogin, EventConfiguration.INPROGRESS, EventConfiguration.PENDING);
-		System.out.println("eventseventseventseventseventsevents");
-		System.out.println(events);
-		List<Event> myEvents = new ArrayList<>();
-		for (int i = 0; i < events.size(); i++) {
-			Event event = Event.builder()
-					.eventId(e.getEventId())
-					.title(e.getTitle())
-					.date(e.getDate())
-					.time(e.getTime())
-					.duration(e.getDuration())
-					.eventStatus(e.getEventStatus())
-					.build();
-			myEvents.add(event);
-		}
-		return myEvents;
+	private List<Event> filteredStatus(List<Event> fullList) {
+		return 	fullList.stream().filter(ev->(ev.getEventStatus()
+				.equals(EventConfiguration.INPROGRESS) ||
+				ev.getEventStatus().equals( EventConfiguration.PENDING)))
+				.collect(Collectors.toList());
 	}
-		
-	private List<Event> subscribedEventsBuilder(Event e,String sessionLogin) {
-		String  eventId=eventSubscribeRepository.findBySubscriberId(sessionLogin).getEventId().toString();
-		List<Event> events = eventsRepository.findByEventIdAndEventStatusOrEventStatus(
-				eventId, EventConfiguration.INPROGRESS, EventConfiguration.PENDING);
-		
-		List<Event> subscribedEvents = new ArrayList<>();
-		for (int i = 0; i < events.size(); i++) {
-			Event event = Event.builder()
-					.eventId(e.getEventId())
-					.title(e.getTitle())
-					.date(e.getDate())
-					.time(e.getTime())
-					.duration(e.getDuration())
-					.eventStatus(e.getEventStatus())
-					.build();
-			subscribedEvents.add(event);
-		}
-		return subscribedEvents;
+
+	private List<EventCalendar> eventsToClndr(List<Event> eventsFromRep) {
+		List<EventCalendar> eventsCalendar = new ArrayList<>();
+		eventsFromRep.forEach(e->eventsCalendar.add(EventCalendar.builder().eventId(e.getEventId())
+				.title(e.getTitle()).date(e.getDate()).time(e.getTime())
+				.duration(e.getDuration()).eventStatus(e.getEventStatus())
+				.build()));
+		return eventsCalendar;
 	}
 	
 
-//	@Override
-//	public MyEventInfoResponseDto myEventInfo(String eventId, String token) {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
+	
+	// @Override
+	// public MyEventInfoResponseDto myEventInfo(String eventId, String token) {
+	// // TODO Auto-generated method stub
+	// return null;
+	// }
 
 }

@@ -11,5 +11,5 @@ public interface EventSubscribeRepository extends MongoRepository<EventSubscribe
 
 	List<EventSubscribe> findByEventId(String eventId);
 
-	Event findBySubscriberId(String sessionLogin);
+	List<EventSubscribe> findBySubscriberId(String sessionLogin);
 }
