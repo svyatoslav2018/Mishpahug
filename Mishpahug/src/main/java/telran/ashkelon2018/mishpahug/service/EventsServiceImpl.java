@@ -7,14 +7,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,7 +32,6 @@ import telran.ashkelon2018.mishpahug.domain.EventSubscribe;
 import telran.ashkelon2018.mishpahug.domain.SubscriberInfo;
 import telran.ashkelon2018.mishpahug.domain.UserAccount;
 import telran.ashkelon2018.mishpahug.dto.AddEventDto;
-import telran.ashkelon2018.mishpahug.dto.CalendarDto;
 import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
 import telran.ashkelon2018.mishpahug.dto.EventListForCalendarDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
@@ -240,6 +236,7 @@ public class EventsServiceImpl implements EventsService {
 			listOfEvents
 					.forEach(e -> events.add(myEventsToEventDtoConverter(e)));
 		}
+		
 		Stream<MyEventsToResp> stream = events.stream();
 		return new MyEventsListRespDto(stream.collect(Collectors.toList()));
 	}
@@ -291,6 +288,7 @@ public class EventsServiceImpl implements EventsService {
 
 	@Override
 	public EventListForCalendarDto eventListForCalendar(int month,String sessionLogin) {
+		
 		List<Event> myEventsFromRep = eventsRepository.findByOwner(sessionLogin);
 		myEventsFromRep=filteredStatus(myEventsFromRep);
 		List<EventCalendar> myEventsCal = eventsToClndr(myEventsFromRep);
@@ -314,16 +312,39 @@ public class EventsServiceImpl implements EventsService {
 		return 	fullList.stream().filter(ev->(ev.getEventStatus()
 				.equals(EventConfiguration.INPROGRESS) ||
 				ev.getEventStatus().equals( EventConfiguration.PENDING)))
+				//ev.getEventStatus().equals( EventConfiguration.PENDING))&&ev.getDate().getMonthValue()==month)
 				.collect(Collectors.toList());
 	}
 
 	private List<EventCalendar> eventsToClndr(List<Event> eventsFromRep) {
 		List<EventCalendar> eventsCalendar = new ArrayList<>();
-		eventsFromRep.forEach(e->eventsCalendar.add(EventCalendar.builder().eventId(e.getEventId())
-				.title(e.getTitle()).date(e.getDate()).time(e.getTime())
-				.duration(e.getDuration()).eventStatus(e.getEventStatus())
+		eventsFromRep.forEach(e->eventsCalendar.add(EventCalendar.builder()
+				.eventId(e.getEventId())
+				.title(e.getTitle())
+				.date(e.getDate())
+				.time(e.getTime())
+				.duration(e.getDuration())
+				.eventStatus(e.getEventStatus())
 				.build()));
 		return eventsCalendar;
+	}
+
+	@Override
+	public MyEventsToResp myEventInfo(int eventId, String sessionLogin) {
+		Event myEvent = eventsRepository.findByOwnerAndEventId(sessionLogin,eventId);
+		return MyEventsToResp.builder()
+				.eventId(myEvent.getEventId())
+				.title(myEvent.getTitle())
+				.holiday(myEvent.getHoliday())
+				.confession(myEvent.getConfession())
+				.date(myEvent.getDate())
+				.time(myEvent.getTime())
+				.duration(myEvent.getDuration())
+				.food(myEvent.getFood())
+				.description(myEvent.getDescription())
+				.eventStatus(myEvent.getEventStatus())
+				.participants(participantsToParticipantsDtoConverter(myEvent))
+				.build();
 	}
 	
 

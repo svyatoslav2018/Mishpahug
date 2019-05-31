@@ -22,6 +22,7 @@ import telran.ashkelon2018.mishpahug.dto.EventListForCalendarDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
 import telran.ashkelon2018.mishpahug.dto.EventListResponseDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsListRespDto;
+import telran.ashkelon2018.mishpahug.dto.MyEventsToResp;
 import telran.ashkelon2018.mishpahug.service.EventsService;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -58,6 +59,11 @@ public class EventsController {
 		return eventsService.delSubscribe(eventId, principal.getName());
 	}
 
+	@GetMapping("/own/{eventId}")
+	public MyEventsToResp getMyEventInfo(@PathVariable int eventId,Principal principal) {
+		return eventsService.myEventInfo(eventId, principal.getName());
+	}
+	
 	// without authentication
 	@PostMapping("/allprogresslist")
 	public EventListResponseDto findAllEventsInProgress(@RequestParam int page, @RequestParam int size,

@@ -51,5 +51,7 @@ public interface EventsRepository extends MongoRepository<Event, String> {
 
 	Collection<? extends Event> findByEventId(String eventId);
 
+	Event findByOwnerAndEventId(String sessionLogin, int eventId);
+
 
 }
