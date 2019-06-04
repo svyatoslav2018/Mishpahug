@@ -29,6 +29,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	public void configure(WebSecurity web) {
 		web.ignoring().antMatchers(HttpMethod.POST, "/user/registration");
+		web.ignoring().antMatchers(HttpMethod.GET, "/event/subscribed/{eventId}");
+//		web.ignoring().antMatchers(HttpMethod.PUT, "/event/subscription/{eventId}");
+		web.ignoring().antMatchers(HttpMethod.GET, "/event/participationlist");
 	}
 
 	@Override

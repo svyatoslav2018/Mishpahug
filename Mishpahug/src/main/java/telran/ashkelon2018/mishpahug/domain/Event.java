@@ -38,6 +38,4 @@ public class Event {
 	@Setter String description;
 	@Setter String eventStatus;
 	
-	
-
 }
