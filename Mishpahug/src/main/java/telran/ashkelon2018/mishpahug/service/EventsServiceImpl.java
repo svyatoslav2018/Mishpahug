@@ -393,18 +393,22 @@ public class EventsServiceImpl implements EventsService {
 		List<ParticipationListToResp> events = new ArrayList<>();
 		
 		Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE, new Sort(Sort.Direction.ASC, "date"));
-		List<Event> listOfEvents = new ArrayList<>();
-	//	Page<Event> listOfEvents;
+		List<Event> listOfEvents= new ArrayList<>();
+		List<String> listId = new ArrayList<>();
 
 		List<EventSubscribe> listSubscrEventId = eventSubscribeRepository.findBySubscriberId(sessionLogin);
-		//listSubscrEventId.forEach(id -> listOfEvents.);//addAll(eventsRepository.findByEventId(id, pageable))
 		for (int i = 0; i < listSubscrEventId.size(); i++) {
 			String eventId = listSubscrEventId.get(i).getEventId();
-			 listOfEvents.addAll(eventsRepository.findByEventId(eventId, pageable));			
+			listId.add(eventId);			
 		}
-					 
+		System.out.println("listId!!!!!!!!"+listId);
+		//listOfEvents = eventsRepository.findByEventId(listId);
+		//System.out.println("listOfEvents!!!!!!!!"+listOfEvents);
+		
+		listId.forEach(i -> listOfEvents.addAll(eventsRepository.findByEventId(i, pageable)));
+
 		listOfEvents.forEach(e -> events.add(participationListBuilder(e)));
-				
+						
 		Stream<ParticipationListToResp> stream = events.stream();
 		return new ParticipationListRespDto(stream.collect(Collectors.toList()));
 	}
