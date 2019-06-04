@@ -22,4 +22,5 @@ public class EventOwner {
 	String[] foodPreferences;
 	String[] languages;
 	Double rate;
+	int numberOfVoters;
 }

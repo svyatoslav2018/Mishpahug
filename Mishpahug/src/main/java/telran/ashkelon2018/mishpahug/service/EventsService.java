@@ -8,6 +8,9 @@ import telran.ashkelon2018.mishpahug.dto.EventListForCalendarDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
 import telran.ashkelon2018.mishpahug.dto.EventListResponseDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsListRespDto;
+import telran.ashkelon2018.mishpahug.dto.MyEventsToResp;
+import telran.ashkelon2018.mishpahug.dto.ParticipationListRespDto;
+import telran.ashkelon2018.mishpahug.dto.SubscribedEventToResp;
 
 public interface EventsService {
 
@@ -19,12 +22,15 @@ public interface EventsService {
 
 	CodeResponseDto delSubscribe(String eventId, String sessionLogin);
 
-	//MyEventInfoResponseDto myEventInfo(String eventId, String sessionLogin);
-
-
 	EventListForCalendarDto eventListForCalendar(int month, String sessionLogin);
 
 	MyEventsListRespDto myEventsList(String sessionLogin);
+
+	MyEventsToResp myEventInfo(String eventId, String sessionLogin);
+
+	SubscribedEventToResp subscribedEventInfo(String eventId, String sessionLogin);
+
+	ParticipationListRespDto participationList(String sessionLogin);
 
 	
 

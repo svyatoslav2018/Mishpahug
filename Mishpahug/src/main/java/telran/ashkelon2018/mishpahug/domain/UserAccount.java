@@ -38,6 +38,7 @@ public class UserAccount  {
 	Double rate;
 	Integer numberOfVoters;
 	Set<String> roles;
+
 	
 	public void addRate() {
 		rate++;
