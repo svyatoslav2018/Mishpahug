@@ -51,5 +51,7 @@ public interface EventsRepository extends MongoRepository<Event, String> {
 
 	List<Event> findByEventId(String eventId, Pageable pageable);
 
+	List<Event> findByEventId(List<String> listId);
+
 
 }

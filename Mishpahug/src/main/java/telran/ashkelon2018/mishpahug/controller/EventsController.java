@@ -70,8 +70,9 @@ public class EventsController {
 	}
 
 	@GetMapping("/participationlist")
-	public ParticipationListRespDto getParticipationList(Principal principal) {
-		return eventsService.participationList(principal.getName());
+	public ParticipationListRespDto getParticipationList(String user) {
+		user="5@gmailcom";
+		return eventsService.participationList(user);
 	}
 	
 	// without authentication
