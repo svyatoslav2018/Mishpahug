@@ -37,12 +37,13 @@ import telran.ashkelon2018.mishpahug.dto.EventListForCalendarDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
 import telran.ashkelon2018.mishpahug.dto.EventListResponseDto;
 import telran.ashkelon2018.mishpahug.dto.FullEventToResp;
+import telran.ashkelon2018.mishpahug.dto.InvitationResponseDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsListRespDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsToResp;
+import telran.ashkelon2018.mishpahug.dto.ParticipationListRespDto;
+import telran.ashkelon2018.mishpahug.dto.ParticipationListToResp;
 import telran.ashkelon2018.mishpahug.dto.SubscribedEventToResp;
 import telran.ashkelon2018.mishpahug.exceptions.UserConflictException;
-import telran.ashkelon2018.mishpahug.exceptions.UserNotFoundException;
-import telran.ashkelon2018.mishpahug.exceptions.WrongLoginOrPasswordException;
 
 @Builder
 @Service
@@ -74,10 +75,7 @@ public class EventsServiceImpl implements EventsService {
 	public CodeResponseDto addNewEvent(AddEventDto newEvent,
 			String sessionLogin) {
 
-		UserAccount userAccount = userRepository.findById(sessionLogin).get();
-		if (!sessionLogin.equals(userAccount.getLogin())) {
-			throw new WrongLoginOrPasswordException(401, "unauthorized");
-		}
+		UserAccount userAccount = userRepository.findById(sessionLogin).get();		
 		LocalDateTime dateFrom = newEvent.getDate().atTime(newEvent.getTime());
 		LocalDateTime dateTo = dateFrom.plusHours(newEvent.getDuration());
 
@@ -85,7 +83,6 @@ public class EventsServiceImpl implements EventsService {
 				.isBefore(dateFrom.minusHours(48));
 		boolean checktime2 = LocalDateTime.now()
 				.isAfter(dateFrom.minusMonths(2));
-
 		boolean checktime3 = false;
 
 		List<Event> list = eventsRepository
@@ -116,7 +113,6 @@ public class EventsServiceImpl implements EventsService {
 				+ newEvent.getTime().toString();
 
 		if (eventsRepository.findById(eventId).orElse(null) != null) {
-
 			return new CodeResponseDto(409,
 					"This user has already created the event on this date and time!");
 
@@ -184,17 +180,16 @@ public class EventsServiceImpl implements EventsService {
 				.build();
 	}
 
+	/*I think we not realized that condition!
+	 * User can subscribe to multiple events on the same date with the only
+	 * condition: if he will be confirmed/invited to one the subscribed events on
+	 * this date, the other subscriptions will be cancelled.
+	 */
 	@Override
 	public CodeResponseDto addSubscribe(String eventId, String sessionLogin) {
-		UserAccount userAccount = userRepository.findById(sessionLogin)
-				.orElseThrow(UserNotFoundException::new);
-
-		if (!sessionLogin.equals(userAccount.getLogin())) {
-			return new CodeResponseDto(401, "User unauthorized!");
-		}
+		
 		try {
-			EventSubscribe es = new EventSubscribe(eventId, sessionLogin,
-					false);
+			EventSubscribe es = new EventSubscribe(eventId, sessionLogin, false);
 			eventSubscribeRepository.save(es);
 			return new CodeResponseDto(200, "User subscribed to the event!");
 		} catch (Exception e) {
@@ -238,6 +233,7 @@ public class EventsServiceImpl implements EventsService {
 			listOfEvents
 					.forEach(e -> events.add(myEventsToEventDtoConverter(e)));
 		}
+		
 		Stream<MyEventsToResp> stream = events.stream();
 		return new MyEventsListRespDto(stream.collect(Collectors.toList()));
 	}
@@ -252,10 +248,8 @@ public class EventsServiceImpl implements EventsService {
 				.build();
 	}
 
-	private List<SubscriberInfo> participantsToParticipantsDtoConverter(
-			Event p) {
-		List<EventSubscribe> subscribersInfo = eventSubscribeRepository
-				.findByEventId(p.getEventId());
+	private List<SubscriberInfo> participantsToParticipantsDtoConverter(Event p) {
+		List<EventSubscribe> subscribersInfo = eventSubscribeRepository.findByEventId(p.getEventId());
 		UserAccount usersInfo;
 		List<SubscriberInfo> subInfo = new ArrayList<>();
 		for (int i = 0; i < subscribersInfo.size(); i++) {
@@ -289,6 +283,7 @@ public class EventsServiceImpl implements EventsService {
 
 	@Override
 	public EventListForCalendarDto eventListForCalendar(int month,String sessionLogin) {
+		
 		List<Event> myEventsFromRep = eventsRepository.findByOwner(sessionLogin);
 		myEventsFromRep=filteredStatus(myEventsFromRep);
 		List<EventCalendar> myEventsCal = eventsToClndr(myEventsFromRep);
@@ -312,71 +307,127 @@ public class EventsServiceImpl implements EventsService {
 		return 	fullList.stream().filter(ev->(ev.getEventStatus()
 				.equals(EventConfiguration.INPROGRESS) ||
 				ev.getEventStatus().equals( EventConfiguration.PENDING)))
+				//ev.getEventStatus().equals( EventConfiguration.PENDING))&&ev.getDate().getMonthValue()==month)
 				.collect(Collectors.toList());
 	}
 
 	private List<EventCalendar> eventsToClndr(List<Event> eventsFromRep) {
 		List<EventCalendar> eventsCalendar = new ArrayList<>();
-		eventsFromRep.forEach(e->eventsCalendar.add(EventCalendar.builder().eventId(e.getEventId())
-				.title(e.getTitle()).date(e.getDate()).time(e.getTime())
-				.duration(e.getDuration()).eventStatus(e.getEventStatus())
+		eventsFromRep.forEach(e->eventsCalendar.add(EventCalendar.builder()
+				.eventId(e.getEventId())
+				.title(e.getTitle())
+				.date(e.getDate())
+				.time(e.getTime())
+				.duration(e.getDuration())
+				.eventStatus(e.getEventStatus())
 				.build()));
 		return eventsCalendar;
 	}
-	
+
 	@Override
 	public MyEventsToResp myEventInfo(String eventId, String sessionLogin) {
-		Event myEvent;
-		MyEventsToResp myEventsToResp;
-		try {
-			myEvent = eventsRepository.findByOwnerAndEventId(sessionLogin, eventId);
-			myEventsToResp = MyEventsToResp.builder()
-					.eventId(myEvent.getEventId())
-					.title(myEvent.getTitle())
-					.holiday(myEvent.getHoliday())
-					.confession(myEvent.getConfession())
-					.date(myEvent.getDate())
-					.time(myEvent.getTime())
-					.duration(myEvent.getDuration())
-					.food(myEvent.getFood())
-					.description(myEvent.getDescription())
-					.eventStatus(myEvent.getEventStatus())
-					.participants(participantsToParticipantsDtoConverter(myEvent)).build();
 
-		} catch (Exception e) {
+		Event myEvent = eventsRepository.findByOwnerAndEventId(sessionLogin, eventId);
+
+		if(myEvent==null) {
 			throw new UserConflictException(409, "User is not associated with the event!");
 		}
-
-		return myEventsToResp;
+		return MyEventsToResp.builder()
+				.eventId(myEvent.getEventId())
+				.title(myEvent.getTitle())
+				.holiday(myEvent.getHoliday())
+				.confession(myEvent.getConfession())
+				.date(myEvent.getDate())
+				.time(myEvent.getTime())
+				.duration(myEvent.getDuration())
+				.food(myEvent.getFood())
+				.description(myEvent.getDescription())
+				.eventStatus(myEvent.getEventStatus())
+				.participants(participantsToParticipantsDtoConverter(myEvent)).build();
 	}
-	
-	
+
 	@Override
 	public SubscribedEventToResp subscribedEventInfo(String eventId, String sessionLogin) {
-		EventSubscribe subscribedEventId;
 		Event subscribedEvent;
-		SubscribedEventToResp mySubscribedEventToResp;
-		try {
-			subscribedEventId = eventSubscribeRepository.findBySubscriberIdAndEventId(sessionLogin, eventId);
-			if(subscribedEventId==null) {
-				throw new UserConflictException(409, "User is not associated with the event!");
-			}
+		
+		EventSubscribe	subscribedEventId = eventSubscribeRepository.findBySubscriberIdAndEventId(sessionLogin, eventId);
+			
+		if (subscribedEventId == null) {
+			throw new UserConflictException(409, "User is not associated with the event!");
+		}
+		
 			subscribedEvent = eventsRepository.findByEventId(subscribedEventId.getEventId(),sessionLogin );
 			UserAccount ownerInfo = userRepository.findById(subscribedEvent.getOwner()).get();
-			String fullName = ownerInfo.getFirstName() + " "
-					+ ownerInfo.getLastName();	
-			mySubscribedEventToResp = SubscribedEventToResp.builder()
-				.eventId(subscribedEvent.getEventId())
-				.title(subscribedEvent.getTitle())
-				.holiday(subscribedEvent.getHoliday())
-				.confession(subscribedEvent.getConfession())
-				.date(subscribedEvent.getDate())
-				.time(subscribedEvent.getTime())
-				.duration(subscribedEvent.getDuration())
-				.address(subscribedEvent.getAddress())
-				.food(subscribedEvent.getFood())
-				.description(subscribedEvent.getDescription())
-				.eventStatus(subscribedEvent.getEventStatus())
+			String fullName = ownerInfo.getFirstName() + " " + ownerInfo.getLastName();		 			
+			
+			return SubscribedEventToResp.builder()
+					.eventId(subscribedEvent.getEventId())
+					.title(subscribedEvent.getTitle())
+					.holiday(subscribedEvent.getHoliday())
+					.confession(subscribedEvent.getConfession())
+					.date(subscribedEvent.getDate())
+					.time(subscribedEvent.getTime())
+					.duration(subscribedEvent.getDuration())
+					.address(subscribedEvent.getAddress())
+					.food(subscribedEvent.getFood())
+					.description(subscribedEvent.getDescription())
+					.eventStatus(subscribedEvent.getEventStatus())
+					.owner(EventOwner.builder()
+							.fullName(fullName)
+							.confession(ownerInfo.getConfession())
+							.gender(ownerInfo.getGender()).age(calcAge(ownerInfo))
+							.pictureLink(ownerInfo.getPictureLink())
+							.maritalStatus(ownerInfo.getMaritalStatus())
+							.foodPreferences(ownerInfo.getFoodPreferences())
+							.languages(ownerInfo.getLanguages())
+							.rate(ownerInfo.getRate())
+							.numberOfVoters(ownerInfo.getNumberOfVoters())
+							.build())
+					.build();
+	}
+
+	//Sort by date does not work yet
+	@Override
+	public ParticipationListRespDto participationList(String sessionLogin) {
+		
+		List<ParticipationListToResp> events = new ArrayList<>();
+		
+		Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE, new Sort(Sort.Direction.ASC, "date"));
+		List<Event> listOfEvents= new ArrayList<>();
+		List<String> listId = new ArrayList<>();
+
+		List<EventSubscribe> listSubscrEventId = eventSubscribeRepository.findBySubscriberId(sessionLogin);
+		for (int i = 0; i < listSubscrEventId.size(); i++) {
+			String eventId = listSubscrEventId.get(i).getEventId();
+			listId.add(eventId);			
+		}
+		System.out.println("listId!!!!!!!!"+listId);
+
+		listId.forEach(i -> listOfEvents.addAll(eventsRepository.findByEventId(i, pageable)));
+
+		listOfEvents.forEach(e -> events.add(participationListBuilder(e)));
+						
+		Stream<ParticipationListToResp> stream = events.stream();
+		return new ParticipationListRespDto(stream.collect(Collectors.toList()));
+	}
+		
+	private ParticipationListToResp participationListBuilder(Event e) {
+		
+		UserAccount ownerInfo = userRepository.findById(e.getOwner()).get();
+		String fullName = ownerInfo.getFirstName() + " " + ownerInfo.getLastName();	
+		
+		return ParticipationListToResp.builder()
+				.eventId(e.getEventId())
+				.title(e.getTitle())
+				.holiday(e.getHoliday())
+				.confession(e.getConfession())
+				.date(e.getDate())
+				.time(e.getTime())
+				.duration(e.getDuration())
+				.address(e.getAddress())
+				.food(e.getFood())
+				.description(e.getDescription())
+				.eventStatus(e.getEventStatus())
 				.owner(EventOwner.builder()
 						.fullName(fullName)
 						.confession(ownerInfo.getConfession())
@@ -386,21 +437,30 @@ public class EventsServiceImpl implements EventsService {
 						.foodPreferences(ownerInfo.getFoodPreferences())
 						.languages(ownerInfo.getLanguages())
 						.rate(ownerInfo.getRate())
-//						.numberOfVoters(ownerInfo.getNumberOfVoters())
+						.numberOfVoters(ownerInfo.getNumberOfVoters())
 						.build())
-				.build();			
-		} catch (Exception e) {
-			throw new UserConflictException(0, e.getMessage());
+				.build();
+	}
+
+	@Override
+	public InvitationResponseDto invitationToEvent(String eventId, String subscriberId) {
+
+		Boolean isInvited = false;
+		EventSubscribe es = eventSubscribeRepository.findBySubscriberIdAndEventIdAndIsInvited(subscriberId, eventId,
+				isInvited);
+
+		if (es == null) {
+			throw new UserConflictException(409,
+					"User is already invited to the event or is not subscribed to the event!");
 		}
-		
-		return	mySubscribedEventToResp;
+		es.setIsInvited(true);
+		eventSubscribeRepository.save(es);
+		EventSubscribe ess = eventSubscribeRepository.findBySubscriberIdAndEventId(subscriberId, eventId);
+		return InvitationResponseDto.builder()
+				.subscriberId(ess.getSubscriberId())
+				.isInvited(ess.getIsInvited())
+				.build();
 	}
 	
 	
-	// @Override
-	// public MyEventInfoResponseDto myEventInfo(String eventId, String token) {
-	// // TODO Auto-generated method stub
-	// return null;
-	// }
-
 }
