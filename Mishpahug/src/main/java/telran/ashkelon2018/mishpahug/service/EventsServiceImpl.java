@@ -7,14 +7,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,7 +32,6 @@ import telran.ashkelon2018.mishpahug.domain.EventSubscribe;
 import telran.ashkelon2018.mishpahug.domain.SubscriberInfo;
 import telran.ashkelon2018.mishpahug.domain.UserAccount;
 import telran.ashkelon2018.mishpahug.dto.AddEventDto;
-import telran.ashkelon2018.mishpahug.dto.CalendarDto;
 import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
 import telran.ashkelon2018.mishpahug.dto.EventListForCalendarDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
@@ -43,6 +39,8 @@ import telran.ashkelon2018.mishpahug.dto.EventListResponseDto;
 import telran.ashkelon2018.mishpahug.dto.FullEventToResp;
 import telran.ashkelon2018.mishpahug.dto.MyEventsListRespDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsToResp;
+import telran.ashkelon2018.mishpahug.dto.SubscribedEventToResp;
+import telran.ashkelon2018.mishpahug.exceptions.UserConflictException;
 import telran.ashkelon2018.mishpahug.exceptions.UserNotFoundException;
 import telran.ashkelon2018.mishpahug.exceptions.WrongLoginOrPasswordException;
 
@@ -326,7 +324,78 @@ public class EventsServiceImpl implements EventsService {
 		return eventsCalendar;
 	}
 	
+	@Override
+	public MyEventsToResp myEventInfo(String eventId, String sessionLogin) {
+		Event myEvent;
+		MyEventsToResp myEventsToResp;
+		try {
+			myEvent = eventsRepository.findByOwnerAndEventId(sessionLogin, eventId);
+			myEventsToResp = MyEventsToResp.builder()
+					.eventId(myEvent.getEventId())
+					.title(myEvent.getTitle())
+					.holiday(myEvent.getHoliday())
+					.confession(myEvent.getConfession())
+					.date(myEvent.getDate())
+					.time(myEvent.getTime())
+					.duration(myEvent.getDuration())
+					.food(myEvent.getFood())
+					.description(myEvent.getDescription())
+					.eventStatus(myEvent.getEventStatus())
+					.participants(participantsToParticipantsDtoConverter(myEvent)).build();
 
+		} catch (Exception e) {
+			throw new UserConflictException(409, "User is not associated with the event!");
+		}
+
+		return myEventsToResp;
+	}
+	
+	
+	@Override
+	public SubscribedEventToResp subscribedEventInfo(String eventId, String sessionLogin) {
+		EventSubscribe subscribedEventId;
+		Event subscribedEvent;
+		SubscribedEventToResp mySubscribedEventToResp;
+		try {
+			subscribedEventId = eventSubscribeRepository.findBySubscriberIdAndEventId(sessionLogin, eventId);
+			if(subscribedEventId==null) {
+				throw new UserConflictException(409, "User is not associated with the event!");
+			}
+			subscribedEvent = eventsRepository.findByEventId(subscribedEventId.getEventId(),sessionLogin );
+			UserAccount ownerInfo = userRepository.findById(subscribedEvent.getOwner()).get();
+			String fullName = ownerInfo.getFirstName() + " "
+					+ ownerInfo.getLastName();	
+			mySubscribedEventToResp = SubscribedEventToResp.builder()
+				.eventId(subscribedEvent.getEventId())
+				.title(subscribedEvent.getTitle())
+				.holiday(subscribedEvent.getHoliday())
+				.confession(subscribedEvent.getConfession())
+				.date(subscribedEvent.getDate())
+				.time(subscribedEvent.getTime())
+				.duration(subscribedEvent.getDuration())
+				.address(subscribedEvent.getAddress())
+				.food(subscribedEvent.getFood())
+				.description(subscribedEvent.getDescription())
+				.eventStatus(subscribedEvent.getEventStatus())
+				.owner(EventOwner.builder()
+						.fullName(fullName)
+						.confession(ownerInfo.getConfession())
+						.gender(ownerInfo.getGender()).age(calcAge(ownerInfo))
+						.pictureLink(ownerInfo.getPictureLink())
+						.maritalStatus(ownerInfo.getMaritalStatus())
+						.foodPreferences(ownerInfo.getFoodPreferences())
+						.languages(ownerInfo.getLanguages())
+						.rate(ownerInfo.getRate())
+//						.numberOfVoters(ownerInfo.getNumberOfVoters())
+						.build())
+				.build();			
+		} catch (Exception e) {
+			throw new UserConflictException(0, e.getMessage());
+		}
+		
+		return	mySubscribedEventToResp;
+	}
+	
 	
 	// @Override
 	// public MyEventInfoResponseDto myEventInfo(String eventId, String token) {

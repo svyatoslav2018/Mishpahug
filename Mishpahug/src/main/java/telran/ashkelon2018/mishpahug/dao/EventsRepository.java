@@ -42,8 +42,6 @@ public interface EventsRepository extends MongoRepository<Event, String> {
 
 	List<Event> findByOwnerAndEventStatus(String sessionLogin, String inprogress);
 
-//	List<Event> findByEventIdAndEventStatusOrEventStatus(String eventId, String inprogress, String pending);
-
 	List<Event> findByOwner(String sessionLogin);
 
 	List<Event> findByEventIdAndEventStatus(String sessionLogin,
@@ -51,5 +49,8 @@ public interface EventsRepository extends MongoRepository<Event, String> {
 
 	Collection<? extends Event> findByEventId(String eventId);
 
+	Event findByOwnerAndEventId(String sessionLogin, String eventId);
+
+	Event findByEventId(String eventId,String sessionLogin);
 
 }
