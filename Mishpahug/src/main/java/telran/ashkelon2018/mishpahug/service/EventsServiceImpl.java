@@ -37,12 +37,12 @@ import telran.ashkelon2018.mishpahug.dto.EventListForCalendarDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
 import telran.ashkelon2018.mishpahug.dto.EventListResponseDto;
 import telran.ashkelon2018.mishpahug.dto.FullEventToResp;
+import telran.ashkelon2018.mishpahug.dto.InvitationResponseDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsListRespDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsToResp;
 import telran.ashkelon2018.mishpahug.dto.ParticipationListRespDto;
 import telran.ashkelon2018.mishpahug.dto.ParticipationListToResp;
 import telran.ashkelon2018.mishpahug.dto.SubscribedEventToResp;
-import telran.ashkelon2018.mishpahug.exceptions.BadRequestException;
 import telran.ashkelon2018.mishpahug.exceptions.UserConflictException;
 
 @Builder
@@ -189,8 +189,7 @@ public class EventsServiceImpl implements EventsService {
 	public CodeResponseDto addSubscribe(String eventId, String sessionLogin) {
 		
 		try {
-			EventSubscribe es = new EventSubscribe(eventId, sessionLogin,
-					false);
+			EventSubscribe es = new EventSubscribe(eventId, sessionLogin, false);
 			eventSubscribeRepository.save(es);
 			return new CodeResponseDto(200, "User subscribed to the event!");
 		} catch (Exception e) {
@@ -387,6 +386,7 @@ public class EventsServiceImpl implements EventsService {
 					.build();
 	}
 
+	//Sort by date does not work yet
 	@Override
 	public ParticipationListRespDto participationList(String sessionLogin) {
 		
@@ -402,9 +402,7 @@ public class EventsServiceImpl implements EventsService {
 			listId.add(eventId);			
 		}
 		System.out.println("listId!!!!!!!!"+listId);
-		//listOfEvents = eventsRepository.findByEventId(listId);
-		//System.out.println("listOfEvents!!!!!!!!"+listOfEvents);
-		
+
 		listId.forEach(i -> listOfEvents.addAll(eventsRepository.findByEventId(i, pageable)));
 
 		listOfEvents.forEach(e -> events.add(participationListBuilder(e)));
@@ -441,6 +439,26 @@ public class EventsServiceImpl implements EventsService {
 						.rate(ownerInfo.getRate())
 						.numberOfVoters(ownerInfo.getNumberOfVoters())
 						.build())
+				.build();
+	}
+
+	@Override
+	public InvitationResponseDto invitationToEvent(String eventId, String subscriberId) {
+
+		Boolean isInvited = false;
+		EventSubscribe es = eventSubscribeRepository.findBySubscriberIdAndEventIdAndIsInvited(subscriberId, eventId,
+				isInvited);
+
+		if (es == null) {
+			throw new UserConflictException(409,
+					"User is already invited to the event or is not subscribed to the event!");
+		}
+		es.setIsInvited(true);
+		eventSubscribeRepository.save(es);
+		EventSubscribe ess = eventSubscribeRepository.findBySubscriberIdAndEventId(subscriberId, eventId);
+		return InvitationResponseDto.builder()
+				.subscriberId(ess.getSubscriberId())
+				.isInvited(ess.getIsInvited())
 				.build();
 	}
 	
