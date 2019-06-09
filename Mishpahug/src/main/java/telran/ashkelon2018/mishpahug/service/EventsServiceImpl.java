@@ -500,4 +500,5 @@ public class EventsServiceImpl implements EventsService {
 		eventSubscribeRepository.save(eventSubscribed);
 		return new CodeResponseDto(200, "User vote is accepted!");
 	}
+
 }
