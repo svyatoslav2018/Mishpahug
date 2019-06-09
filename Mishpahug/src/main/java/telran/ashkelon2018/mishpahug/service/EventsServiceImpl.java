@@ -32,6 +32,7 @@ import telran.ashkelon2018.mishpahug.domain.EventSubscribe;
 import telran.ashkelon2018.mishpahug.domain.SubscriberInfo;
 import telran.ashkelon2018.mishpahug.domain.UserAccount;
 import telran.ashkelon2018.mishpahug.dto.AddEventDto;
+import telran.ashkelon2018.mishpahug.dto.ChangeEventStatusDto;
 import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
 import telran.ashkelon2018.mishpahug.dto.EventListForCalendarDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
@@ -501,4 +502,20 @@ public class EventsServiceImpl implements EventsService {
 		return new CodeResponseDto(200, "User vote is accepted!");
 	}
 
+	@Override
+	public ChangeEventStatusDto changeEventStatusOnPending(String eventId, String sessionLogin) {
+		
+		Event event=eventsRepository.findByOwnerAndEventId(sessionLogin, eventId);
+		if(event==null) {
+			throw new UserConflictException(409, "User is not associated with the event!");
+
+		}
+		event.setEventStatus("pending");
+		eventsRepository.save(event);
+		String eventStatus=eventsRepository.findByEventId(eventId, sessionLogin).getEventStatus();
+		return ChangeEventStatusDto.builder().eventId(eventId).eventStatus(eventStatus).build();
+	}
+	
+	
+	
 }
