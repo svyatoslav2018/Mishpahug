@@ -72,14 +72,19 @@ public class EventsController {
 
 	@GetMapping("/participationlist")
 	public ParticipationListRespDto getParticipationList(Principal principal) {
-		return eventsService.participationList( principal.getName());
+		return eventsService.participationList(principal.getName());
 	}
-	
+
 	@PutMapping("/invitation/{eventId}/{subscriberId}")
 	public InvitationResponseDto invitation(@PathVariable String eventId, @PathVariable String subscriberId) {
 		return eventsService.invitationToEvent(eventId, subscriberId);
 	}
-	
+
+	@PutMapping("/vote/{eventId}/{voteCount}")
+	public CodeResponseDto vote(@PathVariable String eventId, @PathVariable Double voteCount, Principal principal) {
+		return eventsService.voteForEvent(eventId, voteCount, principal.getName());
+	}
+
 	// without authentication
 	@PostMapping("/allprogresslist")
 	public EventListResponseDto findAllEventsInProgress(@RequestParam int page, @RequestParam int size,
