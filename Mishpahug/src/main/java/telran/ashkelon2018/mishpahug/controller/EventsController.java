@@ -91,7 +91,7 @@ public class EventsController {
 	}
 	
 	@GetMapping("/event/historylist")
-	public MyHistoryListRespDto getРistoryList(Principal principal) {
+	public MyHistoryListRespDto getHistoryList(Principal principal) {
 		return eventsService.historyList(principal.getName());
 		
 	}
