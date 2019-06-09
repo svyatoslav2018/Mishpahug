@@ -179,7 +179,8 @@ public class EventsServiceImpl implements EventsService {
 						.rate(ownerInfo.getRate()).build())
 				.build();
 	}
-
+	
+	// TODO
 	/*I think we not realized that condition!
 	 * User can subscribe to multiple events on the same date with the only
 	 * condition: if he will be confirmed/invited to one the subscribed events on
@@ -189,7 +190,7 @@ public class EventsServiceImpl implements EventsService {
 	public CodeResponseDto addSubscribe(String eventId, String sessionLogin) {
 		
 		try {
-			EventSubscribe es = new EventSubscribe(eventId, sessionLogin, false);
+			EventSubscribe es = new EventSubscribe(eventId, sessionLogin, false, false, 0.0);
 			eventSubscribeRepository.save(es);
 			return new CodeResponseDto(200, "User subscribed to the event!");
 		} catch (Exception e) {
@@ -406,7 +407,7 @@ public class EventsServiceImpl implements EventsService {
 		listId.forEach(i -> listOfEvents.addAll(eventsRepository.findByEventId(i, pageable)));
 
 		listOfEvents.forEach(e -> events.add(participationListBuilder(e)));
-						
+				
 		Stream<ParticipationListToResp> stream = events.stream();
 		return new ParticipationListRespDto(stream.collect(Collectors.toList()));
 	}
@@ -461,7 +462,7 @@ public class EventsServiceImpl implements EventsService {
 				.isInvited(ess.getIsInvited())
 				.build();
 	}
-	
+
 	@Override
 	public CodeResponseDto voteForEvent(String eventId, Double voteCount, String sessionLogin) {
 		EventSubscribe eventSubscribed;
@@ -499,6 +500,4 @@ public class EventsServiceImpl implements EventsService {
 		eventSubscribeRepository.save(eventSubscribed);
 		return new CodeResponseDto(200, "User vote is accepted!");
 	}
-	
-	
 }
