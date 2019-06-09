@@ -85,10 +85,10 @@ public class EventsController {
 	public CodeResponseDto vote(@PathVariable String eventId, @PathVariable Double voteCount, Principal principal) {
 		return eventsService.voteForEvent(eventId, voteCount, principal.getName());
 	}
+	
 	@PutMapping("/pending/{eventId}")
-	public ChangeEventStatusDto changeStatus(@PathVariable String eventId, String user) {
-		user="5@gmailcom";
-		return eventsService.changeEventStatusOnPending(eventId, user);
+	public ChangeEventStatusDto changeStatus(@PathVariable String eventId, Principal principal) {
+		return eventsService.changeEventStatusOnPending(eventId, principal.getName());
 	}
 
 	// without authentication

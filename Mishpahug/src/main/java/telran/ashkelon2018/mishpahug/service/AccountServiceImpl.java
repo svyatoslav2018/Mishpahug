@@ -57,8 +57,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	private UserProfileDto convertToUserProfileDto(UserAccount userAccount) {
-		Double rate=0.0;
-		int numberOfVoters=0;
+
 		return UserProfileDto.builder()
 				.firstName(userAccount.getFirstName())
 				.lastName(userAccount.getLastName())
@@ -71,8 +70,8 @@ public class AccountServiceImpl implements AccountService {
 				.foodPreferences(userAccount.getFoodPreferences())
 				.languages(userAccount.getLanguages())
 				.description(userAccount.getDescription())
-				.rate(rate)
-				.numberOfVoters(numberOfVoters)
+				.rate(userAccount.getRate())
+				.numberOfVoters(userAccount.getNumberOfVoters())
 				.roles(userAccount.getRoles())
 				.build();
 	}

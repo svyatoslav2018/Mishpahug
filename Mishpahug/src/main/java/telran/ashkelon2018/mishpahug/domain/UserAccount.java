@@ -35,8 +35,10 @@ public class UserAccount  {
 	String[] foodPreferences;
 	String[] languages;
 	String description;
-	Double rate;
-	Integer numberOfVoters;
+	@Builder.Default
+	Double rate=0.0;
+	@Builder.Default
+	Integer numberOfVoters=0;
 	Set<String> roles;
 
 	
