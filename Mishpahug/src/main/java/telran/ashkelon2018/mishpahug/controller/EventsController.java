@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import telran.ashkelon2018.mishpahug.dto.AddEventDto;
+import telran.ashkelon2018.mishpahug.dto.ChangeEventStatusDto;
 import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
 import telran.ashkelon2018.mishpahug.dto.EventListForCalendarDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
@@ -83,6 +84,11 @@ public class EventsController {
 	@PutMapping("/vote/{eventId}/{voteCount}")
 	public CodeResponseDto vote(@PathVariable String eventId, @PathVariable Double voteCount, Principal principal) {
 		return eventsService.voteForEvent(eventId, voteCount, principal.getName());
+	}
+	@PutMapping("/pending/{eventId}")
+	public ChangeEventStatusDto changeStatus(@PathVariable String eventId, String user) {
+		user="5@gmailcom";
+		return eventsService.changeEventStatusOnPending(eventId, user);
 	}
 
 	// without authentication

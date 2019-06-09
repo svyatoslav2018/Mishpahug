@@ -3,6 +3,7 @@ package telran.ashkelon2018.mishpahug.service;
 import java.security.Principal;
 
 import telran.ashkelon2018.mishpahug.dto.AddEventDto;
+import telran.ashkelon2018.mishpahug.dto.ChangeEventStatusDto;
 import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
 import telran.ashkelon2018.mishpahug.dto.EventListForCalendarDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
@@ -36,6 +37,8 @@ public interface EventsService {
 	InvitationResponseDto invitationToEvent(String eventId, String subscriberId);
 
 	CodeResponseDto voteForEvent(String eventId, Double voteCount, String sessionLogin);
+
+	ChangeEventStatusDto changeEventStatusOnPending(String eventId, String sessionLogin);
 
 	
 
