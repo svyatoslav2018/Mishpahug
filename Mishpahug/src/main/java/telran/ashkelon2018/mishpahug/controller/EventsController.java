@@ -3,7 +3,6 @@ package telran.ashkelon2018.mishpahug.controller;
 import java.security.Principal;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +19,6 @@ import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
 import telran.ashkelon2018.mishpahug.dto.EventListForCalendarDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
 import telran.ashkelon2018.mishpahug.dto.EventListResponseDto;
-import telran.ashkelon2018.mishpahug.dto.HistoryListDto;
 import telran.ashkelon2018.mishpahug.dto.InvitationResponseDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsListRespDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsToResp;
@@ -93,11 +91,9 @@ public class EventsController {
 	}
 	
 	@GetMapping("/event/historylist")
-//	public MyHistoryListRespDto getРistoryList(Principal principal) {
-		public MyHistoryListRespDto getHistoryList(String user) {
-//		return eventsService.historyList(principal.getName());
-		user="5@gmailcom";
-		return eventsService.historyList(user);
+	public MyHistoryListRespDto getРistoryList(Principal principal) {
+		return eventsService.historyList(principal.getName());
+		
 	}
 
 	// without authentication
