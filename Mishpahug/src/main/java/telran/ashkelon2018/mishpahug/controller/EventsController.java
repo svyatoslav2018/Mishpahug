@@ -93,11 +93,9 @@ public class EventsController {
 	}
 	
 	@GetMapping("/event/historylist")
-//	public MyHistoryListRespDto getРistoryList(Principal principal) {
-		public MyHistoryListRespDto getHistoryList(String user) {
-//		return eventsService.historyList(principal.getName());
-		user="5@gmailcom";
-		return eventsService.historyList(user);
+	public MyHistoryListRespDto getРistoryList(Principal principal) {
+		return eventsService.historyList(principal.getName());
+		
 	}
 
 	// without authentication
