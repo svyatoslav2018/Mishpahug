@@ -22,3 +22,4 @@ public interface EventSubscribeRepository extends MongoRepository<EventSubscribe
 
 
 }
+
