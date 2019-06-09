@@ -3,15 +3,12 @@ package telran.ashkelon2018.mishpahug.dao;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import telran.ashkelon2018.mishpahug.domain.Event;
-import telran.ashkelon2018.mishpahug.domain.EventSubscribe;
-import telran.ashkelon2018.mishpahug.domain.UserAccount;
 
 public interface EventsRepository extends MongoRepository<Event, String> {
 
