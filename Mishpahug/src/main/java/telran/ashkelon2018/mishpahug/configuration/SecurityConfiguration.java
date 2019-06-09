@@ -33,6 +33,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 //		web.ignoring().antMatchers(HttpMethod.PUT, "/event/subscription/{eventId}");
 //		web.ignoring().antMatchers(HttpMethod.GET, "/event/participationlist");
 //		web.ignoring().antMatchers(HttpMethod.PUT, "/event/invitation/{eventId}/{subscriberId}");
+		web.ignoring().antMatchers(HttpMethod.PUT, "/event/vote/{eventId}/{voteCount}");
 
 	}
 

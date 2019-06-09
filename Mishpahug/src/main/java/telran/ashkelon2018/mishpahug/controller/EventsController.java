@@ -79,6 +79,13 @@ public class EventsController {
 	public InvitationResponseDto invitation(@PathVariable String eventId, @PathVariable String subscriberId) {
 		return eventsService.invitationToEvent(eventId, subscriberId);
 	}
+	@PutMapping("/vote/{eventId}/{voteCount}")
+	public CodeResponseDto vote(@PathVariable String eventId, @PathVariable Double voteCount, String user) {
+		user="2121@gmailcom";
+		return eventsService.voteForEvent(eventId, voteCount, user);
+	}
+	
+
 	
 	// without authentication
 	@PostMapping("/allprogresslist")

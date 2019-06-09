@@ -35,6 +35,8 @@ public interface EventsService {
 
 	InvitationResponseDto invitationToEvent(String eventId, String subscriberId);
 
+	CodeResponseDto voteForEvent(String eventId, Double voteCount, String sessionLogin);
+
 	
 
 }

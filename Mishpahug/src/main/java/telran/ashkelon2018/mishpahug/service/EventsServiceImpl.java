@@ -179,7 +179,8 @@ public class EventsServiceImpl implements EventsService {
 						.rate(ownerInfo.getRate()).build())
 				.build();
 	}
-
+	
+	// TODO
 	/*I think we not realized that condition!
 	 * User can subscribe to multiple events on the same date with the only
 	 * condition: if he will be confirmed/invited to one the subscribed events on
@@ -189,7 +190,7 @@ public class EventsServiceImpl implements EventsService {
 	public CodeResponseDto addSubscribe(String eventId, String sessionLogin) {
 		
 		try {
-			EventSubscribe es = new EventSubscribe(eventId, sessionLogin, false);
+			EventSubscribe es = new EventSubscribe(eventId, sessionLogin, false, false, 0.0);
 			eventSubscribeRepository.save(es);
 			return new CodeResponseDto(200, "User subscribed to the event!");
 		} catch (Exception e) {
@@ -461,6 +462,43 @@ public class EventsServiceImpl implements EventsService {
 				.isInvited(ess.getIsInvited())
 				.build();
 	}
-	
-	
+
+	@Override
+	public CodeResponseDto voteForEvent(String eventId, Double voteCount, String sessionLogin) {
+		EventSubscribe eventSubscribed;
+		Boolean voted = false;
+		eventSubscribed = eventSubscribeRepository.findBySubscriberIdAndEventIdAndVoted(sessionLogin, eventId, voted);
+		if (eventSubscribed == null) {
+			return new CodeResponseDto(409, "User has already voted for the event or can't vote for the event!");
+		}
+		
+		String owner = eventsRepository.findByEventId(eventId, voteCount).getOwner();
+		UserAccount userAccount = userRepository.findById(owner).get();
+		int numberOfVoters = userAccount.getNumberOfVoters();
+		numberOfVoters += 1;
+
+		List<EventSubscribe> eventsSubscribe = eventSubscribeRepository.findByEventId(eventId);
+		System.out.println("!!!!eventsSubscribe??? "+eventsSubscribe);		
+		List<Double> rates = new ArrayList<>();
+		for (int i = 0; i < eventsSubscribe.size(); i++) {
+			rates.add(eventsSubscribe.get(i).getRate());
+
+		}
+
+		Double sumOfRates = 0.0;
+
+		for (int i = 0; i < rates.size(); i++) {
+			sumOfRates += rates.get(i);
+		}
+
+		Double rate = (voteCount + sumOfRates) / numberOfVoters;
+		
+		userAccount.setNumberOfVoters(numberOfVoters);
+		userAccount.setRate(rate);
+		userRepository.save(userAccount);
+		eventSubscribed.setVoted(true);
+		eventSubscribed.setRate(voteCount);
+		eventSubscribeRepository.save(eventSubscribed);
+		return new CodeResponseDto(200, "User vote is accepted!");
+	}
 }

@@ -53,5 +53,7 @@ public interface EventsRepository extends MongoRepository<Event, String> {
 
 	List<Event> findByEventId(List<String> listId);
 
+	Event findByEventId(String eventId, Double voteCount);
+
 
 }
