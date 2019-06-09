@@ -38,9 +38,11 @@ import telran.ashkelon2018.mishpahug.dto.EventListForCalendarDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
 import telran.ashkelon2018.mishpahug.dto.EventListResponseDto;
 import telran.ashkelon2018.mishpahug.dto.FullEventToResp;
+import telran.ashkelon2018.mishpahug.dto.HistoryListDto;
 import telran.ashkelon2018.mishpahug.dto.InvitationResponseDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsListRespDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsToResp;
+import telran.ashkelon2018.mishpahug.dto.MyHistoryListRespDto;
 import telran.ashkelon2018.mishpahug.dto.ParticipationListRespDto;
 import telran.ashkelon2018.mishpahug.dto.ParticipationListToResp;
 import telran.ashkelon2018.mishpahug.dto.SubscribedEventToResp;
@@ -515,7 +517,34 @@ public class EventsServiceImpl implements EventsService {
 		String eventStatus=eventsRepository.findByEventId(eventId, sessionLogin).getEventStatus();
 		return ChangeEventStatusDto.builder().eventId(eventId).eventStatus(eventStatus).build();
 	}
+
+	@Override
+	public MyHistoryListRespDto historyList(String sessionLogin) {
+		Pageable pageable;
+		List<HistoryListDto> events = new ArrayList<>();
+		Page<Event> listOfEvents;
+		String eventStatus = EventConfiguration.DONE;
+
+		pageable = PageRequest.of(0, Integer.MAX_VALUE, new Sort(Sort.Direction.DESC, "date"));
+
+		listOfEvents = eventsRepository.findByOwnerAndEventStatus(sessionLogin, eventStatus, pageable);
+		listOfEvents.forEach(e -> events.add(myEventsToHistoryListDtoConverter(e)));
+
+		Stream<HistoryListDto> stream = events.stream();
+		return new MyHistoryListRespDto(stream.collect(Collectors.toList()));
+	}
+
+	private HistoryListDto myEventsToHistoryListDtoConverter(Event e) {
+		return HistoryListDto.builder()
+				.eventId(e.getEventId())
+				.title(e.getTitle())
+				.holiday(e.getHoliday())
+				.confession(e.getConfession())
+				.date(e.getDate())
+				.food(e.getFood())
+				.description(e.getDescription())
+				.eventStatus(e.getEventStatus())
+				.build();
+	}
+	}
 	
-	
-	
-}

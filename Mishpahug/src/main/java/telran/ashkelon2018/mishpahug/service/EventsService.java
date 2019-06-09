@@ -11,6 +11,7 @@ import telran.ashkelon2018.mishpahug.dto.EventListResponseDto;
 import telran.ashkelon2018.mishpahug.dto.InvitationResponseDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsListRespDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsToResp;
+import telran.ashkelon2018.mishpahug.dto.MyHistoryListRespDto;
 import telran.ashkelon2018.mishpahug.dto.ParticipationListRespDto;
 import telran.ashkelon2018.mishpahug.dto.SubscribedEventToResp;
 
@@ -39,6 +40,8 @@ public interface EventsService {
 	CodeResponseDto voteForEvent(String eventId, Double voteCount, String sessionLogin);
 
 	ChangeEventStatusDto changeEventStatusOnPending(String eventId, String sessionLogin);
+
+	MyHistoryListRespDto historyList(String sessionLogin);
 
 	
 
