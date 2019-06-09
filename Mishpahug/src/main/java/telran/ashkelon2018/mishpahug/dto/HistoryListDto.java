@@ -24,7 +24,7 @@ public class HistoryListDto {
 	LocalDate date;
 	String food;
 	String description;
-	String eventStatus;//In progress, Done, Pending, Not done
+	String eventStatus;//Done
 	
 
 }
