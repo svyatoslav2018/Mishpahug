@@ -477,7 +477,6 @@ public class EventsServiceImpl implements EventsService {
 		numberOfVoters += 1;
 
 		List<EventSubscribe> eventsSubscribe = eventSubscribeRepository.findByEventId(eventId);
-		System.out.println("!!!!eventsSubscribe??? "+eventsSubscribe);		
 		List<Double> rates = new ArrayList<>();
 		for (int i = 0; i < eventsSubscribe.size(); i++) {
 			rates.add(eventsSubscribe.get(i).getRate());
