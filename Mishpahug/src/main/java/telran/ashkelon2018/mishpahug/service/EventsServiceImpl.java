@@ -547,9 +547,3 @@ public class EventsServiceImpl implements EventsService {
 				.build();
 	}
 	}
-	
-<<<<<<< HEAD
-	
-}
-=======
->>>>>>> branch 'master' of https://github.com/svyatoslav2018/Mishpahug_Backend.git
