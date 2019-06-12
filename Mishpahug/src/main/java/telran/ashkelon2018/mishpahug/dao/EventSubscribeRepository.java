@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 package telran.ashkelon2018.mishpahug.dao;
 
 import java.util.List;
@@ -18,3 +19,30 @@ public interface EventSubscribeRepository extends MongoRepository<EventSubscribe
 
 
 }
+=======
+package telran.ashkelon2018.mishpahug.dao;
+
+import java.util.List;
+
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+import telran.ashkelon2018.mishpahug.domain.EventSubscribe;
+
+public interface EventSubscribeRepository extends MongoRepository<EventSubscribe, String> {
+
+	List<EventSubscribe> findByEventId(String eventId);
+
+	List<EventSubscribe> findBySubscriberId(String sessionLogin);
+
+	EventSubscribe findBySubscriberIdAndEventId(String sessionLogin, String eventId);
+	
+	EventSubscribe findBySubscriberIdAndEventIdAndIsInvited(String subscriberId, String eventId, Boolean isInvited);
+
+	EventSubscribe findBySubscriberIdAndEventIdAndVoted(String sessionLogin, String eventId, Boolean voted);
+
+	EventSubscribe findByEventId(String eventId, Boolean voted);
+
+
+}
+
+>>>>>>> branch 'master' of https://github.com/svyatoslav2018/Mishpahug_Backend.git

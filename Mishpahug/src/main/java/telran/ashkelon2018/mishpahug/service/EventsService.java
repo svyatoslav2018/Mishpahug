@@ -3,6 +3,7 @@ package telran.ashkelon2018.mishpahug.service;
 import java.security.Principal;
 
 import telran.ashkelon2018.mishpahug.dto.AddEventDto;
+import telran.ashkelon2018.mishpahug.dto.ChangeEventStatusDto;
 import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
 import telran.ashkelon2018.mishpahug.dto.EventListForCalendarDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
@@ -10,6 +11,7 @@ import telran.ashkelon2018.mishpahug.dto.EventListResponseDto;
 import telran.ashkelon2018.mishpahug.dto.InvitationResponseDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsListRespDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsToResp;
+import telran.ashkelon2018.mishpahug.dto.MyHistoryListRespDto;
 import telran.ashkelon2018.mishpahug.dto.ParticipationListRespDto;
 import telran.ashkelon2018.mishpahug.dto.SubscribedEventToResp;
 
@@ -34,6 +36,12 @@ public interface EventsService {
 	ParticipationListRespDto participationList(String sessionLogin);
 
 	InvitationResponseDto invitationToEvent(String eventId, String subscriberId);
+
+	CodeResponseDto voteForEvent(String eventId, Double voteCount, String sessionLogin);
+
+	ChangeEventStatusDto changeEventStatusOnPending(String eventId, String sessionLogin);
+
+	MyHistoryListRespDto historyList(String sessionLogin);
 
 	
 

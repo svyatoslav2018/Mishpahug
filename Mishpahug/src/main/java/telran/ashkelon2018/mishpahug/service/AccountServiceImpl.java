@@ -57,6 +57,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	private UserProfileDto convertToUserProfileDto(UserAccount userAccount) {
+
 		return UserProfileDto.builder()
 				.firstName(userAccount.getFirstName())
 				.lastName(userAccount.getLastName())

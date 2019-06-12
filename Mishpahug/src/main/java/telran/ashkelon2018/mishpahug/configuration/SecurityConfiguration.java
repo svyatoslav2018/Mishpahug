@@ -29,13 +29,18 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	public void configure(WebSecurity web) {
 		web.ignoring().antMatchers(HttpMethod.POST, "/user/registration");
+//		web.ignoring().antMatchers(HttpMethod.POST, "/user/profile");
 //		web.ignoring().antMatchers(HttpMethod.GET, "/event/subscribed/{eventId}");
 //		web.ignoring().antMatchers(HttpMethod.PUT, "/event/subscription/{eventId}");
 //		web.ignoring().antMatchers(HttpMethod.GET, "/event/participationlist");
 //		web.ignoring().antMatchers(HttpMethod.PUT, "/event/invitation/{eventId}/{subscriberId}");
+//		web.ignoring().antMatchers(HttpMethod.PUT, "/event/vote/{eventId}/{voteCount}");
+//		web.ignoring().antMatchers(HttpMethod.PUT, "/event/pending/{eventId}");
+//		web.ignoring().antMatchers(HttpMethod.GET, "/event/historylist");
+
 
 	}
-
+	
 	@Override
 	protected void configure(HttpSecurity httpSec) throws Exception {
 		httpSec.csrf().disable();

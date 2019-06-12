@@ -32,14 +32,17 @@ import telran.ashkelon2018.mishpahug.domain.EventSubscribe;
 import telran.ashkelon2018.mishpahug.domain.SubscriberInfo;
 import telran.ashkelon2018.mishpahug.domain.UserAccount;
 import telran.ashkelon2018.mishpahug.dto.AddEventDto;
+import telran.ashkelon2018.mishpahug.dto.ChangeEventStatusDto;
 import telran.ashkelon2018.mishpahug.dto.CodeResponseDto;
 import telran.ashkelon2018.mishpahug.dto.EventListForCalendarDto;
 import telran.ashkelon2018.mishpahug.dto.EventListRequestDto;
 import telran.ashkelon2018.mishpahug.dto.EventListResponseDto;
 import telran.ashkelon2018.mishpahug.dto.FullEventToResp;
+import telran.ashkelon2018.mishpahug.dto.HistoryListDto;
 import telran.ashkelon2018.mishpahug.dto.InvitationResponseDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsListRespDto;
 import telran.ashkelon2018.mishpahug.dto.MyEventsToResp;
+import telran.ashkelon2018.mishpahug.dto.MyHistoryListRespDto;
 import telran.ashkelon2018.mishpahug.dto.ParticipationListRespDto;
 import telran.ashkelon2018.mishpahug.dto.ParticipationListToResp;
 import telran.ashkelon2018.mishpahug.dto.SubscribedEventToResp;
@@ -179,7 +182,8 @@ public class EventsServiceImpl implements EventsService {
 						.rate(ownerInfo.getRate()).build())
 				.build();
 	}
-
+	
+	// TODO
 	/*I think we not realized that condition!
 	 * User can subscribe to multiple events on the same date with the only
 	 * condition: if he will be confirmed/invited to one the subscribed events on
@@ -189,7 +193,7 @@ public class EventsServiceImpl implements EventsService {
 	public CodeResponseDto addSubscribe(String eventId, String sessionLogin) {
 		
 		try {
-			EventSubscribe es = new EventSubscribe(eventId, sessionLogin, false);
+			EventSubscribe es = new EventSubscribe(eventId, sessionLogin, false, false, 0.0);
 			eventSubscribeRepository.save(es);
 			return new CodeResponseDto(200, "User subscribed to the event!");
 		} catch (Exception e) {
@@ -406,7 +410,7 @@ public class EventsServiceImpl implements EventsService {
 		listId.forEach(i -> listOfEvents.addAll(eventsRepository.findByEventId(i, pageable)));
 
 		listOfEvents.forEach(e -> events.add(participationListBuilder(e)));
-						
+				
 		Stream<ParticipationListToResp> stream = events.stream();
 		return new ParticipationListRespDto(stream.collect(Collectors.toList()));
 	}
@@ -461,6 +465,91 @@ public class EventsServiceImpl implements EventsService {
 				.isInvited(ess.getIsInvited())
 				.build();
 	}
+
+	@Override
+	public CodeResponseDto voteForEvent(String eventId, Double voteCount, String sessionLogin) {
+		EventSubscribe eventSubscribed;
+		Boolean voted = false;
+		eventSubscribed = eventSubscribeRepository.findBySubscriberIdAndEventIdAndVoted(sessionLogin, eventId, voted);
+		if (eventSubscribed == null) {
+			return new CodeResponseDto(409, "User has already voted for the event or can't vote for the event!");
+		}
+		
+		String owner = eventsRepository.findByEventId(eventId, voteCount).getOwner();
+		UserAccount userAccount = userRepository.findById(owner).get();
+		int numberOfVoters = userAccount.getNumberOfVoters();
+		numberOfVoters += 1;
+
+		List<EventSubscribe> eventsSubscribe = eventSubscribeRepository.findByEventId(eventId);
+		List<Double> rates = new ArrayList<>();
+		for (int i = 0; i < eventsSubscribe.size(); i++) {
+			rates.add(eventsSubscribe.get(i).getRate());
+
+		}
+
+		Double sumOfRates = 0.0;
+
+		for (int i = 0; i < rates.size(); i++) {
+			sumOfRates += rates.get(i);
+		}
+
+		Double rate = (voteCount + sumOfRates) / numberOfVoters;
+		
+		userAccount.setNumberOfVoters(numberOfVoters);
+		userAccount.setRate(rate);
+		userRepository.save(userAccount);
+		eventSubscribed.setVoted(true);
+		eventSubscribed.setRate(voteCount);
+		eventSubscribeRepository.save(eventSubscribed);
+		return new CodeResponseDto(200, "User vote is accepted!");
+	}
+
+	@Override
+	public ChangeEventStatusDto changeEventStatusOnPending(String eventId, String sessionLogin) {
+		
+		Event event=eventsRepository.findByOwnerAndEventId(sessionLogin, eventId);
+		if(event==null) {
+			throw new UserConflictException(409, "User is not associated with the event!");
+
+		}
+		event.setEventStatus("pending");
+		eventsRepository.save(event);
+		String eventStatus=eventsRepository.findByEventId(eventId, sessionLogin).getEventStatus();
+		return ChangeEventStatusDto.builder().eventId(eventId).eventStatus(eventStatus).build();
+	}
+
+	@Override
+	public MyHistoryListRespDto historyList(String sessionLogin) {
+		Pageable pageable;
+		List<HistoryListDto> events = new ArrayList<>();
+		Page<Event> listOfEvents;
+		String eventStatus = EventConfiguration.DONE;
+
+		pageable = PageRequest.of(0, Integer.MAX_VALUE, new Sort(Sort.Direction.DESC, "date"));
+
+		listOfEvents = eventsRepository.findByOwnerAndEventStatus(sessionLogin, eventStatus, pageable);
+		listOfEvents.forEach(e -> events.add(myEventsToHistoryListDtoConverter(e)));
+
+		Stream<HistoryListDto> stream = events.stream();
+		return new MyHistoryListRespDto(stream.collect(Collectors.toList()));
+	}
+
+	private HistoryListDto myEventsToHistoryListDtoConverter(Event e) {
+		return HistoryListDto.builder()
+				.eventId(e.getEventId())
+				.title(e.getTitle())
+				.holiday(e.getHoliday())
+				.confession(e.getConfession())
+				.date(e.getDate())
+				.food(e.getFood())
+				.description(e.getDescription())
+				.eventStatus(e.getEventStatus())
+				.build();
+	}
+	}
 	
+<<<<<<< HEAD
 	
 }
+=======
+>>>>>>> branch 'master' of https://github.com/svyatoslav2018/Mishpahug_Backend.git
