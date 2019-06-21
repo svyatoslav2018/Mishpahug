@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import telran.ashkelon2018.mishpahug.service.ProducerService;
 import telran.ashkelon2018.mishpahug.service.security.jwt.JwtAuthenticationFilter;
 import telran.ashkelon2018.mishpahug.service.security.jwt.JwtAuthorizationFilter;
 
@@ -22,7 +23,9 @@ import telran.ashkelon2018.mishpahug.service.security.jwt.JwtAuthorizationFilter
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @CrossOrigin
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-
+	@Autowired
+	ProducerService producerService;
+	
 	@Autowired
 	public CustomAuthenticationEntryPoint authenticationEntryPoint;
 
@@ -51,7 +54,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		httpSec.authorizeRequests().antMatchers(HttpMethod.POST, "/event/allprogresslist").permitAll();
 		
 		httpSec.authorizeRequests().anyRequest().authenticated().and()
-				.addFilter(new JwtAuthenticationFilter(authenticationManager()))
+				.addFilter(new JwtAuthenticationFilter(authenticationManager(), producerService))
 				.addFilter(new JwtAuthorizationFilter(authenticationManager()));
 	}
 

@@ -2,6 +2,7 @@ package telran.ashkelon2018.mishpahug.service.security.jwt;
 
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -9,6 +10,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,34 +19,47 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import telran.ashkelon2018.mishpahug.configuration.AccountUserCredentials;
+import telran.ashkelon2018.mishpahug.service.ProducerService;
 
-public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+public class JwtAuthenticationFilter extends	UsernamePasswordAuthenticationFilter {
 
 	private final AuthenticationManager authenticationManager;
 
-	public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
+	ProducerService producerService;
+	
+	public JwtAuthenticationFilter(
+			AuthenticationManager authenticationManager, ProducerService producerService) {
 		this.authenticationManager = authenticationManager;
-
+		this.producerService = producerService;
 		setFilterProcessesUrl(SecurityConstants.AUTH_LOGIN_URL);
 	}
 
 	@Override
-	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-			throws AuthenticationException {
+	public Authentication attemptAuthentication(HttpServletRequest request,
+			HttpServletResponse response) throws AuthenticationException {
 
 		String tokenLgn = request.getHeader("Authorization");
 		System.out.println("attemptAuthentication token " + tokenLgn);
-
 		String username = jwtTokenDecode(tokenLgn).getLogin();
 		String password = jwtTokenDecode(tokenLgn).getPassword();
+		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+				username, password);
 
-		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username,
-				password);
+		long timestamp = System.currentTimeMillis();
+		try {
+			producerService.sensorData(username, timestamp);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
 		return authenticationManager.authenticate(authenticationToken);
+
 	}
 
 	@Override
@@ -55,7 +70,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		Set<String> roles = user.getAuthorities().stream()
 				.map(GrantedAuthority::getAuthority)
 				.collect(Collectors.toSet());
-		System.out.println("successfulAuthentication user " + user + " roles " + roles);
+		System.out.println(
+				"successfulAuthentication user " + user + " roles " + roles);
 		byte[] signingKey = SecurityConstants.JWT_SECRET.getBytes();
 
 		String tokenJWT = Jwts.builder()
@@ -75,11 +91,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 	private AccountUserCredentials jwtTokenDecode(String token) {
 		int index = token.indexOf(" ");
-			token = token.substring(index + 1);
-			byte[] base64DecodeBytes = Base64.getDecoder().decode(token);
-			token = new String(base64DecodeBytes);
-			String[] auth = token.split(":");
-			auth[0] = auth[0].toLowerCase().replaceAll("\\.", "");
-			return new AccountUserCredentials((auth[0]), auth[1]);
+		token = token.substring(index + 1);
+		byte[] base64DecodeBytes = Base64.getDecoder().decode(token);
+		token = new String(base64DecodeBytes);
+		String[] auth = token.split(":");
+		auth[0] = auth[0].toLowerCase().replaceAll("\\.", "");
+		return new AccountUserCredentials((auth[0]), auth[1]);
 	}
 }
